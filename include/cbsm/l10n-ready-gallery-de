@@ -1,0 +1,3 @@
+#!/bin/bash
+
+msgfmt locale/de/LC_MESSAGES/com_gallery.po -o locale/de/LC_MESSAGES/com_gallery.mo

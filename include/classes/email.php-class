@@ -1,0 +1,241 @@
+<?php
+class email {
+  // email PHP class
+  // class/object for creating a new mail and send it
+  //
+  // function email()
+  //   CONSTRUCTOR
+  //
+  // var $debug_toSingleAddress
+  //   address to send mail to in debug mode
+  //
+  // var $subject
+  //   the mail's subject line
+  //
+  // var $sender
+  //   the mail's sender (array; fields see recipients)
+  //
+  // var $replyto
+  //   Reply-to address (array; fields see recipients)
+  //
+  // var $recipients
+  //   array of recipients (To: line)
+  //   fields: name - real name
+  //           mail - email address
+  //
+  // var $cc
+  //   array of CC recipients (fields like recipients)
+  //
+  // var $bcc
+  //   array of BCC recipients (fields like recipients)
+  //
+  // var $headers
+  //   array containing all additional headers
+  //   fields: name - headers name
+  //           content - header content
+  //
+  // var $content_type
+  //   the mail's content type (MIME-type) [default: text/plain]
+  //
+  // var $charset
+  //   the mail's charset [default: iso-8859-15]
+  //
+  // var $mailtext
+  //   the main mail body
+  //
+  // var $attachments
+  //   array containing all attachments
+  //   fields: name - attachment name
+  //           content - attachment content
+  //           type - MIME type of that attachment
+  //
+  // function setDebugAddress($debug_email)
+  //   debug mode: send only to this address
+  //
+  // function setSubject($newsubject)
+  //   set subject of mail
+  //
+  // function setSender($email, [$name])
+  //   set sender of mail
+  //
+  // function setReplyTo($email, [$name])
+  //   set reply-to address
+  //
+  // function addRecipient($email, [$name])
+  //   add a recipient to the mail
+  //
+  // function addCC($email, [$name])
+  //   add a CC recipient to the mail
+  //
+  // function addBCC($email, [$name])
+  //   add a BCC recipient to the mail
+  //
+  // function addHeader($hname, [$hcontent])
+  //   add a header to the mail
+  //
+  // function addMailText($textpart)
+  //   add some text to the mail
+  //
+  // function send()
+  //   really send the mail
+  //
+  // function mimeencode($fieldtext)
+  //   helper function:
+  //   encode given field text, ready to be placed into an e-mail MIME header
+
+  var $debug_toSingleAddress = "";
+  var $subject;
+  var $sender = array();
+  var $replyto = array();
+  var $recipients = array();
+  var $cc = array();
+  var $bcc = array();
+  var $headers = array();
+  var $content_type = "text/plain";
+  var $charset = "iso-8859-15";
+  var $mailtext = "";
+  var $attachments = array();
+
+  function email() {
+    // *** constructor ***
+  }
+
+  function setDebugAddress($debug_email) { $this->debug_toSingleAddress = $debug_email; }
+
+  function setSubject($newsubject) { $this->subject = $newsubject; }
+
+  function setSender($email, $name = "") { $this->sender = array("mail" => $email, "name" => $name); }
+
+  function setReplyTo($email, $name = "") { $this->replyto = array("mail" => $email, "name" => $name); }
+
+  function addRecipient($email, $name = "") {
+    $this->recipients[] = array("mail" => $email, "name" => $name);
+  }
+
+  function addCC($email, $name = "") {
+    $this->cc[] = array("mail" => $email, "name" => $name);
+  }
+
+  function addBCC($email, $name = "") {
+    $this->bcc[] = array("mail" => $email, "name" => $name);
+  }
+
+  function addHeader($hname, $hcontent = "") {
+    $this->headers[] = array("name" => $hname, "content" => $hcontent);
+  }
+
+  function addMailText($textpart) { $this->mailtext .= $textpart; }
+
+  function addAttachment($aname, $acontent, $atype = "application/octet-stream") {
+    $this->attachments[] = array("name" => $aname, "content" => $acontent, "type" => $atype);
+  }
+
+  function send() {
+    global $util;
+    $mtxt = "";
+    $hdrs = "MIME-Version: 1.0\n";
+    $subj = $this->mimeencode($this->subject);
+    if (strlen($this->sender["name"])) {
+      $hdrs .= "From: ".$this->mimeencode($this->sender["name"])." <".$this->sender["mail"].">\n";
+    }
+    else { $hdrs .= "From: ".$this->sender["mail"]."\n"; }
+    if (count($this->replyto)) {
+      if (strlen($this->replyto["name"])) {
+        $hdrs .= "Reply-to: ".$this->mimeencode($this->replyto["name"])." <".$this->replyto["mail"].">\n";
+      }
+      else { $hdrs .= "Reply-to: ".$this->replyto["mail"]."\n"; }
+    }
+    if (count($this->recipients)) {
+      $recpt = "";
+      foreach ($this->recipients as $address) {
+        if (strlen($address["name"])) { $recpt .= $this->mimeencode($address["name"])." <".$address["mail"].">,"; }
+        else { $recpt .= $address["mail"].","; }
+      }
+      $recpt = ereg_replace(",$", "", $recpt);
+    }
+    if (count($this->cc)) {
+      $adrs = "";
+      foreach ($this->cc as $address) {
+        if (strlen($address["name"])) { $adrs .= $this->mimeencode($address["name"])." <".$address["mail"].">,"; }
+        else { $adrs .= $address["mail"].","; }
+      }
+      $adrs = ereg_replace(",$", "", $adrs);
+      $hdrs .= (strlen($this->debug_toSingleAddress)?"X-Real-":"")."Cc: $adrs\n";
+    }
+    if (count($this->bcc)) {
+      $adrs = "";
+      foreach ($this->bcc as $address) {
+        if (strlen($address["name"])) { $adrs .= $this->mimeencode($address["name"])." <".$address["mail"].">,"; }
+        else { $adrs .= $address["mail"].","; }
+      }
+      $adrs = ereg_replace(",$", "", $adrs);
+      $hdrs .= (strlen($this->debug_toSingleAddress)?"X-Real-":"")."Bcc: $adrs\n";
+    }
+    if (count($this->headers)) {
+      foreach ($this->headers as $header) {
+        $hdrs .= $header["name"].": ".$header["content"]."\n";
+      }
+    }
+    if (count($this->attachments)) {
+      $boundary = "KaiRoJVPSteyr1030713";
+      $hdrs .= "Content-Type: multipart/mixed; boundary=\"$boundary\";\n";
+      $hdrs .= "Content-Transfer-Encoding: 7bit\n";
+      $mtxt .= "This part of the E-mail should never be seen. If\n";
+      $mtxt .= "you are reading this, consider upgrading your e-mail\n";
+      $mtxt .= "client to a MIME-compatible client.\n";
+      $mtxt .= "--$boundary\n";
+      if (ereg("text/.*", $this->content_type)) {
+        $mtxt .= "Content-Type: ".$this->content_type."; charset=\"".$this->charset."\"\n";
+      }
+      else {
+        $mtxt .= "Content-Type: ".$this->content_type."\n";
+      }
+      $mtxt .= "Content-Transfer-Encoding: 8bit\n\n";
+    }
+    else {
+      if (ereg("text/.*", $this->content_type)) {
+        $hdrs .= "Content-Type: ".$this->content_type."; charset=\"".$this->charset."\"\n";
+      }
+      else {
+        $hdrs .= "Content-Type: ".$this->content_type."\n";
+      }
+      $hdrs .= "Content-Transfer-Encoding: 8bit\n";
+    }
+    $mtxt .= stripslashes($this->mailtext);
+    if (count($this->attachments)) {
+      foreach ($this->attachments as $attach) {
+        $mtxt .= "--$boundary\n";
+        $mtxt .= "Content-Type: ".$attach["type"]."; name=\"".$attach["name"]."\";\n";
+        $mtxt .= "Content-Transfer-Encoding: base64\n";
+        $mtxt .= "Content-Disposition: attachment\n\n";
+        $mtxt .= rtrim(chunk_split(base64_encode($attach["content"]), 76)); ;
+        $mtxt .= "\n";
+      }
+      $mtext .= "--$boundary--\n";
+    }
+
+    if (strlen($this->debug_toSingleAddress)) {
+      $hdrs .= "X-Real-To: $recpt\n";
+      $recpt = $this->debug_toSingleAddress;
+    }
+
+    //print("Subject: ".$util->htmlify($subj)."<br>\n");
+    //print("To: ".$util->htmlify($recpt)."<br>\n");
+    //print(nl2br($util->htmlify($hdrs)));
+    //print(nl2br($util->htmlify($mtxt)));
+    mail($recpt, $subj, $mtxt, $hdrs);
+  }
+
+  function mimeencode($fieldtext) {
+    $mText = imap_8bit($fieldtext);
+    if ($mText != $fieldtext) {
+      $trans = array("_" => "=5F", " " => "_", "?" => "=3F");
+      $mText = strtr($mText, $trans);
+      $mText = "=?ISO-8859-15?Q?".$mText."?=";
+    }
+  return $mText;
+  }
+
+
+}
+?>

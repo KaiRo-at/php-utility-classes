@@ -1,0 +1,134 @@
+<?php
+class userAgent {
+  // userAgent PHP class
+  // get user agent and tell us what Browser is accessing
+  //
+  // function userAgent()
+  //   CONSTRUCTOR; reads UA string and gets info from that into our variables.
+  //
+  // var $uastring
+  //   the plain User Agent string
+  // var $brand
+  //   returns the User Agent brand name
+  // var $version
+  //   the User Agent version
+  //
+  // function isns()
+  //   returns true if User Agent seems to be Netscape brand, false if not
+  // function isns4()
+  //   returns true if User Agent seems to be Netscape Communicator 4.x, false if not
+  // function isie()
+  //   returns true if User Agent seems to be a version of Internet Exploder, false if not
+  // function geckobased()
+  //   returns true if User Agent seems to be a Gecko-based browser, false if not
+  // function geckodate()
+  //   returns the Gecko date when it's a Gecko-based browser, 0 if not
+
+  // debug: var $uastring = "Mozilla/5.0 (compatible; Konqueror/3; Linux 2.4.18; X11; i686)";
+  var $uastring;
+  var $brand;
+  var $version;
+
+  function userAgent() {
+    // *** constructor ***
+    // get raw UA string
+    $this->uastring = $_SERVER["HTTP_USER_AGENT"];
+
+    // get UA brand and version
+    $this->brand = "Unknown"; $this->version = 0;
+    if (ereg("([0-9a-zA-Z\.]+)/([0-9a-zA-Z\.]+)", $this->uastring, $regs)) {
+      $this->uabrand = $regs[1]; // this is a reasonable default :)
+      $this->version = $regs[2]; // this is a reasonable default :)
+    }
+    if (ereg("Mozilla/([0-9a-zA-Z\.]+)", $this->uastring, $regs) && !strstr($this->uastring, "compatible;") && !strstr($this->uastring, "Gecko/")) {
+      $this->brand = "Netscape";
+      $this->version = $regs[1];
+      if (intval($this->version) == 4) { $this->brand .= " Communicator"; }
+    }
+    elseif (ereg("Netscape6/([0-9a-zA-Z\.]+)", $this->uastring, $regs)) {
+      $this->brand = "Netscape";
+      $this->version = $regs[1];
+    }
+    elseif (ereg("Netscape/([0-9a-zA-Z\.]+)", $this->uastring, $regs)) {
+      $this->brand = "Netscape";
+      $this->version = $regs[1];
+    }
+    elseif (ereg("rv:([0-9a-zA-Z\.]+)", $this->uastring, $regs) && strstr($this->uastring, "Mozilla/") && strstr($this->uastring, "Gecko/")) {
+      $this->brand = "Mozilla";
+      $this->version = $regs[1];
+    }
+    elseif (ereg("Opera[ /]([0-9a-zA-Z\.]+)", $this->uastring, $regs)) {
+      $this->brand = "Opera";
+      $this->version = $regs[1];
+    }
+    elseif (ereg("Konqueror/([0-9a-zA-Z\.]+)", $this->uastring, $regs)) {
+      $this->brand = "Konqueror";
+      $this->version = $regs[1];
+    }
+    elseif (ereg("MSIE ([0-9a-zA-Z\.]+)", $this->uastring, $regs)) {
+      $this->brand = "Microsoft Internet Explorer";
+      $this->version = $regs[1];
+    }
+  }
+
+  function isns() {
+    // set it static so that we don't have to call it that often
+    static $is_ns;
+    if (!isset($is_ns)) {
+      $is_ns = false;
+      if (strstr($this->brand, "Netscape")) {
+        $is_ns = true;
+      }
+    }
+  return $is_ns;
+  }
+
+  function isns4() {
+    // set it static so that we don't have to call it that often
+    static $is_ns4;
+    if (!isset($is_ns4)) {
+      $is_ns4 = false;
+      if (strstr($this->brand, "Netscape") && (intval($this->version) == 4)) {
+        $is_ns4 = true;
+      }
+    }
+  return $is_ns4;
+  }
+
+  function isie() {
+    // set it static so that we don't have to call it that often
+    static $is_ie;
+    if (!isset($is_ie)) {
+      $is_ie = false;
+      if (strstr($this->brand, "Internet Explorer")) {
+        $is_ie = true;
+      }
+    }
+  return $is_ie;
+  }
+
+  function geckobased() {
+    // set it static so that we don't have to call it that often
+    static $is_gecko;
+    if (!isset($is_gecko)) {
+      $is_gecko = false;
+      if (strstr($this->uastring, "Gecko/")) {
+        $is_gecko = true;
+      }
+    }
+  return $is_gecko;
+  }
+
+  function geckodate() {
+    // set it static so that we don't have to call it that often
+    static $gdate;
+    if (!isset($gdate)) {
+      $gdate = 0;
+      if (ereg("Gecko/([0-9]+)", $this->uastring, $regs)) {
+        $gdate = $regs[1];
+      }
+    }
+  return $gdate;
+  }
+}
+?>

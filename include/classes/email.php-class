@@ -177,13 +177,20 @@ class email {
       }
     }
     if (count($this->attachments)) {
-      $boundary = "KaiRoJVPSteyr1030713";
+      // create random boundary, 20 chars, always beginning with KaiRo ;-)
+      $boundary = 'KaiRo';
+      for ($i=1; $i<=15; $i++)	{
+        $r=rand(0,61);
+        if ($r<10) { $boundary .= chr($r+48); }
+        elseif ($r<36) { $boundary .= chr($r+55); }
+        elseif ($r<62) { $boundary .= chr($r+61); }
+      }
       $hdrs .= "Content-Type: multipart/mixed; boundary=\"$boundary\";\n";
       $hdrs .= "Content-Transfer-Encoding: 7bit\n";
       $mtxt .= "This part of the E-mail should never be seen. If\n";
       $mtxt .= "you are reading this, consider upgrading your e-mail\n";
       $mtxt .= "client to a MIME-compatible client.\n";
-      $mtxt .= "--$boundary\n";
+      $mtxt .= "\n--$boundary\n";
       if (ereg("text/.*", $this->content_type)) {
         $mtxt .= "Content-Type: ".$this->content_type."; charset=\"".$this->charset."\"\n";
       }
@@ -204,7 +211,7 @@ class email {
     $mtxt .= stripslashes($this->mailtext);
     if (count($this->attachments)) {
       foreach ($this->attachments as $attach) {
-        $mtxt .= "--$boundary\n";
+        $mtxt .= "\n--$boundary\n";
         $mtxt .= "Content-Type: ".$attach["type"]."; name=\"".$attach["name"]."\";\n";
         $mtxt .= "Content-Transfer-Encoding: base64\n";
         $mtxt .= "Content-Disposition: attachment\n\n";

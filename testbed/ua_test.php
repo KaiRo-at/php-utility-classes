@@ -23,10 +23,10 @@ print("<br>This is <b>".($ua->isns4()?"a":"no")."</b> Netscape Communicator 4 br
 print("<br>This is <b>".($ua->isie()?"an":"no")."</b> Internet Explorer browser.\n");
 print("<br>This is <b>".($ua->geckobased()?"a":"no")."</b> Gecko-based browser.\n");
 print("<br>This is <b>".($ua->khtmlbased()?"a":"no")."</b> KHTML-based browser.\n");
-print("<br>The browser brand is reported as &quot;<b>".$ua->brand."</b>&quot;\n");
-print("<br>The browser version is reported as &quot;<b>".$ua->version."</b>&quot;\n");
+print("<br>The browser brand is reported as &quot;<b>".$ua->getBrand()."</b>&quot;\n");
+print("<br>The browser version is reported as &quot;<b>".$ua->getVersion()."</b>&quot;\n");
 if ($ua->geckobased()) { print("<br>The Gecko date is reported as &quot;<b>".$ua->geckodate()."</b>&quot;\n"); }
-print("<br><br>I conclude this must be <b>".$ua->brand." ".$ua->version."</b>\n");
+print("<br><br>I conclude this must be <b>".$ua->getBrand()." ".$ua->getVersion()."</b>\n");
 
 print("<br><br>Test the following UA string (leave empty to read it from your browser):\n");
 print("<form method=\"POST\" action=\"\"><p>\n");

@@ -1,7 +1,7 @@
 <?php
 $inc_class_util = true;
 $inc_class_ua = true;
-include("testhandler.inc");
+include("inchandler.inc");
 
 $wrapper->pgtop("KaiRo's Browser-Test");
 

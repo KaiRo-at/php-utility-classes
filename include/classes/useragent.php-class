@@ -431,7 +431,7 @@ class userAgent {
 
   function isie() {
     if (!isset($this->uadata['is_ie'])) {
-      $is_ie = false;
+      $this->uadata['is_ie'] = false;
       if (strstr($this->brand, 'Internet Explorer')) {
         $this->uadata['is_ie'] = true;
       }

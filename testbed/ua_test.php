@@ -23,6 +23,7 @@ print("<br>This is <b>".($ua->isns4()?"a":"no")."</b> Netscape Communicator 4 br
 print("<br>This is <b>".($ua->isie()?"an":"no")."</b> Internet Explorer browser.\n");
 print("<br>This is <b>".($ua->geckobased()?"a":"no")."</b> Gecko-based browser.\n");
 print("<br>This is <b>".($ua->khtmlbased()?"a":"no")."</b> KHTML-based browser.\n");
+print("<br>This is <b>".($ua->isbot()?"an":"no")."</b> automated robot.\n");
 print("<br>The browser brand is reported as &quot;<b>".$ua->getBrand()."</b>&quot;\n");
 print("<br>The browser version is reported as &quot;<b>".$ua->getVersion()."</b>&quot;\n");
 if ($ua->geckobased()) { print("<br>The Gecko date is reported as &quot;<b>".$ua->geckodate()."</b>&quot;\n"); }

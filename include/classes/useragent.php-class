@@ -12,12 +12,16 @@ class userAgent {
   //   returns the User Agent brand name
   // var $version
   //   the User Agent version
+  // var $bot
+  //   bool: true if this agent is a bot
   //
   // function getBrand()
   //   returns the User Agent Brand Name
   // function getVersion()
   //   returns the User Agent version
   //
+  // function isbot()
+  //   returns true if User Agent seems to be a bot
   // function isns()
   //   returns true if User Agent seems to be Netscape brand, false if not
   // function isns4()
@@ -50,11 +54,58 @@ class userAgent {
   // Mozilla/4.0 (compatible; MSIE 5.12; Mac_PowerPC) OmniWeb/4.1.1-v424.6
   // Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030516 Mozilla Firebird/0.6
   // Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.5a) Gecko/20030728 Mozilla Firebird/0.6.1
-
+  // Python-urllib/1.15
+  // *** search bots: ***
+  // Scooter/3.3
+  // Spinne/2.0 med_AH
+  // Vagabondo/2.0 MT (webagent at wise-guys dot nl)
+  // TurnitinBot/1.5 ( ">http://www.turnitin.com/robot/crawlerinfo.html)
+  // FAST-WebCrawler/3.x Multimedia (mm dash crawler at fast dot no)
+  // Firefly/1.0 (compatible; Mozilla 4.0; MSIE 5.5)
+  // Googlebot/2.1 (+ ">http://www.googlebot.com/bot.html)
+  // Scrubby/2.2 ( ">http://www.scrubtheweb.com/)
+  // psbot/0.1 (+ ">http://www.picsearch.com/bot.html)
+  // NG/1.0
+  // URL_Spider_Pro/3.0 ( ">http://www.innerprise.net/usp-spider.asp)"
+  // Pompos/1.3 ">http://dir.com/pompos.html
+  // Szukacz/1.5 (robot; www.szukacz.pl/jakdzialarobot.html; info@szukacz.pl)
+  // ASPseek/1.2.10
+  // NPBot-1/2.0
+  // NetResearchServer/2.7(loopimprovements.com/robot.html)
+  // dloader(NaverRobot)/1.0
+  // Mozilla/4.0 compatible ZyBorg/1.0 Daily Refresh Beta-d03 (wn.zyborg@looksmart.net;
+  // Mozilla/2.0 (compatible; Ask Jeeves/Teoma)
+  // Mozilla/5.0 (Slurp/si; slurp@inktomi.com; ">http://www.inktomi.com/slurp.html)
+  // Mozilla/5.0 [en] (compatible; Gulper Web Bot 0.2.4 www.ecsl.cs.sunysb.edu/~maxim/cgi-bin/Link/GulperBot)
+  // Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; Girafabot; girafabot at girafa dot com;
+  // Mozilla/4.0 (efp@gmx.net)
+  // Mozilla/4.5 (compatible; HTTrack 3.0x; Windows 98)
+  // PingALink Monitoring Services 1.0 (http://www.pingalink.com)
+  // IlTrovatore-Setaccio (+ ">http://www.iltrovatore.it)
+  // Mercator-2.0
+  // appie 1.1 (www.walhello.com)
+  // larbin_2.6.2 (larbin2.6.2@unspecified.mail)
+  // OWR_Crawler 0.1
+  // search.ch V1.4.2 (spiderman@search.ch;
+  // WebFilter Robot 1.0
+  // Openfind data gatherer, Openbot/3.0+(robot-response@openfind.com.tw;+
+  // LinkWalker
+  // Internet Explorer 5.5
+  // BaiDuSpider
+  // Mozilla/4.0 (compatible; B-l-i-t-z-B-O-T)
+  // B l i t z B O T @ t r i c u s . n e t (Mozilla compatible)
+  // sitecheck.internetseer.com (For more info see: ">http://sitecheck.internetseer.com)
+  // http://www.almaden.ibm.com/cs/crawler   [c01]
+  // ia_archiver
+  // Nutch
+  // Mozilla
+  // HeinrichderMiragoRobot
+  // dumbBot
 
   var $uastring;
   var $brand;
   var $version;
+  var $bot = false;
 
   function userAgent($ua_string = "") {
     // *** constructor ***
@@ -68,7 +119,7 @@ class userAgent {
 
     // get UA brand and version
     $this->brand = "Unknown"; $this->version = 0;
-    if (ereg("([0-9a-zA-Z\.]+)/([0-9a-zA-Z\.+]+)", $this->uastring, $regs)) {
+    if (ereg("([0-9a-zA-Z\.()-]+)/([0-9a-zA-Z\.+]+)", $this->uastring, $regs)) {
       $this->brand = $regs[1]; // this is a reasonable default :)
       $this->version = $regs[2]; // this is a reasonable default :)
     }
@@ -120,6 +171,141 @@ class userAgent {
       $this->brand = "AppleWebKit";
       $this->version = $regs[1];
     }
+    elseif (ereg("ZyBorg/([0-9a-zA-Z\.+]+)", $this->uastring, $regs)) {
+      $this->brand = "ZyBorg";
+      $this->version = $regs[1];
+      $this->bot = true;
+    }
+    elseif (ereg("Ask Jeeves/([0-9a-zA-Z\.+]+)", $this->uastring, $regs)) {
+      $this->brand = "Ask Jeeves";
+      $this->version = $regs[1];
+      $this->bot = true;
+    }
+    elseif (ereg("Slurp/([0-9a-zA-Z\.+]+)", $this->uastring, $regs)) {
+      $this->brand = "Slurp";
+      $this->version = $regs[1];
+      $this->bot = true;
+    }
+    elseif (ereg("Openbot/([0-9a-zA-Z\.+]+)", $this->uastring, $regs)) {
+      $this->brand = "Openbot";
+      $this->version = $regs[1];
+      $this->bot = true;
+    }
+    elseif (ereg("Mercator-([0-9a-zA-Z\.+]+)", $this->uastring, $regs)) {
+      $this->brand = "Mercator";
+      $this->version = $regs[1];
+      $this->bot = true;
+    }
+    elseif (ereg("appie ([0-9a-zA-Z\.+]+)", $this->uastring, $regs)) {
+      $this->brand = "appie";
+      $this->version = $regs[1];
+      $this->bot = true;
+    }
+    elseif (ereg("larbin_([0-9a-zA-Z\.+]+)", $this->uastring, $regs)) {
+      $this->brand = "larbin";
+      $this->version = $regs[1];
+      $this->bot = true;
+    }
+    elseif (ereg("Gulper Web Bot ([0-9a-zA-Z\.+]+)", $this->uastring, $regs)) {
+      $this->brand = "Gulper Web Bot";
+      $this->version = $regs[1];
+      $this->bot = true;
+    }
+    elseif (ereg("HTTrack ([0-9a-zA-Z\.+]+)", $this->uastring, $regs)) {
+      $this->brand = "HTTrack";
+      $this->version = $regs[1];
+      $this->bot = true;
+    }
+    elseif (ereg("OWR_Crawler ([0-9a-zA-Z\.+]+)", $this->uastring, $regs)) {
+      $this->brand = "OWR_Crawler";
+      $this->version = $regs[1];
+      $this->bot = true;
+    }
+    elseif (ereg("search.ch ([0-9a-zA-Z\.+]+)", $this->uastring, $regs)) {
+      $this->brand = "search.ch";
+      $this->version = $regs[1];
+      $this->bot = true;
+    }
+    elseif (ereg("WebFilter Robot ([0-9a-zA-Z\.+]+)", $this->uastring, $regs)) {
+      $this->brand = "WebFilter Robot";
+      $this->version = $regs[1];
+      $this->bot = true;
+    }
+    elseif (ereg("^LinkWalker", $this->uastring)) {
+      $this->brand = "LinkWalker";
+      $this->version = "";
+      $this->bot = true;
+    }
+    elseif (ereg("^Internet Explorer 5.5", $this->uastring)) {
+      $this->brand = "Unknown bot (IE5.5)";
+      $this->version = "";
+      $this->bot = true;
+    }
+    elseif (ereg("^Mozilla", $this->uastring)) {
+      $this->brand = "Unknown bot (Mozilla)";
+      $this->version = "";
+      $this->bot = true;
+    }
+    elseif (ereg("^BaiDuSpider", $this->uastring)) {
+      $this->brand = "BaiDuSpider";
+      $this->version = "";
+      $this->bot = true;
+    }
+    elseif (ereg("^ia_archiver", $this->uastring)) {
+      $this->brand = "ia_archiver";
+      $this->version = "";
+      $this->bot = true;
+    }
+    elseif (ereg("^PingALink", $this->uastring)) {
+      $this->brand = "PingALink";
+      $this->version = "";
+      $this->bot = true;
+    }
+    elseif (ereg("^IlTrovatore-Setaccio", $this->uastring)) {
+      $this->brand = "IlTrovatore-Setaccio";
+      $this->version = "";
+      $this->bot = true;
+    }
+    elseif (ereg("^Nutch", $this->uastring)) {
+      $this->brand = "Nutch";
+      $this->version = "";
+      $this->bot = true;
+    }
+    elseif (ereg("^dumbBot", $this->uastring)) {
+      $this->brand = "dumbBot";
+      $this->version = "";
+      $this->bot = true;
+    }
+    elseif (ereg("http://www.almaden.ibm.com/cs/crawler", $this->uastring)) {
+      $this->brand = "almaden crawler";
+      $this->version = "";
+      $this->bot = true;
+    }
+    elseif (ereg("B-l-i-t-z-B-O-T", $this->uastring) || ereg("B l i t z B O T @ t r i c u s . n e t", $this->uastring)) {
+      $this->brand = "BlitzBOT";
+      $this->version = "";
+      $this->bot = true;
+    }
+    elseif (ereg("sitecheck.internetseer.com", $this->uastring)) {
+      $this->brand = "internetseer";
+      $this->version = "";
+      $this->bot = true;
+    }
+    elseif (ereg("Girafabot", $this->uastring)) {
+      $this->brand = "Girafabot";
+      $this->version = "";
+      $this->bot = true;
+    }
+    elseif (ereg("efp@gmx.net", $this->uastring)) {
+      $this->brand = "efp";
+      $this->version = "";
+      $this->bot = true;
+    }
+    elseif (ereg("HeinrichderMiragoRobot", $this->uastring)) {
+      $this->brand = "HeinrichderMiragoRobot";
+      $this->version = "";
+      $this->bot = true;
+    }
     elseif (ereg("MSIE ([0-9a-zA-Z\.+]+)", $this->uastring, $regs)) {
       $this->brand = "Microsoft Internet Explorer";
       $this->version = $regs[1];
@@ -129,10 +315,19 @@ class userAgent {
       $this->version = $regs[1];
       if (intval($this->version) == 4) { $this->brand .= " Communicator"; }
     }
+
+    $botArray = array("Scooter","Spinne","Vagabondo","TurnitinBot","FAST-WebCrawler","Firefly","Googlebot",
+                      "Scrubby","psbot","NG","URL_Spider_Pro","Pompos","Szukacz","ASPseek","NPBot-1",
+                      "dloader(NaverRobot)","NetResearchServer","","","","","","","");
+
+    if (in_array($this->brand, $botArray)) {
+      $this->bot = true;
+    }
   }
 
   function getBrand() { return $this->brand; }
   function getVersion() { return $this->version; }
+  function isbot() { return $this->bot; }
 
   function isns() {
     // set it static so that we don't have to call it that often

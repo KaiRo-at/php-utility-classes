@@ -176,6 +176,10 @@ class userAgent {
       $this->brand = 'Firefox';
       $this->version = $regs[1];
     }
+    elseif (preg_match('|SeaMonkey/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
+      $this->brand = 'SeaMonkey';
+      $this->version = $regs[1];
+    }
     elseif (preg_match('|Galeon/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'Galeon';
       $this->version = $regs[1];

@@ -135,7 +135,7 @@ class userAgent {
     // get UA brand and version
     $this->brand = 'Unknown'; $this->version = null;
     // find reasonable defaults
-    if (preg_match('|([0-9a-zA-Z\.()_ -]+)/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
+    if (preg_match('|([0-9a-zA-Z\.:()_ -]+)/([0-9a-zA-Z\._+-]+)|', $this->uastring, $regs)) {
       $this->brand = trim($regs[1]);
       $this->version = $regs[2];
     }
@@ -180,6 +180,18 @@ class userAgent {
       $this->brand = 'Galeon';
       $this->version = $regs[1];
     }
+    elseif (preg_match('|Epiphany/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
+      $this->brand = 'Epiphany';
+      $this->version = $regs[1];
+    }
+    elseif (preg_match('|K-Meleon/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
+      $this->brand = 'K-Meleon';
+      $this->version = $regs[1];
+    }
+    elseif (preg_match('|AOL[/ ]([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
+      $this->brand = 'AOL';
+      $this->version = $regs[1];
+    }
     elseif (preg_match('|rv:([0-9a-zA-Z\.+]+)|', $this->uastring, $regs) && strstr($this->uastring, "Mozilla/") && strstr($this->uastring, "Gecko/")) {
       $this->brand = 'Mozilla';
       $this->version = $regs[1];
@@ -220,8 +232,20 @@ class userAgent {
       $this->brand = 'CLDC';
       $this->version = $regs[1];
     }
+    elseif (preg_match('|UP.Browser/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
+      $this->brand = 'UP.Browser';
+      $this->version = $regs[1];
+    }
     elseif (preg_match('|ELinks \(([0-9a-zA-Z\.+]+);|', $this->uastring, $regs)) {
       $this->brand = 'ELinks';
+      $this->version = $regs[1];
+    }
+    elseif (preg_match('|Links \(([0-9a-zA-Z\.+]+);|', $this->uastring, $regs)) {
+      $this->brand = 'Links';
+      $this->version = $regs[1];
+    }
+    elseif (preg_match('|wget[/ ]([0-9a-zA-Z\.+]+)|i', $this->uastring, $regs)) {
+      $this->brand = 'wget';
       $this->version = $regs[1];
     }
     elseif (preg_match('|ZyBorg/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
@@ -296,12 +320,16 @@ class userAgent {
       $this->brand = 'Avant Browser';
       $this->version = null;
     }
+    elseif (preg_match('|Maxthon|', $this->uastring)) {
+      $this->brand = 'Maxthon';
+      $this->version = null;
+    }
+    elseif (preg_match('|MyIE2|', $this->uastring)) {
+      $this->brand = 'MyIE2';
+      $this->version = null;
+    }
     elseif (preg_match('|Crazy Browser ([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'Crazy Browser';
-      $this->version = $regs[1];
-    }
-    elseif (preg_match('|AOL ([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
-      $this->brand = 'AOL';
       $this->version = $regs[1];
     }
     elseif (preg_match('|MSN ([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
@@ -327,7 +355,7 @@ class userAgent {
                       'dloader(NaverRobot)','NetResearchServer','HeinrichderMiragoRobot','LinkWalker',
                       'Openbot','W3C_Validator','ZyBorg','Ask Jeeves','dumbBot','BaiDuSpider','ia_archiver',
                       'PingALink Monitoring Services','IlTrovatore-Setaccio','Nutch','Mercator','OWR_Crawler',
-                      'search.ch','WebFilter Robot','appie','larbin','','','','','','','','');
+                      'search.ch','WebFilter Robot','appie','larbin','NutchCVS','ObjectsSearch','','','','','');
 
     if (in_array($this->brand, $botArray)) {
       $this->bot = true;
@@ -365,7 +393,7 @@ class userAgent {
         $this->uadata['geckodate'] = $regs[1];
       }
       elseif ((strpos($this->brand, 'Internet Explorer') !== false) ||  (strpos($this->brand, 'FrontPage') !== false)) {
-        if (($this->uadata['platform'] == 'mac') && (intval($this->version) >= 5)) {
+        if ((strpos(strtolower($this->uastring), 'mac') !== false) && (intval($this->getVersion()) >= 5)) {
           $this->uadata['engine'] = 'tasman';
         }
         else {
@@ -387,7 +415,9 @@ class userAgent {
       elseif ((strpos($this->brand, 'ELinks') !== false) || (strpos($this->brand, 'Links') !== false)) {
         $this->uadata['engine'] = 'links';
       }
-      elseif ((strpos($this->brand, 'Avant') !== false) || (strpos($this->brand, 'Crazy Browser') !== false) || (strpos($this->brand, 'AOL') !== false) || (strpos($this->brand, 'MSN') !== false)) {
+      elseif ((strpos($this->brand, 'Avant') !== false) || (strpos($this->brand, 'Crazy Browser') !== false) ||
+              (strpos($this->brand, 'AOL') !== false) || (strpos($this->brand, 'MSN') !== false) ||
+              (strpos($this->brand, 'MyIE2') !== false) || (strpos($this->brand, 'Maxthon') !== false)) {
         $this->uadata['engine'] = 'trident';
       }
       elseif (strpos($this->brand, 'Galeon') !== false) {
@@ -412,17 +442,22 @@ class userAgent {
     if (!isset($this->uadata['os'])) {
       $this->uadata['os'] = null;
       if ($this->hasEngine('gecko')) {
-        if (preg_match('|Mozilla/5.0 \(([^;]+); U; ([^;]+); ([^;]+); rv:([^\);]+)\)|', $this->uastring, $regs)) {
+        if (preg_match('|Mozilla/5.0 \(([^;]+); [^;]+; ([^;]+); ([^;]+); rv:([^\);]+)\)|', $this->uastring, $regs)) {
           $this->uadata['os'] = $regs[2];
           $this->uadata['lang'] = $regs[3];
           $this->uadata['eng_version'] = $regs[4];
         }
-        elseif (preg_match('|Mozilla/5.0 \(([^;]+); U; ([^;]+); ([^;]+); m([^\);]+)\)|', $this->uastring, $regs)) {
+        elseif (preg_match('|Mozilla/5.0 \(([^;]+); [^;]+; ([^;]+); ([^;]+); m([^\);]+)\)|', $this->uastring, $regs)) {
           $this->uadata['os'] = $regs[2];
           $this->uadata['lang'] = $regs[3];
           $this->uadata['eng_version'] = 'M'.$regs[4];
         }
-        elseif (preg_match('|Mozilla/5.0 \(([^;]+); U; ([^\);]+)\)|', $this->uastring, $regs)) {
+        elseif (preg_match('|Mozilla/5.0 \(([^;]+); [^;]+; ([^;]+); ([^\);]+)\)|', $this->uastring, $regs)) {
+          $this->uadata['os'] = $regs[2];
+          $this->uadata['lang'] = $regs[3];
+          $this->uadata['eng_version'] = null;
+        }
+        elseif (preg_match('|Mozilla/5.0 \(([^;]+); [^;]+; ([^\);]+)\)|', $this->uastring, $regs)) {
           $this->uadata['os'] = $regs[2];
           $this->uadata['lang'] = null;
           $this->uadata['eng_version'] = null;
@@ -438,8 +473,8 @@ class userAgent {
           $this->uadata['eng_version'] = null;
         }
       }
-      elseif ($this->hasEngine('trident')) {
-        if (preg_match('/Mozilla\/[^\(]+ \(compatible; MSIE ([^;]+); [^\)]*((?:Mac|Win)[^;]+)[^\)]*\)/i', $this->uastring, $regs)) {
+      elseif ($this->hasEngine('trident') || $this->hasEngine('tasman')) {
+        if (preg_match('/Mozilla\/[^\(]+ \(compatible; MSIE ([^;]+)[^\)]*; ?((?:Mac|Win)[^;]+)[^\)]*\)/i', $this->uastring, $regs)) {
           $this->uadata['eng_version'] = $regs[1];
           $this->uadata['os'] = $regs[2];
           $this->uadata['lang'] = null;
@@ -451,13 +486,13 @@ class userAgent {
         }
       }
       elseif ($this->hasEngine('khtml')) {
-        if (preg_match('/Mozilla\/[^\(]+ \(compatible; Konqueror\/([^;]+); ([^;]+); ([^;]+); ([^;]+); ([^\);]+)\)/i', $this->uastring, $regs)) {
-          $this->uadata['eng_version'] = $regs[1];
+        if (preg_match('/Mozilla\/[^\(]+ \(compatible; Konqueror\/([^;]+); ([^;]+); ([^;]+); ([^;]+); ([^\);]+)\)(?: KHTML\/([0-9a-zA-Z\.+]+))?/i', $this->uastring, $regs)) {
+          $this->uadata['eng_version'] = strlen($regs[6])?$regs[6]:$regs[1];
           $this->uadata['os'] = $regs[2];
           $this->uadata['lang'] = $regs[5];
         }
-        elseif (preg_match('/Mozilla\/[^\(]+ \(compatible; Konqueror\/([^;]+); ([^\);]+)([^\)]+)\)/i', $this->uastring, $regs)) {
-          $this->uadata['eng_version'] = $regs[1];
+        elseif (preg_match('/Mozilla\/[^\(]+ \(compatible; Konqueror\/([^;]+); ([^\);]+)[^\)]*\)(?: KHTML\/([0-9a-zA-Z\.+]+))?/i', $this->uastring, $regs)) {
+          $this->uadata['eng_version'] = strlen($regs[3])?$regs[3]:$regs[1];
           $this->uadata['os'] = $regs[2];
           $this->uadata['lang'] = null;
         }
@@ -478,19 +513,35 @@ class userAgent {
           $this->uadata['os'] = $regs[1];
           $this->uadata['lang'] = $regs[2];
         }
+        elseif (preg_match('/Mozilla\/[^\(]+ \(compatible; .+; ([^;]+)\) Opera [^ ]+ \[([a-z_-]+)\]/i', $this->uastring, $regs)) {
+          $this->uadata['eng_version'] = $this->getVersion();
+          $this->uadata['os'] = $regs[1];
+          $this->uadata['lang'] = $regs[2];
+        }
+        elseif (preg_match('/Mozilla\/[^\(]+ \(([^;]+);.+\) Opera [^ ]+ \[([a-z_-]+)\]/i', $this->uastring, $regs)) {
+          $this->uadata['eng_version'] = $this->getVersion();
+          $this->uadata['os'] = $regs[1];
+          $this->uadata['lang'] = $regs[2];
+        }
+        // Opera 8
         elseif (preg_match('/Opera\/[^\(]+ \(([^;]+); [^\)]+; ([a-z_-]+)\)/i', $this->uastring, $regs)) {
           $this->uadata['eng_version'] = $this->getVersion();
           $this->uadata['os'] = $regs[1];
           $this->uadata['lang'] = $regs[2];
         }
-        elseif (preg_match('/Mozilla\/[^\(]+ \(compatible; [^;]+; ([^;]+)\) Opera [^ ]+ \[([a-z_-]+)\]/i', $this->uastring, $regs)) {
+        elseif (preg_match('/Mozilla\/[^\(]+ \(compatible; .+; ([^;]+); ([a-z_-]+)\) Opera [^ ]+/i', $this->uastring, $regs)) {
+          $this->uadata['eng_version'] = $this->getVersion();
+          $this->uadata['os'] = $regs[1];
+          $this->uadata['lang'] = $regs[2];
+        }
+        elseif (preg_match('/Mozilla\/[^\(]+ \(([^;]+);.+; ([a-z_-]+)\) Opera [^ ]+/i', $this->uastring, $regs)) {
           $this->uadata['eng_version'] = $this->getVersion();
           $this->uadata['os'] = $regs[1];
           $this->uadata['lang'] = $regs[2];
         }
       }
       elseif ($this->hasEngine('nscp')) {
-        if (preg_match('/Mozilla\/([0-9a-zA-Z\.+]+) \[([a-z_-]+)\] \(([^;]+); [^\)]+\)/i', $this->uastring, $regs)) {
+        if (preg_match('/Mozilla\/([0-9a-zA-Z\.+]+) (?:\[([a-z_-]+)\][^\(]+)?\(([^;]+);[^\)]+\)/i', $this->uastring, $regs)) {
           $this->uadata['eng_version'] = $regs[1];
           $this->uadata['os'] = $regs[3];
           $this->uadata['lang'] = $regs[2];
@@ -502,7 +553,7 @@ class userAgent {
         $this->uadata['lang'] = null;
       }
       elseif ($this->hasEngine('links')) {
-        if (preg_match('/ELinks[^\(]+\([^;]+; ([^;]+);[^\)]+\)/i', $this->uastring, $regs)) {
+        if (preg_match('/E?Links[^\(]+\([^;]+; ([^;]+)[^\)]+\)/i', $this->uastring, $regs)) {
           $this->uadata['eng_version'] = null;
           $this->uadata['os'] = $regs[1];
           $this->uadata['lang'] = null;
@@ -517,6 +568,12 @@ class userAgent {
         elseif (preg_match('/curl\/[^\(]+\(([^\);]+)/i', $this->uastring, $regs)) {
           $this->uadata['os'] = $regs[1];
         }
+        elseif (preg_match('/NCSA[_ ]Mosaic\/[^\(]+\((?:.*;)?([^\);]+)/i', $this->uastring, $regs)) {
+          $this->uadata['os'] = trim($regs[1]);
+        }
+        elseif (preg_match('/iCab.*(Mac[^\);]+).*?\)/i', $this->uastring, $regs)) {
+          $this->uadata['os'] = trim($regs[1]);
+        }
       }
       if ($this->uadata['os'] == 'Win 9x 4.90') { $this->uadata['os'] = 'Windows ME'; }
       elseif ($this->uadata['os'] == 'WinNT4.0') { $this->uadata['os'] = 'Windows ME'; }
@@ -528,16 +585,28 @@ class userAgent {
       elseif (preg_match('/Mac ?OS ?X/i',$this->uadata['os'])) { $this->uadata['os'] = 'MacOS X'; }
       elseif (preg_match('/Mac_P(ower|)PC/i',$this->uadata['os'])) { $this->uadata['os'] = 'MacOS'; }
       elseif (strpos($this->uadata['os'], 'darwin') !== false) { $this->uadata['os'] = 'MacOS X'; }
+      elseif (strpos($this->uadata['os'], 'Darwin') !== false) { $this->uadata['os'] = 'MacOS X'; }
       elseif (strpos($this->uadata['os'], 'apple') !== false) { $this->uadata['os'] = 'MacOS'; }
+      elseif (strpos($this->uadata['os'], 'Macintosh') !== false) { $this->uadata['os'] = 'MacOS'; }
       elseif (strpos($this->uadata['os'], 'linux') !== false) { $this->uadata['os'] = 'Linux'; }
 
-      if (strpos($this->uadata['os'], 'Win') !== false) { $this->uadata['platform'] = 'windows'; }
-      elseif (strpos($this->uadata['os'], 'Mac') !== false) { $this->uadata['platform'] = 'mac'; }
-      elseif (strpos($this->uadata['os'], 'Linux') !== false) { $this->uadata['platform'] = 'linux'; }
-      elseif (strpos($this->uadata['os'], 'Solaris') !== false) { $this->uadata['platform'] = 'solaris'; }
-      elseif (strpos($this->uadata['os'], 'FreeBSD') !== false) { $this->uadata['platform'] = 'freebsd'; }
-      elseif (strpos($this->uadata['os'], 'AmigaOS') !== false) { $this->uadata['platform'] = 'amiga'; }
-      else { $this->uadata['platform'] = null; }
+      if (strpos($this->uadata['os'], 'Win') !== false) { $this->uadata['platform'] = 'Windows'; }
+      elseif (strpos($this->uadata['os'], 'Mac') !== false) { $this->uadata['platform'] = 'Macintosh'; }
+      elseif (strpos($this->uadata['os'], 'Linux') !== false) { $this->uadata['platform'] = 'Linux'; }
+      elseif (strpos($this->uadata['os'], 'Solaris') !== false) { $this->uadata['platform'] = 'Solaris'; }
+      elseif (strpos($this->uadata['os'], 'SunOS') !== false) { $this->uadata['platform'] = 'Solaris'; }
+      elseif (strpos($this->uadata['os'], 'BeOS') !== false) { $this->uadata['platform'] = 'BeOS'; }
+      elseif (strpos($this->uadata['os'], 'FreeBSD') !== false) { $this->uadata['platform'] = 'FreeBSD'; }
+      elseif (strpos($this->uadata['os'], 'OpenBSD') !== false) { $this->uadata['platform'] = 'OpenBSD'; }
+      elseif (strpos($this->uadata['os'], 'NetBSD') !== false) { $this->uadata['platform'] = 'NetBSD'; }
+      elseif (strpos($this->uadata['os'], 'AIX') !== false) { $this->uadata['platform'] = 'AIX'; }
+      elseif (strpos($this->uadata['os'], 'IRIX') !== false) { $this->uadata['platform'] = 'IRIX'; }
+      elseif (strpos($this->uadata['os'], 'HP-UX') !== false) { $this->uadata['platform'] = 'HP-UX'; }
+      elseif (strpos($this->uadata['os'], 'AmigaOS') !== false) { $this->uadata['platform'] = 'Amiga'; }
+      elseif (strpos($this->uadata['os'], 'OpenVMS') !== false) { $this->uadata['platform'] = 'OpenVMS'; }
+      elseif (strpos($this->uadata['os'], 'Warp') !== false) { $this->uadata['platform'] = 'OS/2'; }
+      elseif (strpos($this->uadata['os'], 'CYGWIN') !== false) { $this->uadata['platform'] = 'Windows'; }
+      else { $this->uadata['platform'] = $this->uadata['os']; }
 
       $this->uadata['lang'] = str_replace('_', '-', $this->uadata['lang']);
     }

@@ -58,6 +58,10 @@ class userAgent {
   // function getVersion()
   //   returns the User Agent version
   //
+  // function getAcceptLanguages()
+  //   returns an associated array with the accepted languages of this UA
+  //     keys are language codes, values are q factors (weights)
+  //
   // function getUAString()
   //   returns the full User Agent string
   //
@@ -152,14 +156,14 @@ class userAgent {
   var $bot = false;
   var $uadata = array();
 
-  function userAgent($ua_string = "") {
+  function userAgent($ua_string = '') {
     // *** constructor ***
     if (strlen($ua_string)) {
       $this->uastring = $ua_string;
     }
     else {
       // read raw UA string
-      $this->uastring = $_SERVER["HTTP_USER_AGENT"];
+      $this->uastring = $_SERVER['HTTP_USER_AGENT'];
     }
 
     // get UA brand and version
@@ -374,9 +378,9 @@ class userAgent {
       if (intval($this->version) == 4) { $this->brand .= " Communicator"; }
     }
 
-    $botArray = array("Scooter","Spinne","Vagabondo","TurnitinBot","FAST-WebCrawler","Firefly","Googlebot",
-                      "Scrubby","psbot","NG","URL_Spider_Pro","Pompos","Szukacz","ASPseek","NPBot-1",
-                      "dloader(NaverRobot)","NetResearchServer","","","","","","","");
+    $botArray = array('Scooter','Spinne','Vagabondo','TurnitinBot','FAST-WebCrawler','Firefly','Googlebot',
+                      'Scrubby','psbot','NG','URL_Spider_Pro','Pompos','Szukacz','ASPseek','NPBot-1',
+                      'dloader(NaverRobot)','NetResearchServer','','','','','','','');
 
     if (in_array($this->brand, $botArray)) {
       $this->bot = true;
@@ -385,67 +389,84 @@ class userAgent {
 
   function getBrand() { return $this->brand; }
   function getVersion() { return $this->version; }
+
+  function getAcceptLanguages() {
+    if (!isset($this->uadata['accept-languages'])) {
+      $headers = getAllHeaders();
+      $accLcomp = explode(',', $headers['Accept-Language']);
+      $accLang = array();
+      foreach ($accLcomp as $lcomp) {
+        if (strlen($lcomp)) {
+          $ldef = explode(';', $lcomp);
+          $accLang[$ldef[0]] = (float)((strpos($ldef[1],'q=')===0)?substr($ldef[1],2):1);
+        }
+      }
+      $this->uadata['accept-languages'] = $accLang;
+    }
+  return $this->uadata['accept-languages'];
+  }
+
   function getUAString() { return $this->uastring; }
   function isbot() { return $this->bot; }
 
   function isns() {
-    if (!isset($this->uadata["is_ns"])) {
-      $this->uadata["is_ns"] = false;
-      if (strstr($this->brand, "Netscape")) {
-        $this->uadata["is_ns"] = true;
+    if (!isset($this->uadata['is_ns'])) {
+      $this->uadata['is_ns'] = false;
+      if (strstr($this->brand, 'Netscape')) {
+        $this->uadata['is_ns'] = true;
       }
     }
-  return $this->uadata["is_ns"];
+  return $this->uadata['is_ns'];
   }
 
   function isns4() {
-    if (!isset($this->uadata["is_ns4"])) {
-      $this->uadata["is_ns4"] = false;
-      if (strstr($this->brand, "Netscape") && (intval($this->version) == 4)) {
-        $this->uadata["is_ns4"] = true;
+    if (!isset($this->uadata['is_ns4'])) {
+      $this->uadata['is_ns4'] = false;
+      if (strstr($this->brand, 'Netscape') && (intval($this->version) == 4)) {
+        $this->uadata['is_ns4'] = true;
       }
     }
-  return $this->uadata["is_ns4"];
+  return $this->uadata['is_ns4'];
   }
 
   function isie() {
-    if (!isset($this->uadata["is_ie"])) {
+    if (!isset($this->uadata['is_ie'])) {
       $is_ie = false;
-      if (strstr($this->brand, "Internet Explorer")) {
-        $this->uadata["is_ie"] = true;
+      if (strstr($this->brand, 'Internet Explorer')) {
+        $this->uadata['is_ie'] = true;
       }
     }
-  return $this->uadata["is_ie"];
+  return $this->uadata['is_ie'];
   }
 
   function geckobased() {
-    if (!isset($this->uadata["is_gecko"])) {
-      $this->uadata["is_gecko"] = false;
-      if (strstr($this->uastring, "Gecko/")) {
-        $this->uadata["is_gecko"] = true;
+    if (!isset($this->uadata['is_gecko'])) {
+      $this->uadata['is_gecko'] = false;
+      if (strstr($this->uastring, 'Gecko/')) {
+        $this->uadata['is_gecko'] = true;
       }
     }
-  return $this->uadata["is_gecko"];
+  return $this->uadata['is_gecko'];
   }
 
   function geckodate() {
-    if (!isset($this->uadata["gdate"])) {
-      $this->uadata["gdate"] = 0;
-      if (ereg("Gecko/([0-9]+)", $this->uastring, $regs)) {
-        $this->uadata["gdate"] = $regs[1];
+    if (!isset($this->uadata['gdate'])) {
+      $this->uadata['gdate'] = 0;
+      if (ereg('Gecko/([0-9]+)', $this->uastring, $regs)) {
+        $this->uadata['gdate'] = $regs[1];
       }
     }
-  return $this->uadata["gdate"];
+  return $this->uadata['gdate'];
   }
 
   function khtmlbased() {
-    if (!isset($this->uadata["is_khtml"])) {
-      $this->uadata["is_khtml"] = false;
-      if (strstr($this->brand, "Konqueror") || strstr($this->brand, "Safari") || strstr($this->brand, "AppleWebKit")) {
-        $this->uadata["is_khtml"] = true;
+    if (!isset($this->uadata['is_khtml'])) {
+      $this->uadata['is_khtml'] = false;
+      if (strstr($this->brand, 'Konqueror') || strstr($this->brand, 'Safari') || strstr($this->brand, 'AppleWebKit')) {
+        $this->uadata['is_khtml'] = true;
       }
     }
-  return $this->uadata["is_khtml"];
+  return $this->uadata['is_khtml'];
   }
 }
 ?>

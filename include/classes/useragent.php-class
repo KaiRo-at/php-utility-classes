@@ -14,11 +14,16 @@ class userAgent {
   //   the User Agent version
   // var $bot
   //   bool: true if this agent is a bot
+  // var $uadata
+  //   array of static user agent data (static vars in functions are set for all objects of this class!)
   //
   // function getBrand()
   //   returns the User Agent Brand Name
   // function getVersion()
   //   returns the User Agent version
+  //
+  // function getUAString()
+  //   returns the full User Agent string
   //
   // function isbot()
   //   returns true if User Agent seems to be a bot
@@ -56,6 +61,7 @@ class userAgent {
   // Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.5a) Gecko/20030728 Mozilla Firebird/0.6.1
   // Python-urllib/1.15
   // *** search bots: ***
+  // W3C_Validator/1.305.2.12 libwww-perl/5.64
   // Scooter/3.3
   // Spinne/2.0 med_AH
   // Vagabondo/2.0 MT (webagent at wise-guys dot nl)
@@ -106,6 +112,7 @@ class userAgent {
   var $brand;
   var $version;
   var $bot = false;
+  var $uadata = array();
 
   function userAgent($ua_string = "") {
     // *** constructor ***
@@ -170,6 +177,11 @@ class userAgent {
     elseif (ereg("AppleWebKit/([0-9a-zA-Z\.+]+)", $this->uastring, $regs)) {
       $this->brand = "AppleWebKit";
       $this->version = $regs[1];
+    }
+    elseif (ereg("W3C_Validator/([0-9a-zA-Z\.+]+)", $this->uastring, $regs)) {
+      $this->brand = "W3C_Validator";
+      $this->version = $regs[1];
+      $this->bot = true;
     }
     elseif (ereg("ZyBorg/([0-9a-zA-Z\.+]+)", $this->uastring, $regs)) {
       $this->brand = "ZyBorg";
@@ -327,78 +339,67 @@ class userAgent {
 
   function getBrand() { return $this->brand; }
   function getVersion() { return $this->version; }
+  function getUAString() { return $this->uastring; }
   function isbot() { return $this->bot; }
 
   function isns() {
-    // set it static so that we don't have to call it that often
-    static $is_ns;
-    if (!isset($is_ns)) {
-      $is_ns = false;
+    if (!isset($this->uadata["is_ns"])) {
+      $this->uadata["is_ns"] = false;
       if (strstr($this->brand, "Netscape")) {
-        $is_ns = true;
+        $this->uadata["is_ns"] = true;
       }
     }
-  return $is_ns;
+  return $this->uadata["is_ns"];
   }
 
   function isns4() {
-    // set it static so that we don't have to call it that often
-    static $is_ns4;
-    if (!isset($is_ns4)) {
-      $is_ns4 = false;
+    if (!isset($this->uadata["is_ns4"])) {
+      $this->uadata["is_ns4"] = false;
       if (strstr($this->brand, "Netscape") && (intval($this->version) == 4)) {
-        $is_ns4 = true;
+        $this->uadata["is_ns4"] = true;
       }
     }
-  return $is_ns4;
+  return $this->uadata["is_ns4"];
   }
 
   function isie() {
-    // set it static so that we don't have to call it that often
-    static $is_ie;
-    if (!isset($is_ie)) {
+    if (!isset($this->uadata["is_ie"])) {
       $is_ie = false;
       if (strstr($this->brand, "Internet Explorer")) {
-        $is_ie = true;
+        $this->uadata["is_ie"] = true;
       }
     }
-  return $is_ie;
+  return $this->uadata["is_ie"];
   }
 
   function geckobased() {
-    // set it static so that we don't have to call it that often
-    static $is_gecko;
-    if (!isset($is_gecko)) {
-      $is_gecko = false;
+    if (!isset($this->uadata["is_gecko"])) {
+      $this->uadata["is_gecko"] = false;
       if (strstr($this->uastring, "Gecko/")) {
-        $is_gecko = true;
+        $this->uadata["is_gecko"] = true;
       }
     }
-  return $is_gecko;
+  return $this->uadata["is_gecko"];
   }
 
   function geckodate() {
-    // set it static so that we don't have to call it that often
-    static $gdate;
-    if (!isset($gdate)) {
-      $gdate = 0;
+    if (!isset($this->uadata["gdate"])) {
+      $this->uadata["gdate"] = 0;
       if (ereg("Gecko/([0-9]+)", $this->uastring, $regs)) {
-        $gdate = $regs[1];
+        $this->uadata["gdate"] = $regs[1];
       }
     }
-  return $gdate;
+  return $this->uadata["gdate"];
   }
 
   function khtmlbased() {
-    // set it static so that we don't have to call it that often
-    static $is_khtml;
-    if (!isset($is_khtml)) {
-      $is_khtml = false;
+    if (!isset($this->uadata["is_khtml"])) {
+      $this->uadata["is_khtml"] = false;
       if (strstr($this->brand, "Konqueror") || strstr($this->brand, "Safari") || strstr($this->brand, "AppleWebKit")) {
-        $is_khtml = true;
+        $this->uadata["is_khtml"] = true;
       }
     }
-  return $is_khtml;
+  return $this->uadata["is_khtml"];
   }
 }
 ?>

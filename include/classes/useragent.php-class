@@ -13,6 +13,11 @@ class userAgent {
   // var $version
   //   the User Agent version
   //
+  // function getBrand()
+  //   returns the User Agent Brand Name
+  // function getVersion()
+  //   returns the User Agent version
+  //
   // function isns()
   //   returns true if User Agent seems to be Netscape brand, false if not
   // function isns4()
@@ -43,6 +48,9 @@ class userAgent {
   // Mozilla/5.0 Galeon/1.2.7 (X11; Linux i686; U;) Gecko/20021204
   // Mozilla/4.0 (compatible; MSIE 5.0; Windows XP) Opera 6.05 [ja]
   // Mozilla/4.0 (compatible; MSIE 5.12; Mac_PowerPC) OmniWeb/4.1.1-v424.6
+  // Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030516 Mozilla Firebird/0.6
+  // Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.5a) Gecko/20030728 Mozilla Firebird/0.6.1
+
 
   var $uastring;
   var $brand;
@@ -78,6 +86,10 @@ class userAgent {
     }
     elseif (ereg("Phoenix/([0-9a-zA-Z\.+]+)", $this->uastring, $regs)) {
       $this->brand = "Phoenix";
+      $this->version = $regs[1];
+    }
+    elseif (ereg("Mozilla Firebird/([0-9a-zA-Z\.+]+)", $this->uastring, $regs)) {
+      $this->brand = "Mozilla Firebird";
       $this->version = $regs[1];
     }
     elseif (ereg("Galeon/([0-9a-zA-Z\.+]+)", $this->uastring, $regs)) {
@@ -118,6 +130,9 @@ class userAgent {
       if (intval($this->version) == 4) { $this->brand .= " Communicator"; }
     }
   }
+
+  function getBrand() { return $this->brand; }
+  function getVersion() { return $this->version; }
 
   function isns() {
     // set it static so that we don't have to call it that often

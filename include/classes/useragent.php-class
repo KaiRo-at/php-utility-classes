@@ -263,9 +263,9 @@ class userAgent {
       $this->version = $regs[1];
       $this->bot = true;
     }
-    elseif (preg_match('|Slurp/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
+    elseif (preg_match('|Slurp|', $this->uastring, $regs)) {
       $this->brand = 'Slurp';
-      $this->version = $regs[1];
+      $this->version = null;
       $this->bot = true;
     }
     elseif (preg_match('|Gulper Web Bot ([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
@@ -355,7 +355,8 @@ class userAgent {
                       'dloader(NaverRobot)','NetResearchServer','HeinrichderMiragoRobot','LinkWalker',
                       'Openbot','W3C_Validator','ZyBorg','Ask Jeeves','dumbBot','BaiDuSpider','ia_archiver',
                       'PingALink Monitoring Services','IlTrovatore-Setaccio','Nutch','Mercator','OWR_Crawler',
-                      'search.ch','WebFilter Robot','appie','larbin','NutchCVS','ObjectsSearch','','','','','');
+                      'search.ch','WebFilter Robot','appie','larbin','NutchCVS','ObjectsSearch','Webchat',
+                      'msnbot','','','','','','');
 
     if (in_array($this->brand, $botArray)) {
       $this->bot = true;
@@ -574,6 +575,9 @@ class userAgent {
         elseif (preg_match('/iCab.*(Mac[^\);]+).*?\)/i', $this->uastring, $regs)) {
           $this->uadata['os'] = trim($regs[1]);
         }
+        elseif (preg_match('/SymbianOS\/([^ ]+)/i', $this->uastring, $regs)) {
+          $this->uadata['os'] = 'SymbianOS '.$regs[1];
+        }
       }
       if ($this->uadata['os'] == 'Win 9x 4.90') { $this->uadata['os'] = 'Windows ME'; }
       elseif ($this->uadata['os'] == 'WinNT4.0') { $this->uadata['os'] = 'Windows ME'; }
@@ -605,6 +609,7 @@ class userAgent {
       elseif (strpos($this->uadata['os'], 'AmigaOS') !== false) { $this->uadata['platform'] = 'Amiga'; }
       elseif (strpos($this->uadata['os'], 'OpenVMS') !== false) { $this->uadata['platform'] = 'OpenVMS'; }
       elseif (strpos($this->uadata['os'], 'Warp') !== false) { $this->uadata['platform'] = 'OS/2'; }
+      elseif (strpos($this->uadata['os'], 'SymbianOS') !== false) { $this->uadata['platform'] = 'SymbianOS'; }
       elseif (strpos($this->uadata['os'], 'CYGWIN') !== false) { $this->uadata['platform'] = 'Windows'; }
       else { $this->uadata['platform'] = $this->uadata['os']; }
 

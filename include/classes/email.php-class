@@ -1,4 +1,24 @@
 <?php
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * The contents of this file are subject to Austrian copyright reegulations
+ * ("Urheberrecht"); you may not use this file except in compliance with
+ * those laws.
+ * This contents and any derived work, if it gets distributed in any way,
+ * is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND,
+ * either express or implied.
+ *
+ * The Original Code is KaiRo's E-Mail module.
+ *
+ * The Initial Developer of the Original Code is
+ * KaiRo - Robert Kaiser.
+ * Portions created by the Initial Developer are Copyright (C) 2003-2004
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s): Robert Kaiser <kairo@kairo.at>
+ *
+ * ***** END LICENSE BLOCK ***** */
+
 class email {
   // email PHP class
   // class/object for creating a new mail and send it

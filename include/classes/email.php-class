@@ -96,6 +96,9 @@ class email {
   // function addMailText($textpart)
   //   add some text to the mail
   //
+  // function addAttachment($aname, $acontent, [$atype])
+  //   add an attachment to the mail, use given file name, content and MIME type (defaults to application/octet-stream)
+  //
   // function send()
   //   really send the mail
   //

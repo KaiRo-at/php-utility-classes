@@ -241,7 +241,7 @@ class userAgent {
       $this->version = "";
       $this->bot = true;
     }
-    elseif (ereg("^Mozilla", $this->uastring)) {
+    elseif (ereg("^Mozilla[\s ]*$", $this->uastring)) {
       $this->brand = "Unknown bot (Mozilla)";
       $this->version = "";
       $this->bot = true;

@@ -1,7 +1,0 @@
-#!/bin/bash
-
-xgettext app/gallery.php-class -o com_gallery.pot -p locale/en/LC_MESSAGES -L PHP --from-code=iso-8859-15 --foreign-user --copyright-holder="kairo.at/zoechling.net" --msgid-bugs-address=kairo@kairo.at
-
-replace "# SOME DESCRIPTIVE TITLE." "# L10n strings for the gallery module in kairo.at/zoechling.net community system." "# Copyright (C) YEAR" "# Copyright(C) 2004" "PACKAGE package" "module named above" "# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR." "# Robert Kaiser <kairo@kairo.at>, 2004." "Project-Id-Version: PACKAGE VERSION" "Project-Id-Version: COM_gallery" "Content-Type: text/plain; charset=CHARSET" "Content-Type: text/plain; charset=ISO-8859-15" -- locale/en/LC_MESSAGES/com_gallery.pot
-
-msgmerge locale/de/LC_MESSAGES/com_gallery.po locale/en/LC_MESSAGES/com_gallery.pot --update

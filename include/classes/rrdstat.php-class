@@ -158,6 +158,7 @@ class rrdstat {
       // vertical lines at day borders
       $addSpecial .= ' VRULE:'.strtotime(date('Y-m-d')).'#FF0000';
       $addSpecial .= ' VRULE:'.strtotime(date('Y-m-d').' -1 day').'#FF0000';
+      if (!isset($extra['grid_x'])) { $extra['grid_x'] = 'HOUR:1:HOUR:6:HOUR:2:0:%-H'; }
     }
     elseif ($timeframe == 'week') {
       $duration = isset($extra['duration'])?$extra['duration']:8*86400; // 8 days
@@ -188,11 +189,20 @@ class rrdstat {
     if (isset($extra['rows']) && count($extra['rows'])) {
       foreach ($extra['rows'] as $erow) {
         if (isset($erow['name']) && strlen($erow['name'])) {
+          if (!isset($erow['scale']) && isset($extra['scale'])) { $erow['scale'] = $extra['scale']; }
           $grow = array();
           $grow['dType'] = isset($erow['dType'])?$erow['dType']:'DEF';
-          $grow['name'] = $erow['name'];
+          $grow['name'] = $erow['name'].(isset($erow['scale'])?'_tmp':'');
           $grow['dsname'] = isset($erow['dsname'])?$erow['dsname']:$erow['name'];
           $grow['cf'] = isset($erow['cf'])?$erow['cf']:'AVERAGE';
+          if (isset($erow['rpn_expr'])) { $grow['rpn_expr'] = $erow['rpn_expr']; }
+          if (isset($erow['scale'])) {
+            $graphrows[] = $grow;
+            $grow = array();
+            $grow['dType'] = 'CDEF';
+            $grow['name'] = $erow['name'];
+            $grow['rpn_expr'] = $erow['name'].'_tmp,'.$erow['scale'].',*';
+          }
           $grow['gType'] = isset($erow['gType'])?$erow['gType']:'LINE1';
           $grow['color'] = isset($erow['color'])?$erow['color']:$gColors[$gC++];
           if ($gC >= count($gColors)) { $gC = 0; }
@@ -209,9 +219,16 @@ class rrdstat {
       foreach ($this->rrd_fields as $ds) {
         $grow = array();
         $grow['dType'] = 'DEF';
-        $grow['name'] = $ds['name'];
+        $grow['name'] = $ds['name'].(isset($extra['scale'])?'_tmp':'');
         $grow['dsname'] = $ds['name'];
         $grow['cf'] = 'AVERAGE';
+        if (isset($extra['scale'])) {
+          $graphrows[] = $grow;
+          $grow = array();
+          $grow['dType'] = 'CDEF';
+          $grow['name'] = $ds['name'];
+          $grow['rpn_expr'] = $ds['name'].'_tmp,'.$extra['scale'].',*';
+        }
         $grow['gType'] = ($ds['name']=='ds0')?'AREA':'LINE1';
         $grow['color'] = $gColors[$gC++]; if ($gC >= count($gColors)) { $gC = 0; }
         $graphrows[] = $grow;
@@ -219,8 +236,8 @@ class rrdstat {
     }
 
     $gOpts = ' --start '.($this->last_update()-$duration).' --end '.$this->last_update().' --step '.$slice;
-    if (isset($extra['label_top'])) { $gOpts .= ' --title '.$extra['label_top']; }
-    if (isset($extra['label_y'])) { $gOpts .= ' --vertical-label '.$extra['label_y']; }
+    if (isset($extra['label_top'])) { $gOpts .= ' --title '.$this->text_quote($extra['label_top']); }
+    if (isset($extra['label_y'])) { $gOpts .= ' --vertical-label '.$this->text_quote($extra['label_y']); }
     if (isset($extra['width'])) { $gOpts .= ' --width '.$extra['width']; }
     if (isset($extra['height'])) { $gOpts .= ' --height '.$extra['height'];
       if (($extra['height'] <= 32) && isset($extra['thumb']) && ($extra['thumb'])) { $gOpts .= ' --only-graph'; }
@@ -257,7 +274,7 @@ class rrdstat {
       }
     }
 
-    $graph_cmd = 'rrdtool graph '.$fname.$gOpts.$gDefs.$gGraphs.$addSpecial;
+    $graph_cmd = 'rrdtool graph '.str_replace('*', '\*', $fname.$gOpts.$gDefs.$gGraphs.$addSpecial);
     $return = `$graph_cmd 2>&1`;
 
     $retval = 0;

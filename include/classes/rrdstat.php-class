@@ -149,14 +149,42 @@ class rrdstat {
     $fname = str_replace('%tf', $timeframe, $filename);
     if (substr($fname, -4) != '.png') { $fname .= '.png'; }
 
-    // [-s|--start time] [-e|--end time] [-S|--step seconds]
-    if ($timeframe == 'day') { $timeinfo = '--start -86400'; }
-    elseif ($timeframe == 'week') { $timeinfo = '--start -604800'; }
-    elseif ($timeframe == 'month') { $timeinfo = '--start -2678400'; }
-    elseif ($timeframe == 'year') { $timeinfo = '--start -31622400'; }
-    else { $timeinfo = '--start -'.$this->rrd_step*500; }
-
     $graphrows = array(); $gC = 0;
+    $gDefs = ''; $gGraphs = ''; $addSpecial = '';
+
+    if ($timeframe == 'day') {
+      $duration = isset($extra['duration'])?$extra['duration']:30*3600; // 30 hours
+      $slice = isset($extra['slice'])?$extra['slice']:300; // 5 minutes
+      // vertical lines at day borders
+      $addSpecial .= ' VRULE:'.strtotime(date('Y-m-d')).'#FF0000';
+      $addSpecial .= ' VRULE:'.strtotime(date('Y-m-d').' -1 day').'#FF0000';
+    }
+    elseif ($timeframe == 'week') {
+      $duration = isset($extra['duration'])?$extra['duration']:8*86400; // 8 days
+      $slice = isset($extra['slice'])?$extra['slice']:1800; // 30 minutes
+      // vertical lines at week borders
+      $addSpecial .= ' VRULE:'.strtotime(date('Y-m-d').' '.(-date('w')+1).' day').'#FF0000';
+      $addSpecial .= ' VRULE:'.strtotime(date('Y-m-d').' '.(-date('w')-6).' day').'#FF0000';
+    }
+    elseif ($timeframe == 'month') {
+      $duration = isset($extra['duration'])?$extra['duration']:36*86400; // 36 days
+      $slice = isset($extra['slice'])?$extra['slice']:7200; // 2 hours
+      // vertical lines at month borders
+      $addSpecial .= ' VRULE:'.strtotime(date('Y-m-01')).'#FF0000';
+      $addSpecial .= ' VRULE:'.strtotime(date('Y-m-01').' -1 month').'#FF0000';
+    }
+    elseif ($timeframe == 'year') {
+      $duration = isset($extra['duration'])?$extra['duration']:396*86400; // 365+31 days
+      $slice = isset($extra['slice'])?$extra['slice']:86400; // 1 day
+      // vertical lines at month borders
+      $addSpecial .= ' VRULE:'.strtotime(date('Y-01-01')).'#FF0000';
+      $addSpecial .= ' VRULE:'.strtotime(date('Y-01-01').' -1 year').'#FF0000';
+    }
+    else {
+      $duration = isset($extra['duration'])?$extra['duration']:$this->rrd_step*500; // 500 steps
+      $slice = isset($extra['slice'])?$extra['slice']:$this->rrd_step; // whatever our step is
+    }
+
     if (isset($extra['rows']) && count($extra['rows'])) {
       foreach ($extra['rows'] as $erow) {
         if (isset($erow['name']) && strlen($erow['name'])) {
@@ -168,7 +196,10 @@ class rrdstat {
           $grow['gType'] = isset($erow['gType'])?$erow['gType']:'LINE1';
           $grow['color'] = isset($erow['color'])?$erow['color']:$gColors[$gC++];
           if ($gC >= count($gColors)) { $gC = 0; }
-          if (isset($erow['legend'])) { $grow['legend'] = $erow['legend']; }
+          if (isset($erow['legend'])) {
+            $grow['legend'] = $erow['legend'];
+            if (!isset($extra['show_legend'])) { $extra['show_legend'] = true; }
+          }
           if (isset($erow['stack'])) { $grow['stack'] = ($erow['stack'] == true); }
           $graphrows[] = $grow;
         }
@@ -187,18 +218,46 @@ class rrdstat {
       }
     }
 
-    $gDefs = ''; $gGraphs = '';
+    $gOpts = ' --start '.($this->last_update()-$duration).' --end '.$this->last_update().' --step '.$slice;
+    if (isset($extra['label_top'])) { $gOpts .= ' --title '.$extra['label_top']; }
+    if (isset($extra['label_y'])) { $gOpts .= ' --vertical-label '.$extra['label_y']; }
+    if (isset($extra['width'])) { $gOpts .= ' --width '.$extra['width']; }
+    if (isset($extra['height'])) { $gOpts .= ' --height '.$extra['height'];
+      if (($extra['height'] <= 32) && isset($extra['thumb']) && ($extra['thumb'])) { $gOpts .= ' --only-graph'; }
+    }
+    if (!isset($extra['show_legend']) || (!$extra['show_legend'])) { $gOpts .= ' --no-legend'; }
+    if (isset($extra['min_y'])) { $gOpts .= ' --lower-limit '.$extra['min_y']; }
+    if (isset($extra['max_y'])) { $gOpts .= ' --upper-limit '.$extra['max_y']; }
+    if (isset($extra['fix_scale_y']) && $extra['fix_scale_y']) { $gOpts .= ' --rigid'; }
+    if (isset($extra['grid_x'])) { $gOpts .= ' --x-grid '.$extra['grid_x']; }
+    if (isset($extra['grid_y'])) { $gOpts .= ' --y-grid '.$extra['grid_y']; }
+    if (isset($extra['units_exponent'])) { $gOpts .= ' --units-exponent '.$extra['units_exponent']; }
+    if (isset($extra['units_length'])) { $gOpts .= ' --units-length '.$extra['units_length']; }
+    if (!isset($extra['force_recreate']) || (!$extra['force_recreate'])) { $gOpts .= ' --lazy'; }
+    if (isset($extra['force_color']) && is_array($extra['force_color'])) {
+      foreach ($extra['force_color'] as $ctag=>$cval) { $gOpts .= ' --color '.$ctag.$cval; }
+    }
+    if (isset($extra['force_font']) && is_array($extra['force_font'])) {
+      foreach ($extra['force_font'] as $ctag=>$cval) { $gOpts .= ' --font '.$ctag.$cval; }
+    }
+    if (isset($extra['units_binary']) && $extra['units_binary']) { $gOpts .= ' --base 1024'; }
+
     foreach ($graphrows as $grow) {
-      $gDefs .= ' '.$grow['dType'].':'.$grow['name'].'='.$this->rrd_file.':'.$grow['dsname'].':'.$grow['cf'];
-      // XXX: current rrdtools version doesn't support STACK flag, only STACK type
-      if (isset($grow['stack']) && $grow['stack']) { $grow['gType'] = 'STACK'; }
-      $gGraphs .= ' '.$grow['gType'].':'.$grow['name'].$grow['color'];
-      if (isset($grow['legend'])) { $gGraphs .= ':'.$this->text_quote($grow['legend']); }
-      // XXX: when STACK flag is supported, remove above STACK if-command and uncomment the one below
-      //if (isset($grow['stack']) && $grow['stack']) { $gGraphs .= ':STACK'; }
+      if (isset($grow['dType']) && strlen($grow['dType'])) {
+        $gDefs .= ' '.$grow['dType'].':'.$grow['name'].'=';
+        $gDefs .= ($grow['dType']=='DEF')?$this->rrd_file.':'.$grow['dsname'].':'.$grow['cf']:$grow['rpn_expr'];
+      }
+      if (isset($grow['gType']) && strlen($grow['gType'])) {
+        // XXX: current rrdtools version doesn't support STACK flag, only STACK type
+        if (isset($grow['stack']) && $grow['stack']) { $grow['gType'] = 'STACK'; }
+        $gGraphs .= ' '.$grow['gType'].':'.$grow['name'].$grow['color'];
+        if (isset($grow['legend'])) { $gGraphs .= ':'.$this->text_quote($grow['legend']); }
+        // XXX: when STACK flag is supported, remove above STACK if-command and uncomment the one below
+        //if (isset($grow['stack']) && $grow['stack']) { $gGraphs .= ':STACK'; }
+      }
     }
 
-    $graph_cmd = 'rrdtool graph '.$fname.' '.$timeinfo.$gDefs.$gGraphs;
+    $graph_cmd = 'rrdtool graph '.$fname.$gOpts.$gDefs.$gGraphs.$addSpecial;
     $return = `$graph_cmd 2>&1`;
 
     $retval = 0;
@@ -214,6 +273,8 @@ class rrdstat {
     $basename = str_replace('.rrd', '', $this->rrd_file);
     $out = '<html><head><title>'.$basename.' - RRD statistics</title></head><body>';
 
+    $out .= '<p>Last Update: '.date('Y-m-d H:i:s', $this->last_update()).'</p>';
+
     if (in_array($this->status, array('ok','readonly'))) {
       foreach (array('day','week','month','year') as $tframe) {
         $this->graph(null, $tframe, $graph_extras);
@@ -226,6 +287,17 @@ class rrdstat {
 
     $ou .= '</body></html>';
   return $out;
+  }
+
+  function last_update() {
+    // fetch time of last update in this RRD file
+    static $last_update;
+    if (!isset($last_update) && in_array($this->status, array('ok','readonly'))) {
+      $last_cmd = 'rrdtool last '.$this->rrd_file;
+      $return = trim(`$last_cmd 2>&1`);
+      $last_update = is_numeric($return)?$return:null;
+    }
+  return isset($last_update)?$last_update:null;
   }
 
   function text_quote($text) { return '"'.str_replace('"', '\"', str_replace(':', '\:', $text)).'"'; }

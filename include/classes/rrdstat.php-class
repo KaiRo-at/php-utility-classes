@@ -1,0 +1,233 @@
+<?php
+// ************ RRD status class **************
+class rrdstat {
+
+  var $rrd_file = 'sample.rrd';
+
+  var $rrd_fields = array();
+  var $rra_base = array();
+  var $rrd_step = 300;
+  var $rra_add_max = true;
+
+  var $status = 'unused';
+
+  function rrdstat($init_info = null) {
+    // ***** init RRD stat module *****
+    $this->set_def($init_info);
+
+    if (!is_writeable($this->rrd_file)) {
+      if (!file_exists($this->rrd_file)) {
+        if (touch($this->rrd_file)) { $this->create(); }
+        else { trigger_error('RRD file can not be created', E_USER_WARNING); }
+      }
+      else {
+        if (is_readable($this->rrd_file)) { $this->status = 'readonly'; }
+        else { trigger_error('RRD file is not readable', E_USER_WARNING); }
+      }
+    }
+    else {
+      $this->status = 'ok';
+    }
+  }
+
+  function set_def($init_info = null) {
+    if (is_array($init_info) && isset($init_info['file'])) {
+      // we have an array in the format we like to have
+      $iinfo =& $init_info;
+    }
+    else {
+      // we have something else (XML data?), try to generate the iinfo aray from it
+      $iinfo =& $init_info;
+    }
+
+    if (!isset($iinfo['file'])) { return false; }
+
+    $this->rrd_file = $iinfo['file'];
+
+    // fields (data sources, DS)
+    //  name - DS name
+    //  type - one of COUNTER, GAUGE, DERIVE, ABSOLUTE
+    //  heartbeat - if no sample recieved for that time, store UNKNOWN
+    //  min - U (unconstrained) or minimum value
+    //  max - U (unconstrained) or maximum value
+    //  update - this string will be fed into eval() for updating this field
+    if (isset($iinfo['fields']) && is_array($iinfo['fields'])) {
+      $this->rrd_fields = $iinfo['fields'];
+    }
+    else {
+      $this->rrd_fields[] = array('name' => 'ds0', 'type' => 'COUNTER', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
+      $this->rrd_fields[] = array('name' => 'ds1', 'type' => 'COUNTER', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
+    }
+
+
+    // MRTG-style RRD "database", see http://people.ee.ethz.ch/~oetiker/webtools/rrdtool/tut/rrdtutorial.en.html
+    //
+    // archives (RRAs):
+    // 600 samples of 5 minutes  (2 days and 2 hours)
+    // 700 samples of 30 minutes (2 days and 2 hours, plus 12.5 days)
+    // 775 samples of 2 hours    (above + 50 days)
+    // 797 samples of 1 day      (above + 732 days, rounded up to 797)
+
+    $this->rrd_step = isset($iinfo['rrd_step'])?$iinfo['rrd_step']:300;
+
+    if (isset($iinfo['rra_base']) && is_array($iinfo['rra_base'])) {
+      $this->rra_base = $iinfo['rra_base'];
+    }
+    else {
+      $this->rra_base[] = array('step' => 1, 'rows' => 600);
+      $this->rra_base[] = array('step' => 6, 'rows' => 700);
+      $this->rra_base[] = array('step' => 24, 'rows' => 775);
+      $this->rra_base[] = array('step' => 288, 'rows' => 797);
+    }
+
+    $this->rra_add_max = isset($iinfo['rra_add_max'])?$iinfo['rra_add_max']:true;
+  }
+
+  function create() {
+    // create RRD file
+
+    // compose create command
+    $create_cmd = 'rrdtool create '.$this->rrd_file.' --step '.$this->rrd_step;
+    foreach ($this->rrd_fields as $ds) {
+      if (!isset($ds['type'])) { $ds['type'] = 'COUNTER'; }
+      if (!isset($ds['heartbeat'])) { $ds['heartbeat'] = 2*$this->rrd_step; }
+      if (!isset($ds['min'])) { $ds['min'] = 'U'; }
+      if (!isset($ds['max'])) { $ds['max'] = 'U'; }
+      $create_cmd .= ' DS:'.$ds['name'].':'.$ds['type'].':'.$ds['heartbeat'].':'.$ds['min'].':'.$ds['max'];
+    }
+    foreach ($this->rra_base as $rra) {
+      if (!isset($rra['cf'])) { $rra['cf'] = 'AVERAGE'; }
+      if (!isset($rra['xff'])) { $rra['xff'] = 0.5; }
+      if (!isset($rra['step'])) { $rra['step'] = 1; }
+      if (!isset($rra['rows'])) { $rra['rows'] = 600; }
+      $create_cmd .= ' RRA:'.$rra['cf'].':'.$rra['xff'].':'.$rra['step'].':'.$rra['rows'];
+    }
+    if ($this->rra_add_max) {
+      foreach ($this->rra_base as $rra) {
+        if (!isset($rra['cf'])) {
+          // only rows that have no CF set will be looked at here
+          $rra['cf'] = 'MAX';
+          if (!isset($rra['xff'])) { $rra['xff'] = 0.5; }
+          if (!isset($rra['step'])) { $rra['step'] = 1; }
+          if (!isset($rra['rows'])) { $rra['rows'] = 600; }
+          $create_cmd .= ' RRA:'.$rra['cf'].':'.$rra['xff'].':'.$rra['step'].':'.$rra['rows'];
+        }
+      }
+    }
+    $output = array(); $return_var = null;
+    exec($create_cmd, $output, $return_var);
+    if ($return_var) { trigger_error('rrd create returned with value '.$return_var, E_USER_WARNING); }
+    else { $this->status = 'ok'; }
+  }
+
+  function update($upArray = null) {
+    // feed new data into RRD
+    if ($this->status != 'ok') { trigger_error('Cannot update non-writeable file', E_USER_WARNING); return 1; }
+    $upvals = array();
+    foreach($this->rrd_fields as $ds) {
+      if (is_array($upArray) && isset($upArray[$ds['name']])) { $val = $upArray[$ds['name']]; }
+      elseif (isset($ds['update'])) { $val = eval($ds['update']); }
+      else { $val = null; }
+      $upvals[] = $val;
+    }
+    $update_cmd = 'rrdtool update '.$this->rrd_file.' N:'.implode(':', $upvals);
+    $output = array(); $return_var = null;
+    exec($update_cmd, $output, $return_var);
+    if ($return_var) { trigger_error('rrd update returned with value '.$return_var, E_USER_WARNING); }
+  return ($return_var == 0);
+  }
+
+  function graph($filename, $timeframe, $extra = null) {
+    // create an RRD graph
+    static $gColors;
+
+    if (!isset($gColors)) {
+      $gColors = array('#00CC00','#0000FF','#000000','#FF0000','#00FF00','#FFFF00','#FF00FF','#00FFFF','#808080','#800000','#008000','#000080','#808000','#800080','#008080','#C0C0C0');
+    }
+
+    if (is_null($filename) || !strlen($filename)) { $filename = str_replace('.rrd', '-%tf.png', $this->rrd_file); }
+    $fname = str_replace('%tf', $timeframe, $filename);
+    if (substr($fname, -4) != '.png') { $fname .= '.png'; }
+
+    // [-s|--start time] [-e|--end time] [-S|--step seconds]
+    if ($timeframe == 'day') { $timeinfo = '--start -86400'; }
+    elseif ($timeframe == 'week') { $timeinfo = '--start -604800'; }
+    elseif ($timeframe == 'month') { $timeinfo = '--start -2678400'; }
+    elseif ($timeframe == 'year') { $timeinfo = '--start -31622400'; }
+    else { $timeinfo = '--start -'.$this->rrd_step*500; }
+
+    $graphrows = array(); $gC = 0;
+    if (isset($extra['rows']) && count($extra['rows'])) {
+      foreach ($extra['rows'] as $erow) {
+        if (isset($erow['name']) && strlen($erow['name'])) {
+          $grow = array();
+          $grow['dType'] = isset($erow['dType'])?$erow['dType']:'DEF';
+          $grow['name'] = $erow['name'];
+          $grow['dsname'] = isset($erow['dsname'])?$erow['dsname']:$erow['name'];
+          $grow['cf'] = isset($erow['cf'])?$erow['cf']:'AVERAGE';
+          $grow['gType'] = isset($erow['gType'])?$erow['gType']:'LINE1';
+          $grow['color'] = isset($erow['color'])?$erow['color']:$gColors[$gC++];
+          if ($gC >= count($gColors)) { $gC = 0; }
+          if (isset($erow['legend'])) { $grow['legend'] = $erow['legend']; }
+          if (isset($erow['stack'])) { $grow['stack'] = ($erow['stack'] == true); }
+          $graphrows[] = $grow;
+        }
+      }
+    }
+    else {
+      foreach ($this->rrd_fields as $ds) {
+        $grow = array();
+        $grow['dType'] = 'DEF';
+        $grow['name'] = $ds['name'];
+        $grow['dsname'] = $ds['name'];
+        $grow['cf'] = 'AVERAGE';
+        $grow['gType'] = ($ds['name']=='ds0')?'AREA':'LINE1';
+        $grow['color'] = $gColors[$gC++]; if ($gC >= count($gColors)) { $gC = 0; }
+        $graphrows[] = $grow;
+      }
+    }
+
+    $gDefs = ''; $gGraphs = '';
+    foreach ($graphrows as $grow) {
+      $gDefs .= ' '.$grow['dType'].':'.$grow['name'].'='.$this->rrd_file.':'.$grow['dsname'].':'.$grow['cf'];
+      // XXX: current rrdtools version doesn't support STACK flag, only STACK type
+      if (isset($grow['stack']) && $grow['stack']) { $grow['gType'] = 'STACK'; }
+      $gGraphs .= ' '.$grow['gType'].':'.$grow['name'].$grow['color'];
+      if (isset($grow['legend'])) { $gGraphs .= ':'.$this->text_quote($grow['legend']); }
+      // XXX: when STACK flag is supported, remove above STACK if-command and uncomment the one below
+      //if (isset($grow['stack']) && $grow['stack']) { $gGraphs .= ':STACK'; }
+    }
+
+    $graph_cmd = 'rrdtool graph '.$fname.' '.$timeinfo.$gDefs.$gGraphs;
+    $return = `$graph_cmd 2>&1`;
+
+    $retval = 0;
+    if (strpos($return, 'ERROR') !== false) {
+      trigger_error('rrd graph error: '.$return, E_USER_WARNING);
+      $retval = 1;
+    }
+  return $retval;
+  }
+
+  function simple_html($page_extras = null, $graph_extras = null) {
+    // create a simple (MRTG-like) HTML page and return it in a string
+    $basename = str_replace('.rrd', '', $this->rrd_file);
+    $out = '<html><head><title>'.$basename.' - RRD statistics</title></head><body>';
+
+    if (in_array($this->status, array('ok','readonly'))) {
+      foreach (array('day','week','month','year') as $tframe) {
+        $this->graph(null, $tframe, $graph_extras);
+        $out .= '<p><img src="'.$basename.'-'.$tframe.'.png"></p>';
+      }
+    }
+    else {
+      $out .= 'RRD error: status is "'.$this->status.'"';
+    }
+
+    $ou .= '</body></html>';
+  return $out;
+  }
+
+  function text_quote($text) { return '"'.str_replace('"', '\"', str_replace(':', '\:', $text)).'"'; }
+}
+?>

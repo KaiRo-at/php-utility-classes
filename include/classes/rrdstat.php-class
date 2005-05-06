@@ -4,6 +4,10 @@ class rrdstat {
 
   var $rrd_file = 'sample.rrd';
 
+  var $config_raw = null;
+  var $config_graph = null;
+  var $config_page = null;
+
   var $rrd_fields = array();
   var $rra_base = array();
   var $rrd_step = 300;
@@ -81,6 +85,10 @@ class rrdstat {
     }
 
     $this->rra_add_max = isset($iinfo['rra_add_max'])?$iinfo['rra_add_max']:true;
+
+    if (isset($iinfo['graph'])) { $this->config_graph = $iinfo['graph']; }
+    if (isset($iinfo['page'])) { $this->config_page = $iinfo['page']; }
+    $this->config_raw = $iinfo;
   }
 
   function create() {
@@ -137,59 +145,128 @@ class rrdstat {
   return ($return_var == 0);
   }
 
-  function graph($filename, $timeframe, $extra = null) {
-    // create an RRD graph
-    static $gColors;
+  function fetch($cf = 'AVERAGE', $resolution = null, $start = null, $end = null) {
+    // fetch data from a RRD
+    if (!in_array($this->status, array('ok','readonly'))) { trigger_error('Error: rrd status is '.$this->status, E_USER_WARNING); return false; }
 
+    if (!in_array($cf, array('AVERAGE','MIN','MAX','LAST'))) { $cf = 'AVERAGE'; }
+    if (!is_numeric($resolution)) { $resolution = $this->rrd_step; }
+    if (!is_numeric($end)) { $end = $this->last_update(); }
+    elseif ($end < 0) { $end += $this->last_update(); }
+    $end = intval($end/$resolution)*$resolution;
+    if (!is_numeric($start)) { $start = $end; }
+    elseif ($start < 0) { $start += $end; }
+    $start = intval($start/$resolution)*$resolution;
+
+    $fetch_cmd = 'rrdtool fetch '.$this->rrd_file.' '.$cf.' --resolution '.$resolution.' --start '.$start.' --end '.$end;
+    $return = `$fetch_cmd 2>&1`;
+
+    if (strpos($return, 'ERROR') !== false) {
+      trigger_error('rrd fetch error: '.$return, E_USER_WARNING);
+      $fresult = false;
+    }
+    else {
+      $fresult = array();
+      $rows = explode("\n", $return);
+      $fields = preg_split('/\s+/', array_shift($rows));
+      if (array_shift($fields) == 'timestamp') {
+        $fresult[0] = $fields;
+        foreach ($rows as $row) {
+          if (strlen(trim($row))) {
+            $rvals = preg_split('/\s+/', $row);
+            $rtime = array_shift($rvals);
+            $rv_array = array();
+            foreach ($rvals as $key=>$rval) {
+              $rv_array[$fields[$key]] = ($rval=='nan')?null:floatval($rval);
+            }
+            $fresult[$rtime] = $rv_array;
+          }
+        }
+      }
+    }
+  return $fresult;
+  }
+
+  function graph($timeframe = 'day', $special = null, $extra = null) {
+    // create a RRD graph
+    static $gColors;
     if (!isset($gColors)) {
       $gColors = array('#00CC00','#0000FF','#000000','#FF0000','#00FF00','#FFFF00','#FF00FF','#00FFFF','#808080','#800000','#008000','#000080','#808000','#800080','#008080','#C0C0C0');
     }
 
-    if (is_null($filename) || !strlen($filename)) { $filename = str_replace('.rrd', '-%tf.png', $this->rrd_file); }
-    $fname = str_replace('%tf', $timeframe, $filename);
-    if (substr($fname, -4) != '.png') { $fname .= '.png'; }
+    if (!in_array($this->status, array('ok','readonly'))) { trigger_error('Error: rrd status is '.$this->status, E_USER_WARNING); return false; }
+
+    // assemble configuration
+    $gconf = $this->config_graph;
+    if (!is_null($special) && is_array($this->config_raw['graph'][$special])) {
+      if (is_array($gconf)) { $gconf = array_merge($gconf, $this->config_raw['graph'][$special]); }
+      else { $gconf = $this->config_raw['graph'][$special]; }
+    }
+    if (is_array($extra)) {
+      if (is_array($gconf)) { $gconf = array_merge($gconf, $extra); }
+      else { $gconf = $extra; }
+    }
+
+    if (isset($gconf['format']) && ($gconf['format'] == 'SVG')) {
+      $format = $gconf['format']; $fmt_ext = '.svg';
+    }
+    elseif (isset($gconf['format']) && ($gconf['format'] == 'EPS')) {
+      $format = $gconf['format']; $fmt_ext = '.eps';
+    }
+    elseif (isset($gconf['format']) && ($gconf['format'] == 'PDF')) {
+      $format = $gconf['format']; $fmt_ext = '.pdf';
+    }
+    else {
+      $format = 'PNG'; $fmt_ext = '.png';
+    }
+
+    if (isset($gconf['filename'])) { $fname = $gconf['filename']; }
+    else { $fname = str_replace('.rrd', '-%t%f', $this->rrd_file); }
+    $fname = str_replace('%t', $timeframe, $fname);
+    $fname = str_replace('%f', $fmt_ext, $fname);
+    if (substr($fname, -strlen($fmt_ext)) != $fmt_ext) { $fname .= $fmt_ext; }
 
     $graphrows = array(); $gC = 0;
     $gDefs = ''; $gGraphs = ''; $addSpecial = '';
 
     if ($timeframe == 'day') {
-      $duration = isset($extra['duration'])?$extra['duration']:30*3600; // 30 hours
-      $slice = isset($extra['slice'])?$extra['slice']:300; // 5 minutes
+      $duration = isset($gconf['duration'])?$gconf['duration']:30*3600; // 30 hours
+      $slice = isset($gconf['slice'])?$gconf['slice']:300; // 5 minutes
       // vertical lines at day borders
       $addSpecial .= ' VRULE:'.strtotime(date('Y-m-d')).'#FF0000';
       $addSpecial .= ' VRULE:'.strtotime(date('Y-m-d').' -1 day').'#FF0000';
-      if (!isset($extra['grid_x'])) { $extra['grid_x'] = 'HOUR:1:HOUR:6:HOUR:2:0:%-H'; }
+      if (!isset($gconf['grid_x'])) { $gconf['grid_x'] = 'HOUR:1:HOUR:6:HOUR:2:0:%-H'; }
     }
     elseif ($timeframe == 'week') {
-      $duration = isset($extra['duration'])?$extra['duration']:8*86400; // 8 days
-      $slice = isset($extra['slice'])?$extra['slice']:1800; // 30 minutes
+      $duration = isset($gconf['duration'])?$gconf['duration']:8*86400; // 8 days
+      $slice = isset($gconf['slice'])?$gconf['slice']:1800; // 30 minutes
       // vertical lines at week borders
       $addSpecial .= ' VRULE:'.strtotime(date('Y-m-d').' '.(-date('w')+1).' day').'#FF0000';
       $addSpecial .= ' VRULE:'.strtotime(date('Y-m-d').' '.(-date('w')-6).' day').'#FF0000';
     }
     elseif ($timeframe == 'month') {
-      $duration = isset($extra['duration'])?$extra['duration']:36*86400; // 36 days
-      $slice = isset($extra['slice'])?$extra['slice']:7200; // 2 hours
+      $duration = isset($gconf['duration'])?$gconf['duration']:36*86400; // 36 days
+      $slice = isset($gconf['slice'])?$gconf['slice']:7200; // 2 hours
       // vertical lines at month borders
       $addSpecial .= ' VRULE:'.strtotime(date('Y-m-01')).'#FF0000';
       $addSpecial .= ' VRULE:'.strtotime(date('Y-m-01').' -1 month').'#FF0000';
     }
     elseif ($timeframe == 'year') {
-      $duration = isset($extra['duration'])?$extra['duration']:396*86400; // 365+31 days
-      $slice = isset($extra['slice'])?$extra['slice']:86400; // 1 day
+      $duration = isset($gconf['duration'])?$gconf['duration']:396*86400; // 365+31 days
+      $slice = isset($gconf['slice'])?$gconf['slice']:86400; // 1 day
       // vertical lines at month borders
       $addSpecial .= ' VRULE:'.strtotime(date('Y-01-01')).'#FF0000';
       $addSpecial .= ' VRULE:'.strtotime(date('Y-01-01').' -1 year').'#FF0000';
     }
     else {
-      $duration = isset($extra['duration'])?$extra['duration']:$this->rrd_step*500; // 500 steps
-      $slice = isset($extra['slice'])?$extra['slice']:$this->rrd_step; // whatever our step is
+      $duration = isset($gconf['duration'])?$gconf['duration']:$this->rrd_step*500; // 500 steps
+      $slice = isset($gconf['slice'])?$gconf['slice']:$this->rrd_step; // whatever our step is
     }
 
-    if (isset($extra['rows']) && count($extra['rows'])) {
-      foreach ($extra['rows'] as $erow) {
+    if (isset($gconf['rows']) && count($gconf['rows'])) {
+      foreach ($gconf['rows'] as $erow) {
         if (isset($erow['name']) && strlen($erow['name'])) {
-          if (!isset($erow['scale']) && isset($extra['scale'])) { $erow['scale'] = $extra['scale']; }
+          if (!isset($erow['scale']) && isset($gconf['scale'])) { $erow['scale'] = $gconf['scale']; }
           $grow = array();
           $grow['dType'] = isset($erow['dType'])?$erow['dType']:'DEF';
           $grow['name'] = $erow['name'].(isset($erow['scale'])?'_tmp':'');
@@ -208,7 +285,7 @@ class rrdstat {
           if ($gC >= count($gColors)) { $gC = 0; }
           if (isset($erow['legend'])) {
             $grow['legend'] = $erow['legend'];
-            if (!isset($extra['show_legend'])) { $extra['show_legend'] = true; }
+            if (!isset($gconf['show_legend'])) { $gconf['show_legend'] = true; }
           }
           if (isset($erow['stack'])) { $grow['stack'] = ($erow['stack'] == true); }
           $graphrows[] = $grow;
@@ -219,15 +296,15 @@ class rrdstat {
       foreach ($this->rrd_fields as $ds) {
         $grow = array();
         $grow['dType'] = 'DEF';
-        $grow['name'] = $ds['name'].(isset($extra['scale'])?'_tmp':'');
+        $grow['name'] = $ds['name'].(isset($gconf['scale'])?'_tmp':'');
         $grow['dsname'] = $ds['name'];
         $grow['cf'] = 'AVERAGE';
-        if (isset($extra['scale'])) {
+        if (isset($gconf['scale'])) {
           $graphrows[] = $grow;
           $grow = array();
           $grow['dType'] = 'CDEF';
           $grow['name'] = $ds['name'];
-          $grow['rpn_expr'] = $ds['name'].'_tmp,'.$extra['scale'].',*';
+          $grow['rpn_expr'] = $ds['name'].'_tmp,'.$gconf['scale'].',*';
         }
         $grow['gType'] = ($ds['name']=='ds0')?'AREA':'LINE1';
         $grow['color'] = $gColors[$gC++]; if ($gC >= count($gColors)) { $gC = 0; }
@@ -235,29 +312,30 @@ class rrdstat {
       }
     }
 
-    $gOpts = ' --start '.($this->last_update()-$duration).' --end '.$this->last_update().' --step '.$slice;
-    if (isset($extra['label_top'])) { $gOpts .= ' --title '.$this->text_quote($extra['label_top']); }
-    if (isset($extra['label_y'])) { $gOpts .= ' --vertical-label '.$this->text_quote($extra['label_y']); }
-    if (isset($extra['width'])) { $gOpts .= ' --width '.$extra['width']; }
-    if (isset($extra['height'])) { $gOpts .= ' --height '.$extra['height'];
-      if (($extra['height'] <= 32) && isset($extra['thumb']) && ($extra['thumb'])) { $gOpts .= ' --only-graph'; }
+    $endtime = isset($gconf['time_end'])?$gconf['time_end']:(is_numeric($this->last_update())?$this->last_update():time());
+    $gOpts = ' --start '.($endtime-$duration).' --end '.$endtime.' --step '.$slice;
+    if (isset($gconf['label_top'])) { $gOpts .= ' --title '.$this->text_quote($gconf['label_top']); }
+    if (isset($gconf['label_y'])) { $gOpts .= ' --vertical-label '.$this->text_quote($gconf['label_y']); }
+    if (isset($gconf['width'])) { $gOpts .= ' --width '.$gconf['width']; }
+    if (isset($gconf['height'])) { $gOpts .= ' --height '.$gconf['height'];
+      if (($gconf['height'] <= 32) && isset($gconf['thumb']) && ($gconf['thumb'])) { $gOpts .= ' --only-graph'; }
     }
-    if (!isset($extra['show_legend']) || (!$extra['show_legend'])) { $gOpts .= ' --no-legend'; }
-    if (isset($extra['min_y'])) { $gOpts .= ' --lower-limit '.$extra['min_y']; }
-    if (isset($extra['max_y'])) { $gOpts .= ' --upper-limit '.$extra['max_y']; }
-    if (isset($extra['fix_scale_y']) && $extra['fix_scale_y']) { $gOpts .= ' --rigid'; }
-    if (isset($extra['grid_x'])) { $gOpts .= ' --x-grid '.$extra['grid_x']; }
-    if (isset($extra['grid_y'])) { $gOpts .= ' --y-grid '.$extra['grid_y']; }
-    if (isset($extra['units_exponent'])) { $gOpts .= ' --units-exponent '.$extra['units_exponent']; }
-    if (isset($extra['units_length'])) { $gOpts .= ' --units-length '.$extra['units_length']; }
-    if (!isset($extra['force_recreate']) || (!$extra['force_recreate'])) { $gOpts .= ' --lazy'; }
-    if (isset($extra['force_color']) && is_array($extra['force_color'])) {
-      foreach ($extra['force_color'] as $ctag=>$cval) { $gOpts .= ' --color '.$ctag.$cval; }
+    if (!isset($gconf['show_legend']) || (!$gconf['show_legend'])) { $gOpts .= ' --no-legend'; }
+    if (isset($gconf['min_y'])) { $gOpts .= ' --lower-limit '.$gconf['min_y']; }
+    if (isset($gconf['max_y'])) { $gOpts .= ' --upper-limit '.$gconf['max_y']; }
+    if (isset($gconf['fix_scale_y']) && $gconf['fix_scale_y']) { $gOpts .= ' --rigid'; }
+    if (isset($gconf['grid_x'])) { $gOpts .= ' --x-grid '.$gconf['grid_x']; }
+    if (isset($gconf['grid_y'])) { $gOpts .= ' --y-grid '.$gconf['grid_y']; }
+    if (isset($gconf['units_exponent'])) { $gOpts .= ' --units-exponent '.$gconf['units_exponent']; }
+    if (isset($gconf['units_length'])) { $gOpts .= ' --units-length '.$gconf['units_length']; }
+    if (!isset($gconf['force_recreate']) || (!$gconf['force_recreate'])) { $gOpts .= ' --lazy'; }
+    if (isset($gconf['force_color']) && is_array($gconf['force_color'])) {
+      foreach ($gconf['force_color'] as $ctag=>$cval) { $gOpts .= ' --color '.$ctag.$cval; }
     }
-    if (isset($extra['force_font']) && is_array($extra['force_font'])) {
-      foreach ($extra['force_font'] as $ctag=>$cval) { $gOpts .= ' --font '.$ctag.$cval; }
+    if (isset($gconf['force_font']) && is_array($gconf['force_font'])) {
+      foreach ($gconf['force_font'] as $ctag=>$cval) { $gOpts .= ' --font '.$ctag.$cval; }
     }
-    if (isset($extra['units_binary']) && $extra['units_binary']) { $gOpts .= ' --base 1024'; }
+    if (isset($gconf['units_binary']) && $gconf['units_binary']) { $gOpts .= ' --base 1024'; }
 
     foreach ($graphrows as $grow) {
       if (isset($grow['dType']) && strlen($grow['dType'])) {
@@ -277,24 +355,32 @@ class rrdstat {
     $graph_cmd = 'rrdtool graph '.str_replace('*', '\*', $fname.$gOpts.$gDefs.$gGraphs.$addSpecial);
     $return = `$graph_cmd 2>&1`;
 
-    $retval = 0;
     if (strpos($return, 'ERROR') !== false) {
       trigger_error('rrd graph error: '.$return, E_USER_WARNING);
-      $retval = 1;
+      $return = $graph_cmd."\n\n".$return;
     }
-  return $retval;
+  return $return;
   }
 
   function simple_html($page_extras = null, $graph_extras = null) {
     // create a simple (MRTG-like) HTML page and return it in a string
     $basename = str_replace('.rrd', '', $this->rrd_file);
+
+    // assemble configuration
+    $pconf = $this->config_page;
+    if (is_array($page_extras)) {
+      if (is_array($pconf)) { $pconf = array_merge($pconf, $page_extras); }
+      else { $pconf = $page_extras; }
+    }
+
     $out = '<html><head><title>'.$basename.' - RRD statistics</title></head><body>';
 
     $out .= '<p>Last Update: '.date('Y-m-d H:i:s', $this->last_update()).'</p>';
 
     if (in_array($this->status, array('ok','readonly'))) {
       foreach (array('day','week','month','year') as $tframe) {
-        $this->graph(null, $tframe, $graph_extras);
+        $ret = $this->graph($tframe, null, $graph_extras);
+        $out .= '<p>'.nl2br($ret).'</p>';
         $out .= '<p><img src="'.$basename.'-'.$tframe.'.png"></p>';
       }
     }

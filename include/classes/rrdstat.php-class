@@ -272,9 +272,13 @@ class rrdstat {
           $grow = array();
           $grow['dType'] = isset($erow['dType'])?$erow['dType']:'DEF';
           $grow['name'] = $erow['name'].(isset($erow['scale'])?'_tmp':'');
-          $grow['dsname'] = isset($erow['dsname'])?$erow['dsname']:$erow['name'];
-          $grow['cf'] = isset($erow['cf'])?$erow['cf']:'AVERAGE';
-          if (isset($erow['rpn_expr'])) { $grow['rpn_expr'] = $erow['rpn_expr']; }
+          if ($grow['dType'] == 'DEF') {
+            $grow['dsname'] = isset($erow['dsname'])?$erow['dsname']:$erow['name'];
+            $grow['cf'] = isset($erow['cf'])?$erow['cf']:'AVERAGE';
+          }
+          else {
+            $grow['rpn_expr'] = isset($erow['rpn_expr'])?$erow['rpn_expr']:'0';
+          }
           if (isset($erow['scale'])) {
             $graphrows[] = $grow;
             $grow = array();
@@ -314,6 +318,42 @@ class rrdstat {
       }
     }
 
+    if (isset($gconf['special']) && count($gconf['special'])) {
+      foreach ($gconf['special'] as $crow) {
+        $srow = array();
+        $srow['sType'] = isset($crow['sType'])?$crow['sType']:'COMMENT';
+        if ($grow['sType'] != 'COMMENT') {
+          // XXX: use line below and remove cf var once we have rrdtol 1.2
+          // $srow['name'] = $crow['name'].(isset($crow['cf'])?'_'.$crow['cf']:'');
+          $srow['name'] = $crow['name'];
+          $srow['cf'] = isset($crow['cf'])?$crow['cf']:'AVERAGE';
+          if (isset($crow['cf'])) {
+            // XXX: use line below once we have rrdtol 1.2
+            // $graphrows[] = array('dType'=>'VDEF', 'name'=>$srow['name'].'_'.$crow['cf'], 'rpn_expr'=>$srow['name'].','.$crow['cf']);
+          }
+          elseif (isset($crow['rpn_expr'])) {
+            // XXX: does only work with rrdtool 1.2
+            $graphrows[] = array('dType'=>'VDEF', 'name'=>$srow['name'], 'rpn_expr'=>$crow['rpn_expr']);
+          }
+        }
+        $srow['text'] = isset($crow['text'])?$crow['text']:'';
+        $specialrows[] = $srow;
+      }
+    }
+    else {
+      foreach ($graphrows as $grow) {
+        if (isset($grow['gType']) && strlen($grow['gType'])) {
+          $textprefix = isset($grow['legend'])?$grow['legend']:$grow['name'];
+          // XXX: use lines below once we have rrdtol 1.2
+          // $graphrows[] = array('dType'=>'VDEF', 'name'=>$grow['name'].'_last', 'rpn_expr'=>$grow['name'].',LAST');
+          // $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'].'_last', 'text'=>'%3.2lf%s');
+          $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'], 'cf'=>'MAX', 'text'=>$textprefix.'|Maximum|%.2lf%s');
+          $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'], 'cf'=>'AVERAGE', 'text'=>$textprefix.'|Average|%.2lf%s');
+          $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'], 'cf'=>'LAST', 'text'=>$textprefix.'|Current|%.2lf%s');
+        }
+      }
+    }
+
     $endtime = isset($gconf['time_end'])?$gconf['time_end']:(is_numeric($this->last_update())?$this->last_update():time());
     $gOpts = ' --start '.($endtime-$duration).' --end '.$endtime.' --step '.$slice;
     if (isset($gconf['label_top'])) { $gOpts .= ' --title '.$this->text_quote($gconf['label_top']); }
@@ -345,13 +385,21 @@ class rrdstat {
         $gDefs .= ($grow['dType']=='DEF')?$this->rrd_file.':'.$grow['dsname'].':'.$grow['cf']:$grow['rpn_expr'];
       }
       if (isset($grow['gType']) && strlen($grow['gType'])) {
-        // XXX: current rrdtools version doesn't support STACK flag, only STACK type
+        // XXX: change from STACK type to STACK flag once we have rrdtool 1.2
         if (isset($grow['stack']) && $grow['stack']) { $grow['gType'] = 'STACK'; }
         $gGraphs .= ' '.$grow['gType'].':'.$grow['name'].$grow['color'];
         if (isset($grow['legend'])) { $gGraphs .= ':'.$this->text_quote($grow['legend']); }
-        // XXX: when STACK flag is supported, remove above STACK if-command and uncomment the one below
+        // XXX: remove above STACK if-command and uncomment the one below once we have rrdtool 1.2
         //if (isset($grow['stack']) && $grow['stack']) { $gGraphs .= ':STACK'; }
       }
+    }
+
+    foreach ($specialrows as $srow) {
+      $addSpecial .= ' '.$srow['sType'];
+      // XXX: eliminate cf once we have rrdtool 1.2
+      // $addSpecial .= ($grow['sType']!='COMMENT')?':'.$grow['name']:'');
+      $addSpecial .= (($srow['sType']!='COMMENT')?':'.$srow['name'].':'.$srow['cf']:'');
+      $addSpecial .= ':'.$this->text_quote($srow['text']);
     }
 
     $graph_cmd = 'rrdtool graph '.str_replace('*', '\*', $fname.$gOpts.$gDefs.$gGraphs.$addSpecial);
@@ -359,7 +407,7 @@ class rrdstat {
 
     if (strpos($return, 'ERROR') !== false) {
       trigger_error('rrd graph error: '.$return, E_USER_WARNING);
-//       $return = $graph_cmd."\n\n".$return;
+      $return = $graph_cmd."\n\n".$return;
     }
   return $return;
   }
@@ -375,22 +423,88 @@ class rrdstat {
       else { $pconf = $page_extras; }
     }
 
-    $out = '<html><head><title>'.$basename.' - RRD statistics</title></head><body>';
+    $ptitle = $basename.' - RRD statistics';
+    $gtitle = array();
+    $gtitle['day'] = 'Day overview (scaling 5 minutes)';
+    $gtitle['week'] = 'Week overview (scaling 30 minutes)';
+    $gtitle['month'] = 'Month overview (scaling 2 hours)';
+    $gtitle['year'] = 'Year overview (scaling 1 day)';
 
-    $out .= '<p>Last Update: '.date('Y-m-d H:i:s', $this->last_update()).'</p>';
+    $out = '<html><head>';
+    $out .= '<title>'.$ptitle.'</title>';
+    $out .= '<style>';
+    if (isset($pconf['style_base'])) { $out .= $pconf['style_base']; }
+    else {
+      $out .= 'h1 { font-weight: bold; font-size: 1.5em; }';
+      $out .= 'h2 { font-weight: bold; font-size: 1em; }';
+      $out .= '.gdata, .gvar, .ginfo { font-size: 0.75em; margin: 0.5em 0; }';
+      $out .= 'table.gdata { border: 1px solid gray; border-collapse: collapse; }';
+      $out .= 'table.gdata td, table.gdata th { border: 1px solid gray; padding: 0.1em 0.2em; }';
+    }
+    if (isset($pconf['style'])) { $out .= $pconf['style']; }
+    $out .= '</style>';
+    $out .= '</head>';
+    $out .= '<body>';
+
+    $out .= '<h1>'.$ptitle.'</h1>';
+    $out .= '<p class="last_up">Last Update: '.date('Y-m-d H:i:s', $this->last_update()).'</p>';
 
     if (in_array($this->status, array('ok','readonly'))) {
       foreach (array('day','week','month','year') as $tframe) {
         $ret = $this->graph($tframe, null, $graph_extras);
+        if (strpos($ret, "\n\n") !== false) { $graph_cmd = substr($ret, 0, strpos($ret, "\n\n")); $ret = substr($ret, strpos($ret, "\n\n")+2); }
+        else { $graph_cmd = null; }
+        $grout = explode("\n",$ret);
+        $gmeta = array();
+        foreach ($grout as $gline) {
+          if (preg_match('/^(\d+)x(\d+)$/', $gline, $regs)) {
+            $gmeta['width'] = $regs[1]; $gmeta['height'] = $regs[2];
+          }
+          elseif (preg_match('/^([^\|]+)\|([^|]+)\|([^\|]*)$/', $gline, $regs)) {
+            $gmeta['data'][$regs[1]][$regs[2]] = $regs[3];
+          }
+          elseif (preg_match('/^([^\|]+)\|([^\|]*)$/', $gline, $regs)) {
+            $gmeta['var'][$regs[1]] = $regs[2];
+          }
+          elseif (strlen(trim($gline))) {
+            $gmeta['info'][] = $gline;
+          }
+        }
+        $out .= '<div class="'.$tframe.'">';
 //         $out .= '<p>'.nl2br($ret).'</p>';
-        $out .= '<p><img src="'.$basename.'-'.$tframe.'.png"></p>';
+        $out .= '<h2>'.$gtitle[$tframe].'</h2>';
+        $out .= '<img src="'.$basename.'-'.$tframe.'.png"';
+        $out .= ' alt="'.$basename.' - '.$tframe.'" class="rrdgraph"';
+        $out .= ' style="width:'.$gmeta['width'].'px;height:'.$gmeta['height'].'px;">';
+        if (isset($gmeta['data']) && count($gmeta['data'])) {
+          $out .= '<table class="gdata">';
+          foreach ($gmeta['data'] as $field=>$gdata) {
+            $out .= '<tr><th>'.$field.'</th>';
+            foreach ($gdata as $gkey=>$gval) {
+              $out .= '<td><span class="gkey">'.$gkey.': </span>'.$gval.'</td>';
+            }
+            $out .= '</tr>';
+          }
+          $out .= '</table>';
+        }
+        if (isset($gmeta['var']) && count($gmeta['var'])) {
+          foreach ($gmeta['var'] as $gkey=>$gval) {
+            $out .= '<p class="gvar"><span class="gkey">'.$gkey.': </span>'.$gval.'</p>';
+          }
+        }
+        if (isset($gmeta['info']) && count($gmeta['info'])) {
+          foreach ($gmeta['info'] as $gval) {
+            $out .= '<p class="ginfo">'.$gval.'</p>';
+          }
+        }
       }
     }
     else {
       $out .= 'RRD error: status is "'.$this->status.'"';
     }
+    $out .= '</div>';
 
-    $ou .= '</body></html>';
+    $out .= '</body></html>';
   return $out;
   }
 

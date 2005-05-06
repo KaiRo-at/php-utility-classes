@@ -189,7 +189,7 @@ class rrdstat {
   return $fresult;
   }
 
-  function graph($timeframe = 'day', $special = null, $extra = null) {
+  function graph($timeframe = 'day', $sub = null, $extra = null) {
     // create a RRD graph
     static $gColors;
     if (!isset($gColors)) {
@@ -200,9 +200,9 @@ class rrdstat {
 
     // assemble configuration
     $gconf = $this->config_graph;
-    if (!is_null($special) && is_array($this->config_raw['graph'][$special])) {
-      if (is_array($gconf)) { $gconf = array_merge($gconf, $this->config_raw['graph'][$special]); }
-      else { $gconf = $this->config_raw['graph'][$special]; }
+    if (!is_null($sub) && is_array($this->config_raw['graph.'.$sub])) {
+      if (is_array($gconf)) { $gconf = array_merge($gconf, $this->config_raw['graph.'.$sub]); }
+      else { $gconf = $this->config_raw['graph.'.$sub]; }
     }
     if (is_array($extra)) {
       if (is_array($gconf)) { $gconf = array_merge($gconf, $extra); }
@@ -223,7 +223,8 @@ class rrdstat {
     }
 
     if (isset($gconf['filename'])) { $fname = $gconf['filename']; }
-    else { $fname = str_replace('.rrd', '-%t%f', $this->rrd_file); }
+    else { $fname = str_replace('.rrd', (is_null($sub)?'':'-%s').'-%t%f', $this->rrd_file); }
+    $fname = str_replace('%s', strval($sub), $fname);
     $fname = str_replace('%t', $timeframe, $fname);
     $fname = str_replace('%f', $fmt_ext, $fname);
     if (substr($fname, -strlen($fmt_ext)) != $fmt_ext) { $fname .= $fmt_ext; }
@@ -412,23 +413,27 @@ class rrdstat {
   return $return;
   }
 
-  function simple_html($page_extras = null, $graph_extras = null) {
+  function simple_html($sub = null, $page_extras = null, $graph_extras = null) {
     // create a simple (MRTG-like) HTML page and return it in a string
     $basename = str_replace('.rrd', '', $this->rrd_file);
 
     // assemble configuration
     $pconf = $this->config_page;
+    if (!is_null($sub) && is_array($this->config_raw['page.'.$sub])) {
+      if (is_array($pconf)) { $gconf = array_merge($pconf, $this->config_raw['page.'.$sub]); }
+      else { $pconf = $this->config_raw['page.'.$sub]; }
+    }
     if (is_array($page_extras)) {
       if (is_array($pconf)) { $pconf = array_merge($pconf, $page_extras); }
       else { $pconf = $page_extras; }
     }
 
-    $ptitle = $basename.' - RRD statistics';
+    $ptitle = isset($pconf['title_page'])?$pconf['title_page']:$basename.' - RRD statistics';
     $gtitle = array();
-    $gtitle['day'] = 'Day overview (scaling 5 minutes)';
-    $gtitle['week'] = 'Week overview (scaling 30 minutes)';
-    $gtitle['month'] = 'Month overview (scaling 2 hours)';
-    $gtitle['year'] = 'Year overview (scaling 1 day)';
+    $gtitle['day'] = isset($pconf['title_day'])?$pconf['title_day']:'Day overview (scaling 5 minutes)';
+    $gtitle['week'] = isset($pconf['title_week'])?$pconf['title_week']:'Week overview (scaling 30 minutes)';
+    $gtitle['month'] = isset($pconf['title_month'])?$pconf['title_month']:'Month overview (scaling 2 hours)';
+    $gtitle['year'] = isset($pconf['title_year'])?$pconf['title_year']:'Year overview (scaling 1 day)';
 
     $out = '<html><head>';
     $out .= '<title>'.$ptitle.'</title>';
@@ -447,11 +452,14 @@ class rrdstat {
     $out .= '<body>';
 
     $out .= '<h1>'.$ptitle.'</h1>';
-    $out .= '<p class="last_up">Last Update: '.date('Y-m-d H:i:s', $this->last_update()).'</p>';
+    if (!isset($pconf['show_update']) || $pconf['show_update']) {
+      $out .= '<p class="last_up">Last Update: '.date('Y-m-d H:i:s', $this->last_update()).'</p>';
+    }
 
     if (in_array($this->status, array('ok','readonly'))) {
+      $g_sub = isset($pconf['graph_sub'])?$pconf['graph_sub']:null;
       foreach (array('day','week','month','year') as $tframe) {
-        $ret = $this->graph($tframe, null, $graph_extras);
+        $ret = $this->graph($tframe, $g_sub, $graph_extras);
         if (strpos($ret, "\n\n") !== false) { $graph_cmd = substr($ret, 0, strpos($ret, "\n\n")); $ret = substr($ret, strpos($ret, "\n\n")+2); }
         else { $graph_cmd = null; }
         $grout = explode("\n",$ret);
@@ -473,8 +481,8 @@ class rrdstat {
         $out .= '<div class="'.$tframe.'">';
 //         $out .= '<p>'.nl2br($ret).'</p>';
         $out .= '<h2>'.$gtitle[$tframe].'</h2>';
-        $out .= '<img src="'.$basename.'-'.$tframe.'.png"';
-        $out .= ' alt="'.$basename.' - '.$tframe.'" class="rrdgraph"';
+        $out .= '<img src="'.$basename.(!is_null($g_sub)?'-'.$g_sub:'').'-'.$tframe.'.png"';
+        $out .= ' alt="'.$basename.(!is_null($g_sub)?' - '.$g_sub:'').' - '.$tframe.'" class="rrdgraph"';
         $out .= ' style="width:'.$gmeta['width'].'px;height:'.$gmeta['height'].'px;">';
         if (isset($gmeta['data']) && count($gmeta['data'])) {
           $out .= '<table class="gdata">';

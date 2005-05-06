@@ -2,7 +2,7 @@
 // ************ RRD status class **************
 class rrdstat {
 
-  var $rrd_file = 'sample.rrd';
+  var $rrd_file = null;
 
   var $config_raw = null;
   var $config_graph = null;
@@ -19,18 +19,20 @@ class rrdstat {
     // ***** init RRD stat module *****
     $this->set_def($init_info);
 
-    if (!is_writeable($this->rrd_file)) {
-      if (!file_exists($this->rrd_file)) {
-        if (touch($this->rrd_file)) { $this->create(); }
-        else { trigger_error('RRD file can not be created', E_USER_WARNING); }
+    if (!is_null($this->rrd_file)) {
+      if (!is_writeable($this->rrd_file)) {
+        if (!file_exists($this->rrd_file)) {
+          if (touch($this->rrd_file)) { $this->create(); }
+          else { trigger_error('RRD file can not be created', E_USER_WARNING); }
+        }
+        else {
+          if (is_readable($this->rrd_file)) { $this->status = 'readonly'; }
+          else { trigger_error('RRD file is not readable', E_USER_WARNING); }
+        }
       }
       else {
-        if (is_readable($this->rrd_file)) { $this->status = 'readonly'; }
-        else { trigger_error('RRD file is not readable', E_USER_WARNING); }
+        $this->status = 'ok';
       }
-    }
-    else {
-      $this->status = 'ok';
     }
   }
 

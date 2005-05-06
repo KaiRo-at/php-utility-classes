@@ -359,7 +359,7 @@ class rrdstat {
 
     if (strpos($return, 'ERROR') !== false) {
       trigger_error('rrd graph error: '.$return, E_USER_WARNING);
-      $return = $graph_cmd."\n\n".$return;
+//       $return = $graph_cmd."\n\n".$return;
     }
   return $return;
   }
@@ -382,7 +382,7 @@ class rrdstat {
     if (in_array($this->status, array('ok','readonly'))) {
       foreach (array('day','week','month','year') as $tframe) {
         $ret = $this->graph($tframe, null, $graph_extras);
-        $out .= '<p>'.nl2br($ret).'</p>';
+//         $out .= '<p>'.nl2br($ret).'</p>';
         $out .= '<p><img src="'.$basename.'-'.$tframe.'.png"></p>';
       }
     }

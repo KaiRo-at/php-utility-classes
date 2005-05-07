@@ -136,9 +136,36 @@ class rrdstat {
     $upvals = array();
     foreach($this->rrd_fields as $ds) {
       if (is_array($upArray) && isset($upArray[$ds['name']])) { $val = $upArray[$ds['name']]; }
-      elseif (isset($ds['update'])) { $val = eval($ds['update']); }
+      elseif (isset($ds['update'])) {
+        $val = null; $evalcode = null;
+        if (substr($ds['update'], 0, 4) == 'val:') {
+          $evalcode = 'print(trim('.substr($ds['update'], 4).'));';
+        }
+        elseif (substr($ds['update'], 0, 8) == 'snmp-if:') {
+          $snmphost = 'localhost'; $snmpcomm = 'public';
+          list($nix, $ifname, $valtype) = explode(':', $ds['update'], 3);
+          $iflist = explode("\n", `snmpwalk -v2c -c $snmpcomm $snmphost interfaces.ifTable.ifEntry.ifDescr`);
+          $ifnr = null;
+          foreach ($iflist as $ifdesc) {
+            if (preg_match('/ifDescr\.(\d+) = STRING: '.$ifname.'/', $ifdesc, $regs)) { $ifnr = $regs[1]; }
+          }
+          $oid = null;
+          if ($valtype == 'in') { $oid = '1.3.6.1.2.1.2.2.1.10.'.$ifnr; }
+          elseif ($valtype == 'out') { $oid = '1.3.6.1.2.1.2.2.1.16.'.$ifnr; }
+          if (!is_null($ifnr) && !is_null($oid)) {
+            $evalcode = 'print(trim(substr(strrchr(`snmpget -v2c -c '.$snmpcomm.' '.$snmphost.' '.$oid.'`,":"),1)));';
+          }
+        }
+        else { $evalcode = $ds['update']; }
+        if (!is_null($evalcode)) {
+          ob_start();
+          eval($evalcode);
+          $val = ob_get_contents();
+          ob_end_clean();
+        }
+      }
       else { $val = null; }
-      $upvals[] = $val;
+      $upvals[] = is_null($val)?'U':$val;
     }
     $update_cmd = 'rrdtool update '.$this->rrd_file.' N:'.implode(':', $upvals);
     $output = array(); $return_var = null;
@@ -445,6 +472,7 @@ class rrdstat {
       $out .= '.gdata, .gvar, .ginfo { font-size: 0.75em; margin: 0.5em 0; }';
       $out .= 'table.gdata { border: 1px solid gray; border-collapse: collapse; }';
       $out .= 'table.gdata td, table.gdata th { border: 1px solid gray; padding: 0.1em 0.2em; }';
+      $out .= '.footer { font-size: 0.75em; margin: 0.5em 0; }';
     }
     if (isset($pconf['style'])) { $out .= $pconf['style']; }
     $out .= '</style>';
@@ -511,6 +539,11 @@ class rrdstat {
       $out .= 'RRD error: status is "'.$this->status.'"';
     }
     $out .= '</div>';
+
+    $out .= '<p class="footer">';
+    $out .= 'Statistics created by <a href="http://people.ee.ethz.ch/~oetiker/webtools/rrdtool/">RRDtool</a>';
+    $out .= ' using a library created by <a href="http://www.kairo.at/">KaiRo.at</a>.';
+    $out .= '</p>';
 
     $out .= '</body></html>';
   return $out;

@@ -327,7 +327,7 @@ class rrdstat {
       }
     }
     else {
-      foreach ($this->rrd_fields as $ds) {
+      foreach ($this->rrd_fields as $key=>$ds) {
         $grow = array();
         $grow['dType'] = 'DEF';
         $grow['name'] = $ds['name'].(isset($gconf['scale'])?'_tmp':'');
@@ -340,7 +340,7 @@ class rrdstat {
           $grow['name'] = $ds['name'];
           $grow['rpn_expr'] = $ds['name'].'_tmp,'.$gconf['scale'].',*';
         }
-        $grow['gType'] = ($ds['name']=='ds0')?'AREA':'LINE1';
+        $grow['gType'] = ((count($this->rrd_fields)==2) && ($key==0))?'AREA':'LINE1';
         $grow['color'] = $gColors[$gC++]; if ($gC >= count($gColors)) { $gC = 0; }
         $graphrows[] = $grow;
       }

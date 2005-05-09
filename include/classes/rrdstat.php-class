@@ -48,7 +48,11 @@ class rrdstat {
 
     if (!is_null($conf_id)) {
       $iinfo = isset($complete_conf[$conf_id])?$complete_conf[$conf_id]:array();
-      if (isset($complete_conf['*'])) { $iinfo = array_merge_recursive($complete_conf['*'], $iinfo); }
+      if (isset($complete_conf['*'])) {
+        $iinfo = (array)$iinfo + (array)$complete_conf['*'];
+        if (isset($complete_conf['*']['graph'])) { $iinfo['graph'] = (array)$iinfo['graph'] + (array)$complete_conf['*']['graph']; }
+        if (isset($complete_conf['*']['page'])) { $iinfo['page'] = (array)$iinfo['page'] + (array)$complete_conf['*']['page']; }
+      }
     }
     else {
       $iinfo = $complete_conf;
@@ -234,15 +238,11 @@ class rrdstat {
     if (!in_array($this->status, array('ok','readonly'))) { trigger_error('Error: rrd status is '.$this->status, E_USER_WARNING); return false; }
 
     // assemble configuration
-    $gconf = $this->config_graph;
+    $gconf = (array)$extra;
     if (!is_null($sub) && is_array($this->config_raw['graph.'.$sub])) {
-      if (is_array($gconf)) { $gconf = array_merge($gconf, $this->config_raw['graph.'.$sub]); }
-      else { $gconf = $this->config_raw['graph.'.$sub]; }
+      $gconf = $gconf + $this->config_raw['graph.'.$sub];
     }
-    if (is_array($extra)) {
-      if (is_array($gconf)) { $gconf = array_merge($gconf, $extra); }
-      else { $gconf = $extra; }
-    }
+    $gconf = $gconf + (array)$this->config_graph;
 
     if (isset($gconf['format']) && ($gconf['format'] == 'SVG')) {
       $format = $gconf['format']; $fmt_ext = '.svg';
@@ -456,15 +456,11 @@ class rrdstat {
     $basename = str_replace('.rrd', '', $this->rrd_file);
 
     // assemble configuration
-    $pconf = $this->config_page;
+    $pconf = (array)$page_extras;
     if (!is_null($sub) && is_array($this->config_raw['page.'.$sub])) {
-      if (is_array($pconf)) { $gconf = array_merge($pconf, $this->config_raw['page.'.$sub]); }
-      else { $pconf = $this->config_raw['page.'.$sub]; }
+      $pconf = $pconf + $this->config_raw['page.'.$sub];
     }
-    if (is_array($page_extras)) {
-      if (is_array($pconf)) { $pconf = array_merge($pconf, $page_extras); }
-      else { $pconf = $page_extras; }
-    }
+    $pconf = $pconf + (array)$this->config_page;
 
     $ptitle = isset($pconf['title_page'])?$pconf['title_page']:$basename.' - RRD statistics';
     $gtitle = array();

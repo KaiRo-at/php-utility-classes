@@ -15,9 +15,9 @@ class rrdstat {
 
   var $status = 'unused';
 
-  function rrdstat($init_info = null) {
+  function rrdstat($rrdconfig, $conf_id = null) {
     // ***** init RRD stat module *****
-    $this->set_def($init_info);
+    $this->set_def($rrdconfig, $conf_id);
 
     if (!is_null($this->rrd_file)) {
       if (!is_writeable($this->rrd_file)) {
@@ -36,14 +36,22 @@ class rrdstat {
     }
   }
 
-  function set_def($init_info = null) {
-    if (is_array($init_info) && isset($init_info['file'])) {
+  function set_def($rrdconfig, $conf_id = null) {
+    if (is_array($rrdconfig)) {
       // we have an array in the format we like to have
-      $iinfo =& $init_info;
+      $complete_conf =& $rrdconfig;
     }
     else {
       // we have something else (XML data?), try to generate the iinfo aray from it
-      $iinfo =& $init_info;
+      $complete_conf =& $rrdconfig;
+    }
+
+    if (!is_null($conf_id)) {
+      $iinfo = isset($complete_conf[$conf_id])?$complete_conf[$conf_id]:array();
+      if (isset($complete_conf['*'])) { $iinfo = array_merge_recursive($complete_conf['*'], $iinfo); }
+    }
+    else {
+      $iinfo = $complete_conf;
     }
 
     if (!isset($iinfo['file'])) { return false; }
@@ -255,6 +263,8 @@ class rrdstat {
     $fname = str_replace('%t', $timeframe, $fname);
     $fname = str_replace('%f', $fmt_ext, $fname);
     if (substr($fname, -strlen($fmt_ext)) != $fmt_ext) { $fname .= $fmt_ext; }
+    if (isset($gconf['path'])) { $fname = $gconf['path'].'/'.$fname; }
+    $fname = str_replace('//', '/', $fname);
 
     $graphrows = array(); $gC = 0;
     $gDefs = ''; $gGraphs = ''; $addSpecial = '';
@@ -437,6 +447,7 @@ class rrdstat {
       trigger_error('rrd graph error: '.$return, E_USER_WARNING);
       $return = $graph_cmd."\n\n".$return;
     }
+    $return = 'file:'.$fname."\n".$return;
   return $return;
   }
 
@@ -491,9 +502,13 @@ class rrdstat {
         if (strpos($ret, "\n\n") !== false) { $graph_cmd = substr($ret, 0, strpos($ret, "\n\n")); $ret = substr($ret, strpos($ret, "\n\n")+2); }
         else { $graph_cmd = null; }
         $grout = explode("\n",$ret);
+        $gfilename = null;
         $gmeta = array();
         foreach ($grout as $gline) {
-          if (preg_match('/^(\d+)x(\d+)$/', $gline, $regs)) {
+          if (preg_match('/^file:(.+)$/', $gline, $regs)) {
+            $gfilename = $regs[1];
+          }
+          elseif (preg_match('/^(\d+)x(\d+)$/', $gline, $regs)) {
             $gmeta['width'] = $regs[1]; $gmeta['height'] = $regs[2];
           }
           elseif (preg_match('/^([^\|]+)\|([^|]+)\|([^\|]*)$/', $gline, $regs)) {
@@ -509,7 +524,7 @@ class rrdstat {
         $out .= '<div class="'.$tframe.'">';
 //         $out .= '<p>'.nl2br($ret).'</p>';
         $out .= '<h2>'.$gtitle[$tframe].'</h2>';
-        $out .= '<img src="'.$basename.(!is_null($g_sub)?'-'.$g_sub:'').'-'.$tframe.'.png"';
+        $out .= '<img src="'.(!is_null($gfilename)?$gfilename:$basename.(!is_null($g_sub)?'-'.$g_sub:'').'-'.$tframe.'.png').'"';
         $out .= ' alt="'.$basename.(!is_null($g_sub)?' - '.$g_sub:'').' - '.$tframe.'" class="rrdgraph"';
         $out .= ' style="width:'.$gmeta['width'].'px;height:'.$gmeta['height'].'px;">';
         if (isset($gmeta['data']) && count($gmeta['data'])) {

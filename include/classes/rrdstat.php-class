@@ -517,10 +517,20 @@ class rrdstat {
             $gmeta['info'][] = $gline;
           }
         }
+        if (is_null($gfilename)) { $gfilename = $basename.(!is_null($g_sub)?'-'.$g_sub:'').'-'.$tframe.'.png'; }
+        if (isset($pconf['graph_url'])) {
+          $gURL = $pconf['graph_url'];
+          $fname = str_replace('%f', basename($gfilename), $gURL);
+          $fname = str_replace('%p', $gfilename, $gURL);
+          if (substr($gURL, -1) == '/') { $gURL .= $gfilename; }
+        }
+        else {
+          $gURL = $gfilename;
+        }
         $out .= '<div class="'.$tframe.'">';
 //         $out .= '<p>'.nl2br($ret).'</p>';
         $out .= '<h2>'.$gtitle[$tframe].'</h2>';
-        $out .= '<img src="'.(!is_null($gfilename)?$gfilename:$basename.(!is_null($g_sub)?'-'.$g_sub:'').'-'.$tframe.'.png').'"';
+        $out .= '<img src="'.$gURL.'"';
         $out .= ' alt="'.$basename.(!is_null($g_sub)?' - '.$g_sub:'').' - '.$tframe.'" class="rrdgraph"';
         $out .= ' style="width:'.$gmeta['width'].'px;height:'.$gmeta['height'].'px;">';
         if (isset($gmeta['data']) && count($gmeta['data'])) {

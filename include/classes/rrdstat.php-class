@@ -3,6 +3,7 @@
 class rrdstat {
 
   var $rrd_file = null;
+  var $basename = null;
 
   var $config_raw = null;
   var $config_graph = null;
@@ -61,6 +62,7 @@ class rrdstat {
     if (!isset($iinfo['file'])) { return false; }
 
     $this->rrd_file = $iinfo['file'];
+    $this->basename = (substr($this->rrd_file, -4) == '.rrd')?substr($this->rrd_file, 0, -4):$this->rrd_file;
 
     // fields (data sources, DS)
     //  name - DS name
@@ -269,7 +271,7 @@ class rrdstat {
     }
 
     if (isset($gconf['filename'])) { $fname = $gconf['filename']; }
-    else { $fname = str_replace('.rrd', (is_null($sub)?'':'-%s').'-%t%f', $this->rrd_file); }
+    else { $fname = $this->basename.(is_null($sub)?'':'-%s').'-%t%f'; }
     $fname = str_replace('%s', strval($sub), $fname);
     $fname = str_replace('%t', $timeframe, $fname);
     $fname = str_replace('%f', $fmt_ext, $fname);
@@ -464,7 +466,6 @@ class rrdstat {
 
   function simple_html($sub = null, $page_extras = null, $graph_extras = null) {
     // create a simple (MRTG-like) HTML page and return it in a string
-    $basename = str_replace('.rrd', '', $this->rrd_file);
 
     // assemble configuration
     $pconf = (array)$page_extras;
@@ -473,7 +474,7 @@ class rrdstat {
     }
     $pconf = $pconf + (array)$this->config_page;
 
-    $ptitle = isset($pconf['title_page'])?$pconf['title_page']:$basename.' - RRD statistics';
+    $ptitle = isset($pconf['title_page'])?$pconf['title_page']:$this->basename.' - RRD statistics';
     $gtitle = array();
     $gtitle['day'] = isset($pconf['title_day'])?$pconf['title_day']:'Day overview (scaling 5 minutes)';
     $gtitle['week'] = isset($pconf['title_week'])?$pconf['title_week']:'Week overview (scaling 30 minutes)';
@@ -528,7 +529,7 @@ class rrdstat {
             $gmeta['info'][] = $gline;
           }
         }
-        if (is_null($gfilename)) { $gfilename = $basename.(!is_null($g_sub)?'-'.$g_sub:'').'-'.$tframe.'.png'; }
+        if (is_null($gfilename)) { $gfilename = $this->basename.(!is_null($g_sub)?'-'.$g_sub:'').'-'.$tframe.'.png'; }
         if (isset($pconf['graph_url'])) {
           $gURL = $pconf['graph_url'];
           $fname = str_replace('%f', basename($gfilename), $gURL);
@@ -542,7 +543,7 @@ class rrdstat {
 //         $out .= '<p>'.nl2br($ret).'</p>';
         $out .= '<h2>'.$gtitle[$tframe].'</h2>';
         $out .= '<img src="'.$gURL.'"';
-        $out .= ' alt="'.$basename.(!is_null($g_sub)?' - '.$g_sub:'').' - '.$tframe.'" class="rrdgraph"';
+        $out .= ' alt="'.$this->basename.(!is_null($g_sub)?' - '.$g_sub:'').' - '.$tframe.'" class="rrdgraph"';
         $out .= ' style="width:'.$gmeta['width'].'px;height:'.$gmeta['height'].'px;">';
         if (isset($gmeta['data']) && count($gmeta['data'])) {
           $out .= '<table class="gdata">';

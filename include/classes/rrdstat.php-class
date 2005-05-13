@@ -154,7 +154,8 @@ class rrdstat {
       if (!is_null($evalcode)) {
         ob_start();
         eval($evalcode);
-        $upvals = explode("\n", ob_get_contents());
+        $ret = ob_get_contents();
+        if (strlen($ret)) { $upvals = explode("\n", $ret); }
         ob_end_clean();
       }
       $walkfunc = create_function('&$val,$key', '$val = is_numeric($val)?$val:"U";');
@@ -195,8 +196,11 @@ class rrdstat {
         $upvals[] = is_null($val)?'U':$val;
       }
     }
-    $update_cmd = 'rrdtool update '.$this->rrd_file.' N:'.implode(':', $upvals);
-    $return = `$update_cmd 2>&1`;
+    $return = null;
+    if (count($upvals)) {
+      $update_cmd = 'rrdtool update '.$this->rrd_file.' N:'.implode(':', $upvals);
+      $return = `$update_cmd 2>&1`;
+    }
 
     if (strpos($return, 'ERROR') !== false) {
       trigger_error($this->rrd_file.' - rrd update error: '.$return, E_USER_WARNING);

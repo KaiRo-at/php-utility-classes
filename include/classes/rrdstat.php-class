@@ -138,9 +138,10 @@ class rrdstat {
         }
       }
     }
-    $output = array(); $return_var = null;
-    exec($create_cmd, $output, $return_var);
-    if ($return_var) { trigger_error('rrd create returned with value '.$return_var, E_USER_WARNING); }
+    $return = `$create_cmd 2>&1`;
+    if (strpos($return, 'ERROR') !== false) {
+      trigger_error($this->rrd_file.' - rrd create error: '.$return, E_USER_WARNING);
+    }
     else { $this->status = 'ok'; }
   }
 
@@ -193,9 +194,13 @@ class rrdstat {
       }
     }
     $update_cmd = 'rrdtool update '.$this->rrd_file.' N:'.implode(':', $upvals);
-    $output = array(); $return_var = null;
-    exec($update_cmd, $output, $return_var);
-    if ($return_var) { trigger_error('rrd update returned with value '.$return_var, E_USER_WARNING); }
+    $return = `$update_cmd 2>&1`;
+
+    if (strpos($return, 'ERROR') !== false) {
+      trigger_error($this->rrd_file.' - rrd update error: '.$return, E_USER_WARNING);
+      $success = false;
+    }
+    else { $success = true; }
   return ($return_var == 0);
   }
 
@@ -216,7 +221,7 @@ class rrdstat {
     $return = `$fetch_cmd 2>&1`;
 
     if (strpos($return, 'ERROR') !== false) {
-      trigger_error('rrd fetch error: '.$return, E_USER_WARNING);
+      trigger_error($this->rrd_file.' - rrd fetch error: '.$return, E_USER_WARNING);
       $fresult = false;
     }
     else {
@@ -457,7 +462,7 @@ class rrdstat {
     $return = `$graph_cmd 2>&1`;
 
     if (strpos($return, 'ERROR') !== false) {
-      trigger_error('rrd graph error: '.$return, E_USER_WARNING);
+      trigger_error($this->rrd_file.' - rrd graph error: '.$return, E_USER_WARNING);
       $return = $graph_cmd."\n\n".$return;
     }
     $return = 'file:'.$fname."\n".$return;

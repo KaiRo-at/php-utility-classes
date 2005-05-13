@@ -157,7 +157,7 @@ class rrdstat {
         $upvals = explode("\n", ob_get_contents());
         ob_end_clean();
       }
-      $walkfunc = create_function('&$val', 'return (is_numeric($val)?$val:"U");');
+      $walkfunc = create_function('&$val', '$val = is_numeric($val)?$val:"U";');
       array_walk($upvals, $walkfunc);
     }
     else {

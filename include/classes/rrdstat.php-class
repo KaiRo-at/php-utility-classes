@@ -23,7 +23,7 @@ class rrdstat {
     if (!is_null($this->rrd_file)) {
       if (!is_writeable($this->rrd_file)) {
         if (!file_exists($this->rrd_file)) {
-          if (touch($this->rrd_file)) { $this->create(); }
+          if (@touch($this->rrd_file)) { $this->create(); }
           else { trigger_error('RRD file can not be created', E_USER_WARNING); }
         }
         else {
@@ -500,7 +500,7 @@ class rrdstat {
 
     $out .= '<h1>'.$ptitle.'</h1>';
     if (!isset($pconf['show_update']) || $pconf['show_update']) {
-      $out .= '<p class="last_up">Last Update: '.date('Y-m-d H:i:s', $this->last_update()).'</p>';
+      $out .= '<p class="last_up">Last Update: '.(is_null($this->last_update())?'unknown':date('Y-m-d H:i:s', $this->last_update())).'</p>';
     }
 
     if (in_array($this->status, array('ok','readonly'))) {

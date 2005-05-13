@@ -319,8 +319,8 @@ class rrdstat {
       $duration = isset($gconf['duration'])?$gconf['duration']:396*86400; // 365+31 days
       $slice = isset($gconf['slice'])?$gconf['slice']:86400; // 1 day
       // vertical lines at month borders
-      $addSpecial .= ' VRULE:'.strtotime(date('Y-01-01')).'#FF0000';
-      $addSpecial .= ' VRULE:'.strtotime(date('Y-01-01').' -1 year').'#FF0000';
+      $addSpecial .= ' VRULE:'.strtotime(date('Y-01-01 12:00:00')).'#FF0000';
+      $addSpecial .= ' VRULE:'.strtotime(date('Y-01-01 12:00:00').' -1 year').'#FF0000';
     }
     else {
       $duration = isset($gconf['duration'])?$gconf['duration']:$this->rrd_step*500; // 500 steps

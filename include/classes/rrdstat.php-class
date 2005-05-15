@@ -20,7 +20,7 @@ class rrdstat {
     // ***** init RRD stat module *****
     $this->set_def($rrdconfig, $conf_id);
 
-    if (!is_null($this->rrd_file)) {
+    if (($this->status == 'unused') && !is_null($this->rrd_file)) {
       if (!is_writeable($this->rrd_file)) {
         if (!file_exists($this->rrd_file)) {
           if (@touch($this->rrd_file)) { $this->create(); }
@@ -59,10 +59,16 @@ class rrdstat {
       $iinfo = $complete_conf;
     }
 
-    if (!isset($iinfo['file'])) { return false; }
+    if (isset($iinfo['graph-only']) && $iinfo['graph-only'] && !is_null($conf_id)) {
+      $this->basename = $conf_id;
+      $this->status = 'graphonly';
+    }
+    else {
+      if (!isset($iinfo['file'])) { return false; }
 
-    $this->rrd_file = $iinfo['file'];
-    $this->basename = (substr($this->rrd_file, -4) == '.rrd')?substr($this->rrd_file, 0, -4):$this->rrd_file;
+      $this->rrd_file = $iinfo['file'];
+      $this->basename = (substr($this->rrd_file, -4) == '.rrd')?substr($this->rrd_file, 0, -4):$this->rrd_file;
+    }
 
     // fields (data sources, DS)
     //  name - DS name
@@ -259,7 +265,7 @@ class rrdstat {
       $gColors = array('#00CC00','#0000FF','#000000','#FF0000','#00FF00','#FFFF00','#FF00FF','#00FFFF','#808080','#800000','#008000','#000080','#808000','#800080','#008080','#C0C0C0');
     }
 
-    if (!in_array($this->status, array('ok','readonly'))) { trigger_error('Error: rrd status is '.$this->status, E_USER_WARNING); return false; }
+    if (!in_array($this->status, array('ok','readonly','graphonly'))) { trigger_error('Error: rrd status is '.$this->status, E_USER_WARNING); return false; }
 
     // assemble configuration
     $gconf = (array)$extra;
@@ -336,6 +342,7 @@ class rrdstat {
           $grow['name'] = $erow['name'].(isset($erow['scale'])?'_tmp':'');
           if ($grow['dType'] == 'DEF') {
             $grow['dsname'] = isset($erow['dsname'])?$erow['dsname']:$erow['name'];
+            if (isset($erow['dsfile'])) { $grow['dsfile'] = $erow['dsfile']; }
             $grow['cf'] = isset($erow['cf'])?$erow['cf']:'AVERAGE';
           }
           else {
@@ -445,7 +452,11 @@ class rrdstat {
     foreach ($graphrows as $grow) {
       if (isset($grow['dType']) && strlen($grow['dType'])) {
         $gDefs .= ' '.$grow['dType'].':'.$grow['name'].'=';
-        $gDefs .= ($grow['dType']=='DEF')?$this->rrd_file.':'.$grow['dsname'].':'.$grow['cf']:$grow['rpn_expr'];
+        if ($grow['dType'] == 'DEF') {
+          $gDefs .= isset($grow['dsfile'])?$grow['dsfile']:$this->rrd_file;
+          $gDefs .= ':'.$grow['dsname'].':'.$grow['cf'];
+        }
+        else { $gDefs .= $grow['rpn_expr']; }
       }
       if (isset($grow['gType']) && strlen($grow['gType'])) {
         // XXX: change from STACK type to STACK flag once we have rrdtool 1.2
@@ -515,7 +526,7 @@ class rrdstat {
       $out .= '<p class="last_up">Last Update: '.(is_null($this->last_update())?'unknown':date('Y-m-d H:i:s', $this->last_update())).'</p>';
     }
 
-    if (in_array($this->status, array('ok','readonly'))) {
+    if (in_array($this->status, array('ok','readonly','graphonly'))) {
       $g_sub = isset($pconf['graph_sub'])?$pconf['graph_sub']:null;
       foreach (array('day','week','month','year') as $tframe) {
         $ret = $this->graph($tframe, $g_sub, $graph_extras);

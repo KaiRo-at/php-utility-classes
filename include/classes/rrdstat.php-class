@@ -356,6 +356,7 @@ class rrdstat {
             if (!isset($gconf['show_legend'])) { $gconf['show_legend'] = true; }
           }
           if (isset($erow['stack'])) { $grow['stack'] = ($erow['stack'] == true); }
+          if (isset($erow['desc'])) { $grow['desc'] = $erow['desc']; }
           $graphrows[] = $grow;
         }
       }
@@ -405,7 +406,7 @@ class rrdstat {
     else {
       foreach ($graphrows as $grow) {
         if (isset($grow['gType']) && strlen($grow['gType'])) {
-          $textprefix = isset($grow['legend'])?$grow['legend']:$grow['name'];
+          $textprefix = isset($grow['desc'])?$grow['desc']:(isset($grow['legend'])?$grow['legend']:$grow['name']);
           // XXX: use lines below once we have rrdtol 1.2
           // $graphrows[] = array('dType'=>'VDEF', 'name'=>$grow['name'].'_last', 'rpn_expr'=>$grow['name'].',LAST');
           // $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'].'_last', 'text'=>'%3.2lf%s');

@@ -5,6 +5,7 @@ class rrdstat {
   var $rrd_file = null;
   var $basename = null;
 
+  var $config_all = null;
   var $config_raw = null;
   var $config_graph = null;
   var $config_page = null;
@@ -63,54 +64,58 @@ class rrdstat {
       $this->basename = $conf_id;
       $this->status = 'graphonly';
     }
-    else {
-      if (!isset($iinfo['file'])) { return false; }
-
+    elseif (isset($iinfo['file'])) {
       $this->rrd_file = $iinfo['file'];
       $this->basename = (substr($this->rrd_file, -4) == '.rrd')?substr($this->rrd_file, 0, -4):$this->rrd_file;
     }
-
-    // fields (data sources, DS)
-    //  name - DS name
-    //  type - one of COUNTER, GAUGE, DERIVE, ABSOLUTE
-    //  heartbeat - if no sample recieved for that time, store UNKNOWN
-    //  min - U (unconstrained) or minimum value
-    //  max - U (unconstrained) or maximum value
-    //  update - this string will be fed into eval() for updating this field
-    if (isset($iinfo['fields']) && is_array($iinfo['fields'])) {
-      $this->rrd_fields = $iinfo['fields'];
-    }
     else {
-      $this->rrd_fields[] = array('name' => 'ds0', 'type' => 'COUNTER', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
-      $this->rrd_fields[] = array('name' => 'ds1', 'type' => 'COUNTER', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
+      $this->basename = !is_null($conf_id)?$conf_id:'xxx.unknown';
     }
 
+    if (isset($iinfo['file'])) {
+      // fields (data sources, DS)
+      //  name - DS name
+      //  type - one of COUNTER, GAUGE, DERIVE, ABSOLUTE
+      //  heartbeat - if no sample recieved for that time, store UNKNOWN
+      //  min - U (unconstrained) or minimum value
+      //  max - U (unconstrained) or maximum value
+      //  update - this string will be fed into eval() for updating this field
+      if (isset($iinfo['fields']) && is_array($iinfo['fields'])) {
+        $this->rrd_fields = $iinfo['fields'];
+      }
+      else {
+        $this->rrd_fields[] = array('name' => 'ds0', 'type' => 'COUNTER', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
+        $this->rrd_fields[] = array('name' => 'ds1', 'type' => 'COUNTER', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
+      }
 
-    // MRTG-style RRD "database", see http://people.ee.ethz.ch/~oetiker/webtools/rrdtool/tut/rrdtutorial.en.html
-    //
-    // archives (RRAs):
-    // 600 samples of 5 minutes  (2 days and 2 hours)
-    // 700 samples of 30 minutes (2 days and 2 hours, plus 12.5 days)
-    // 775 samples of 2 hours    (above + 50 days)
-    // 797 samples of 1 day      (above + 732 days, rounded up to 797)
 
-    $this->rrd_step = isset($iinfo['rrd_step'])?$iinfo['rrd_step']:300;
+      // MRTG-style RRD "database", see http://people.ee.ethz.ch/~oetiker/webtools/rrdtool/tut/rrdtutorial.en.html
+      //
+      // archives (RRAs):
+      // 600 samples of 5 minutes  (2 days and 2 hours)
+      // 700 samples of 30 minutes (2 days and 2 hours, plus 12.5 days)
+      // 775 samples of 2 hours    (above + 50 days)
+      // 797 samples of 1 day      (above + 732 days, rounded up to 797)
 
-    if (isset($iinfo['rra_base']) && is_array($iinfo['rra_base'])) {
-      $this->rra_base = $iinfo['rra_base'];
+      $this->rrd_step = isset($iinfo['rrd_step'])?$iinfo['rrd_step']:300;
+
+      if (isset($iinfo['rra_base']) && is_array($iinfo['rra_base'])) {
+        $this->rra_base = $iinfo['rra_base'];
+      }
+      else {
+        $this->rra_base[] = array('step' => 1, 'rows' => 600);
+        $this->rra_base[] = array('step' => 6, 'rows' => 700);
+        $this->rra_base[] = array('step' => 24, 'rows' => 775);
+        $this->rra_base[] = array('step' => 288, 'rows' => 797);
+      }
+
+      $this->rra_add_max = isset($iinfo['rra_add_max'])?$iinfo['rra_add_max']:true;
     }
-    else {
-      $this->rra_base[] = array('step' => 1, 'rows' => 600);
-      $this->rra_base[] = array('step' => 6, 'rows' => 700);
-      $this->rra_base[] = array('step' => 24, 'rows' => 775);
-      $this->rra_base[] = array('step' => 288, 'rows' => 797);
-    }
-
-    $this->rra_add_max = isset($iinfo['rra_add_max'])?$iinfo['rra_add_max']:true;
 
     if (isset($iinfo['graph'])) { $this->config_graph = $iinfo['graph']; }
     if (isset($iinfo['page'])) { $this->config_page = $iinfo['page']; }
     $this->config_raw = $iinfo;
+    $this->config_all = $complete_conf;
   }
 
   function create() {
@@ -164,7 +169,7 @@ class rrdstat {
         if (strlen($ret)) { $upvals = explode("\n", $ret); }
         ob_end_clean();
       }
-      $walkfunc = create_function('&$val,$key', '$val = is_numeric($val)?$val:"U";');
+      $walkfunc = create_function('&$val,$key', '$val = is_numeric(trim($val))?trim($val):"U";');
       array_walk($upvals, $walkfunc);
     }
     else {
@@ -487,8 +492,8 @@ class rrdstat {
   return $return;
   }
 
-  function simple_html($sub = null, $page_extras = null, $graph_extras = null) {
-    // create a simple (MRTG-like) HTML page and return it in a string
+  function page($sub = null, $page_extras = null, $graph_extras = null) {
+    // create a (HTML) page and return it in a string
 
     // assemble configuration
     $pconf = (array)$page_extras;
@@ -496,6 +501,124 @@ class rrdstat {
       $pconf = $pconf + $this->config_raw['page.'.$sub];
     }
     $pconf = $pconf + (array)$this->config_page;
+
+    $return = null;
+    switch ($pconf['type']) {
+      case 'index':
+        $return = $this->page_index($pconf);
+        break;
+      case 'overview':
+        $return = $this->page_overview($pconf, $graph_extras);
+        break;
+      case 'simple':
+      default:
+        $return = $this->page_simple($pconf, $graph_extras);
+        break;
+    }
+  return $return;
+  }
+
+  function simple_html($sub = null, $page_extras = null, $graph_extras = null) {
+    // create a simple (MRTG-like) HTML page and return it in a string
+    // XXX: this is here temporarily for compat only, it's preferred to use page()!
+
+    // assemble configuration
+    $pconf = (array)$page_extras;
+    if (!is_null($sub) && is_array($this->config_raw['page.'.$sub])) {
+      $pconf = $pconf + $this->config_raw['page.'.$sub];
+    }
+    $pconf = $pconf + (array)$this->config_page;
+
+  return $this->page_simple($pconf, $graph_extras);
+  }
+
+  function page_index($pconf) {
+    // create a bare, very simple index list HTML page and return it in a string
+
+    $ptitle = isset($pconf['title_page'])?$pconf['title_page']:'Index - RRD statistics';
+
+    $out = '<html><head>';
+    $out .= '<title>'.$ptitle.'</title>';
+    $out .= '<style>';
+    if (isset($pconf['style_base'])) { $out .= $pconf['style_base']; }
+    else {
+      $out .= 'h1 { font-weight: bold; font-size: 1.5em; }';
+      $out .= '.footer { font-size: 0.75em; margin: 0.5em 0; }';
+      $out .= 'li.scanfile { font-style: italic; }';
+    }
+    if (isset($pconf['style'])) { $out .= $pconf['style']; }
+    $out .= '</style>';
+    $out .= '</head>';
+    $out .= '<body>';
+
+    $out .= '<h1>'.$ptitle.'</h1>';
+    $out .= '<p class="intro">The following RRD stats are available:</p>';
+
+    $out .= '<ul class="indexlist">';
+    $snames = array(); $s_exclude = array();
+    $stats = array(); $sfiles = array();
+    if (isset($pconf['index_ids'])) {
+      foreach (explode(',', $pconf['index_ids']) as $iid) {
+        if ($iid{0} == '-') { $s_exclude[] = substr($iid, 1); }
+        else { $snames[] = $iid; }
+      }
+    }
+    if (!isset($pconf['scan_config']) || $pconf['scan_config']) {
+      foreach ($this->config_all as $iname=>$rinfo) {
+        if (($iname != '*') && !(isset($rinfo['hidden']) && $rinfo['hidden']) &&
+            !(in_array($iname, $snames)) && !(in_array($iname, $s_exclude))) {
+          $snames[] = $iname;
+        }
+      }
+    }
+    foreach ($snames as $iname) {
+      $newstat = array('name'=>$iname);
+      $sfiles[] = isset($this->config_all[$iname]['file'])?$this->config_all[$iname]['file']:$iname.'.rrd';
+      foreach ($this->config_all[$iname] as $key=>$val) {
+        if (substr($key, 0, 5) == 'page.') { $newstat['sub'][] = substr($key, 5); }
+      }
+      $stats[] = $newstat;
+    }
+    if (isset($pconf['scan_files']) && $pconf['scan_files']) {
+      $rrdfiles = glob('*.rrd');
+      foreach ($rrdfiles as $rrdfile) {
+        $iname = (substr($rrdfile, -4) == '.rrd')?substr($rrdfile, 0, -4):$rrdfile;
+        if (!in_array($rrdfile, $sfiles) && !(in_array($iname, $s_exclude))) {
+          $stats[] = array('name'=>$iname, 'class'=>'scanfile');
+        }
+      }
+    }
+    foreach ($stats as $stat) {
+      $out .= '<li'.(isset($stat['class'])?' class="'.$stat['class'].'"':'').'>';
+      $surl = '?stat='.$stat['name'];
+      $out .= '<a href="'.$surl.'">'.$stat['name'].'</a>';
+      if (isset($stat['sub']) && count($stat['sub'])) {
+        $sprt = array();
+        foreach ($stat['sub'] as $ssub) { $sprt[] = '<a href="'.$surl.'&sub='.$ssub.'">'.$ssub.'</a>'; }
+        $out .= ' <span="subs">('.implode(', ', $sprt).')</span>';
+      }
+      $out .= '</li>';
+    }
+    $out .= '</ul>';
+
+    $out .= '<p class="footer">';
+    $out .= 'Statistics created by <a href="http://people.ee.ethz.ch/~oetiker/webtools/rrdtool/">RRDtool</a>';
+    $out .= ' using a library created by <a href="http://www.kairo.at/">KaiRo.at</a>.';
+    $out .= '</p>';
+
+    $out .= '</body></html>';
+
+  return $out;
+  }
+
+  function page_overview($pconf, $graph_extras = null) {
+    // create an overview HTML page (including graphs) and return it in a string
+
+  return $this->page_index($pconf);
+  }
+
+  function page_simple($pconf, $graph_extras = null) {
+    // create a simple (MRTG-like) HTML page and return it in a string
 
     $ptitle = isset($pconf['title_page'])?$pconf['title_page']:$this->basename.' - RRD statistics';
     $gtitle = array();

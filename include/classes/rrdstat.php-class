@@ -400,6 +400,10 @@ class rrdstat {
         }
         $grow['gType'] = ((count($this->rrd_fields)==2) && ($key==0))?'AREA':'LINE1';
         $grow['color'] = $gColors[$gC++]; if ($gC >= count($gColors)) { $gC = 0; }
+        if (isset($ds['legend'])) {
+          $grow['legend'] = $ds['legend'];
+          if (!isset($gconf['show_legend'])) { $gconf['show_legend'] = true; }
+        }
         $graphrows[] = $grow;
       }
     }

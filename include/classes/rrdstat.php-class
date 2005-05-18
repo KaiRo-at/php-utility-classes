@@ -68,11 +68,15 @@ class rrdstat {
       $this->rrd_file = $iinfo['file'];
       $this->basename = (substr($this->rrd_file, -4) == '.rrd')?substr($this->rrd_file, 0, -4):$this->rrd_file;
     }
+    elseif (!is_null($conf_id) && file_exists($conf_id.'.rrd')) {
+      $this->rrd_file = $conf_id.'.rrd';
+      $this->basename = $conf_id;
+    }
     else {
       $this->basename = !is_null($conf_id)?$conf_id:'xxx.unknown';
     }
 
-    if (isset($iinfo['file'])) {
+    if (!is_null($this->rrd_file)) {
       // fields (data sources, DS)
       //  name - DS name
       //  type - one of COUNTER, GAUGE, DERIVE, ABSOLUTE
@@ -312,7 +316,7 @@ class rrdstat {
     if (isset($gconf['path'])) { $fname = $gconf['path'].'/'.$fname; }
     $fname = str_replace('//', '/', $fname);
 
-    $graphrows = array(); $gC = 0;
+    $graphrows = array(); $specialrows = array(); $gC = 0;
     $gDefs = ''; $gGraphs = ''; $addSpecial = '';
 
     if ($timeframe == 'day') {

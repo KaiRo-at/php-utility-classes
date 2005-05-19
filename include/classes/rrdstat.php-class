@@ -1,6 +1,130 @@
 <?php
-// ************ RRD status class **************
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * The contents of this file are subject to Austrian copyright reegulations
+ * ("Urheberrecht"); you may not use this file except in compliance with
+ * those laws.
+ * This contents and any derived work, if it gets distributed in any way,
+ * is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND,
+ * either express or implied.
+ *
+ * The Original Code is KaiRo's RRD statistics class.
+ *
+ * The Initial Developer of the Original Code is
+ * KaiRo - Robert Kaiser.
+ * Portions created by the Initial Developer are Copyright (C) 2005
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s): Robert Kaiser <kairo@kairo.at>
+ *
+ * ***** END LICENSE BLOCK ***** */
+
 class rrdstat {
+  // rrdstat PHP class
+  // rrdtool statistics functions
+  //
+  // function rrdstat($rrdconfig, [$conf_id])
+  //   CONSTRUCTOR
+  //     if $conf_id is set, $rrdconfig is a total configuration set
+  //     else it's the configuration for this one RRD
+  //     currently only a config array is supported, XML config is planned
+  //
+  // var $rrd_file
+  // RRD file name
+  //
+  // var $basename
+  // base name for this RRD (usually file name without .rrd)
+  //
+  // var $config_all
+  // complete, raw configuration array set
+  //
+  // var $config_raw
+  // configuration array set for current RRD
+  //
+  // var $config_graph
+  // configuration array set for default graph in this RRD
+  //
+  // var $config_page
+  // configuration array set for default page in this RRD
+  //
+  // var $rrd_fields
+  // definition of this RRD's fields
+  //
+  // var $rra_base
+  // definition of this RRD's base RRAs
+  //
+  // var $rrd_step
+  // basic stepping of this RRD in seconds (default: 300)
+  //
+  // var $rra_add_max
+  // should RRAs for MAX be added for every base RRA? (bool, default: true)
+  //
+  // var $status
+  // status of the RRD (unused/ok/readonly/graphonly)
+  //   note that most functions require certain status values
+  //   (e.g. update only works if status is ok, graph for ok/readonly/graphonly)
+  //
+  // function set_def($rrdconfig, [$conf_id])
+  //   set definitions based on given configuration
+  //   [intended for internal use, called by the constructor]
+  //
+  // function create()
+  //   create RRD file according to set config
+  //
+  // function update([$upArray])
+  //   feed new data into RRD (either use given array of values or use auto-update info from config)
+  //
+  // function fetch([$cf] = 'AVERAGE', $resolution = null, $start = null, $end = null)
+  //   fetch data from the defined RRD
+  //     using given consolidation function [default is AVERAGE],
+  //     resolution (seconds, default is the RRD's stepping),
+  //     start and end times (unix epoch, defaults are the RRD's last update time)
+  //
+  // function last_update()
+  //   fetch time of last update in this RRD file
+  //
+  // function graph([$timeframe], [$sub], [$extra])
+  //   create a RRD graph (and return all meta info in a flat string)
+  //     for given timeframe (day [default]/week/month/year),
+  //     sub-graph ID (if given) and extra config options (if given)
+  //
+  // function graph_plus([$timeframe], [$sub], [$extra])
+  //   create a RRD graph (see above) and return meta info as a ready-to-use array
+  //
+  // function page([$sub], [$page_extras], [$graph_extras])
+  //   create a (HTML) page and return it in a string
+  //     for given sub-page ID (if given, default is a simple HTML page)
+  //     and extra page and graph config options (if given)
+  //
+  // function simple_html([$sub], [$page_extras], [$graph_extras])
+  //   create a simple (MRTG-like) HTML page and return it in a string
+  //   XXX: this is here temporarily for compat only, it's preferred to use page()!
+  //
+  // function page_index($pconf)
+  //   create a bare, very simple index list HTML page and return it in a string
+  //   using given page config options
+  //   [intended for internal use, called by page()]
+  //
+  // function page_overview($pconf, [$graph_extras])
+  //   create an overview HTML page (including graphs) and return it in a string
+  //   using given page config options and extra graph options (if given)
+  //   [intended for internal use, called by page()]
+  //
+  // function page_simple($pconf, [$graph_extras])
+  //   create a simple (MRTG-like) HTML page and return it in a string
+  //   using given page config options and extra graph options (if given)
+  //   [intended for internal use, called by page()]
+  //
+  // function h_page_statsArray($pconf)
+  //   return array of stats to list on a page, using given page config options
+  //   [intended for internal use, called by page_*()]
+  //
+  // function h_page_footer()
+  //   return generic page footer
+  //   [intended for internal use, called by page_*()]
+  //
+  // function text_quote($text)
+  //   return a quoted/escaped text for use in rrdtool commandline text fields
 
   var $rrd_file = null;
   var $basename = null;

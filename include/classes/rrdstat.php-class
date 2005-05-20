@@ -335,6 +335,13 @@ class rrdstat {
         $upvals[] = is_null($val)?'U':$val;
       }
     }
+    if (in_array('L', $upvals)) {
+      // for at least one value, we need to set the same as the last recorded value
+      $lastvals = $this->fetch();
+      foreach (array_keys($upvals, 'L') as $akey) {
+        $upvals[$akey] = $lastvals[$akey];
+      }
+    }
     $return = null;
     if (count($upvals)) {
       $update_cmd = 'rrdtool update '.$this->rrd_file.' N:'.implode(':', $upvals);

@@ -330,6 +330,7 @@ class rrdstat {
           }
         }
         else { $val = null; }
+        $upvals[] = $val;
       }
     }
     if (in_array('L', $upvals)) {

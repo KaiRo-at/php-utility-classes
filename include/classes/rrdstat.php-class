@@ -297,7 +297,7 @@ class rrdstat {
         if (strlen($ret)) { $upvals = explode("\n", $ret); }
         ob_end_clean();
       }
-      $walkfunc = create_function('&$val,$key', '$val = is_numeric(trim($val))?trim($val):"U";');
+      $walkfunc = create_function('&$val,$key', '$val = is_numeric(trim($val))?trim($val):((trim($val)=="L")?"L":"U");');
       array_walk($upvals, $walkfunc);
     }
     else {
@@ -337,9 +337,11 @@ class rrdstat {
     }
     if (in_array('L', $upvals)) {
       // for at least one value, we need to set the same as the last recorded value
-      $lastvals = $this->fetch();
+      $fvals = $this->fetch();
+      $rowids = array_shift($fvals);
+      $lastvals = array_shift($fvals);
       foreach (array_keys($upvals, 'L') as $akey) {
-        $upvals[$akey] = $lastvals[$akey];
+        $upvals[$akey] = $lastvals[$rowids[$akey]];
       }
     }
     $return = null;
@@ -385,7 +387,7 @@ class rrdstat {
         foreach ($rows as $row) {
           if (strlen(trim($row))) {
             $rvals = preg_split('/\s+/', $row);
-            $rtime = array_shift($rvals);
+            $rtime = str_replace(':', '', array_shift($rvals));
             $rv_array = array();
             foreach ($rvals as $key=>$rval) {
               $rv_array[$fields[$key]] = ($rval=='nan')?null:floatval($rval);

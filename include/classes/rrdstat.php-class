@@ -286,7 +286,7 @@ class rrdstat {
 
   function update($upArray = null) {
     // feed new data into RRD
-    if ($this->status != 'ok') { trigger_error('Cannot update non-writeable file', E_USER_WARNING); return 1; }
+    if ($this->status != 'ok') { trigger_error('Cannot update non-writeable file', E_USER_WARNING); return false; }
     $upvals = array();
     if (isset($this->config_raw['update'])) {
       if (preg_match('/^\s*function\s+{(.*)}\s*$/is', $this->config_raw['update'], $regs)) {
@@ -366,7 +366,7 @@ class rrdstat {
       $success = false;
     }
     else { $success = true; }
-  return ($return_var == 0);
+  return $success;
   }
 
   function fetch($cf = 'AVERAGE', $resolution = null, $start = null, $end = null) {

@@ -35,6 +35,10 @@ class rrdstat {
   // var $basename
   // base name for this RRD (usually file name without .rrd)
   //
+  // var $basedir
+  // base directory for this RRD (with a trailing slash)
+  //   note that $rrd_file usually includes that path as well, but graph directory gets based on this value
+  //
   // var $config_all
   // complete, raw configuration array set
   //
@@ -128,6 +132,7 @@ class rrdstat {
 
   var $rrd_file = null;
   var $basename = null;
+  var $basedir = null;
 
   var $config_all = null;
   var $config_raw = null;
@@ -184,16 +189,21 @@ class rrdstat {
       $iinfo = $complete_conf;
     }
 
+    if (isset($iinfo['path']) && strlen($iinfo['path'])) {
+      $this->basedir = $iinfo['path'];
+      if (substr($this->basedir, -1) != '/') { $this->basedir .= '/'; }
+    }
+
     if (isset($iinfo['graph-only']) && $iinfo['graph-only'] && !is_null($conf_id)) {
       $this->basename = $conf_id;
       $this->status = 'graphonly';
     }
     elseif (isset($iinfo['file'])) {
-      $this->rrd_file = $iinfo['file'];
+      $this->rrd_file = (($iinfo['file']{0} != '/')?$this->basedir:'').$iinfo['file'];
       $this->basename = (substr($this->rrd_file, -4) == '.rrd')?substr($this->rrd_file, 0, -4):$this->rrd_file;
     }
     elseif (!is_null($conf_id) && file_exists($conf_id.'.rrd')) {
-      $this->rrd_file = $conf_id.'.rrd';
+      $this->rrd_file = (($iinfo['file']{0} != '/')?$this->basedir:'').$conf_id.'.rrd';
       $this->basename = $conf_id;
     }
     else {
@@ -457,7 +467,8 @@ class rrdstat {
     $fname = str_replace('%t', $timeframe, $fname);
     $fname = str_replace('%f', $fmt_ext, $fname);
     if (substr($fname, -strlen($fmt_ext)) != $fmt_ext) { $fname .= $fmt_ext; }
-    if (isset($gconf['path'])) { $fname = $gconf['path'].'/'.$fname; }
+    if (isset($gconf['path']) && ($fname{0} != '/')) { $fname = $gconf['path'].'/'.$fname; }
+    if ($fname{0} != '/') { $fname = $this->basedir.$fname; }
     $fname = str_replace('//', '/', $fname);
 
     $graphrows = array(); $specialrows = array(); $gC = 0;

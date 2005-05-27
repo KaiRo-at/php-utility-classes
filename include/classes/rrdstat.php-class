@@ -862,7 +862,7 @@ class rrdstat {
             $s_ptitle = $this->config_all[$sname]['page']['title_page'];
           }
           else {
-            $s_ptitle = $sname.(isset($s_psub)?' ('.$s_psub.')':'').' statistics';
+            $s_ptitle = isset($s_psub)?sprintf(dgettext($td, '%s (%s) statistics'), $sname, $s_psub):sprintf(dgettext($td, '%s statistics'), $sname);
           }
           if (!isset($pconf['hide_titles']) || !$pconf['hide_titles']) {
             $out .= '<h2>'.$s_ptitle.'</h2>';

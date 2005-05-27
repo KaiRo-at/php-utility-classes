@@ -602,15 +602,16 @@ class rrdstat {
       }
     }
     else {
+      $td = $this->mod_textdomain;
       foreach ($graphrows as $grow) {
         if (isset($grow['gType']) && strlen($grow['gType'])) {
           $textprefix = isset($grow['desc'])?$grow['desc']:(isset($grow['legend'])?$grow['legend']:$grow['name']);
           // XXX: use lines below once we have rrdtol 1.2
           // $graphrows[] = array('dType'=>'VDEF', 'name'=>$grow['name'].'_last', 'rpn_expr'=>$grow['name'].',LAST');
           // $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'].'_last', 'text'=>'%3.2lf%s');
-          $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'], 'cf'=>'MAX', 'text'=>$textprefix.'|Maximum|%.2lf%s');
-          $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'], 'cf'=>'AVERAGE', 'text'=>$textprefix.'|Average|%.2lf%s');
-          $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'], 'cf'=>'LAST', 'text'=>$textprefix.'|Current|%.2lf%s');
+          $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'], 'cf'=>'MAX', 'text'=>$textprefix.'|'.dgettext($td, 'Maximum').'|%.2lf%s');
+          $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'], 'cf'=>'AVERAGE', 'text'=>$textprefix.'|'.dgettext($td, 'Average').'|%.2lf%s');
+          $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'], 'cf'=>'LAST', 'text'=>$textprefix.'|'.dgettext($td, 'Current').'|%.2lf%s');
         }
       }
     }
@@ -834,6 +835,12 @@ class rrdstat {
 
     $stats = $this->h_page_statsArray($pconf);
 
+    if (isset($pconf['stats_url'])) { $sURL_base = $pconf['stats_url']; }
+    else { $sURL_base = '?stat=%i%a'; }
+
+    if (isset($pconf['stats_url_add'])) { $sURL_add = $pconf['stats_url_add']; }
+    else { $sURL_add = '&sub=%s'; }
+
     $num_rows = is_numeric($pconf['num_rows'])?$pconf['num_rows']:2;
     $num_cols = ceil(count($stats)/$num_rows);
 
@@ -867,18 +874,21 @@ class rrdstat {
             $gmeta = $s_rrd->graph_plus($tframe, $g_sub);
             if (isset($pconf['graph_url'])) {
               $gURL = $pconf['graph_url'];
-              $fname = str_replace('%f', basename($gmeta['filename']), $gURL);
-              $fname = str_replace('%p', $gmeta['filename'], $gURL);
+              $gURL = str_replace('%f', basename($gmeta['filename']), $gURL);
+              $gURL = str_replace('%p', $gmeta['filename'], $gURL);
               if (substr($gURL, -1) == '/') { $gURL .= $gmeta['filename']; }
             }
             else {
               $gURL = $gmeta['filename'];
             }
-            $out .= '<a href="?stat='.$sname.(isset($s_psub)?'&sub='.$s_psub:'').'"';
+            $sURL = str_replace('%i', $sname, $sURL_base);
+            $sURL = str_replace('%a', isset($s_psub)?$sURL_add:'', $sURL);
+            $sURL = str_replace('%s', isset($s_psub)?$s_pub:'', $sURL);
+            $out .= '<a href="'.$sURL.'">';
             $out .= '<img src="'.$gURL.'"';
             $out .= ' alt="'.$s_rrd->basename.(!is_null($g_sub)?' - '.$g_sub:'').' - '.$tframe.'" class="rrdgraph"';
-            $out .= ' style="width:'.$gmeta['width'].'px;height:'.$gmeta['height'].'px;">';
-            $out .= '</a>';
+            if (isset($gmeta['width']) && isset($gmeta['height'])) { $out .= ' style="width:'.$gmeta['width'].'px;height:'.$gmeta['height'].'px;"'; }
+            $out .= '></a>';
           }
           else {
             $out .= sprintf(dgettext($td, 'RRD error: status is "%s"'), $s_rrd->status);

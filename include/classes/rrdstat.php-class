@@ -68,6 +68,9 @@ class rrdstat {
   //   note that most functions require certain status values
   //   (e.g. update only works if status is ok, graph for ok/readonly/graphonly)
   //
+  // var $mod_textdomain
+  //   GNU gettext domain for this module
+  //
   // function set_def($rrdconfig, [$conf_id])
   //   set definitions based on given configuration
   //   [intended for internal use, called by the constructor]
@@ -146,8 +149,16 @@ class rrdstat {
 
   var $status = 'unused';
 
+  var $mod_textdomain;
+
   function rrdstat($rrdconfig, $conf_id = null) {
     // ***** init RRD stat module *****
+    $this->mod_textdomain = 'class_rrdstat';
+    $mod_charset = 'iso-8859-15';
+
+    bindtextdomain($this->mod_textdomain, class_exists('baseutils')?baseutils::getDir('locale'):'locale/');
+    bind_textdomain_codeset($this->mod_textdomain, $mod_charset);
+
     $this->set_def($rrdconfig, $conf_id);
 
     if (($this->status == 'unused') && !is_null($this->rrd_file)) {
@@ -739,8 +750,8 @@ class rrdstat {
 
   function page_index($pconf) {
     // create a bare, very simple index list HTML page and return it in a string
-
-    $ptitle = isset($pconf['title_page'])?$pconf['title_page']:'RRD statistics index';
+    $td = $this->mod_textdomain;
+    $ptitle = isset($pconf['title_page'])?$pconf['title_page']:dgettext($td, 'RRD statistics index');
 
     $out = '<html><head>';
     $out .= '<title>'.$ptitle.'</title>';
@@ -761,7 +772,7 @@ class rrdstat {
       $out .= '<p class="intro">'.$pconf['text_intro'].'</p>';
     }
     elseif (!isset($pconf['text_intro'])) {
-      $out .= '<p class="intro">The following RRD stats are available:</p>';
+      $out .= '<p class="intro">'.dgettext($td, 'The following RRD stats are available:').'</p>';
     }
 
     $stats = $this->h_page_statsArray($pconf);
@@ -800,8 +811,8 @@ class rrdstat {
 
   function page_overview($pconf, $graph_extras = null) {
     // create an overview HTML page (including graphs) and return it in a string
-
-    $ptitle = isset($pconf['title_page'])?$pconf['title_page']:'RRD statistics overview';
+    $td = $this->mod_textdomain;
+    $ptitle = isset($pconf['title_page'])?$pconf['title_page']:dgettext($td, 'RRD statistics overview');
 
     $out = '<html><head>';
     $out .= '<title>'.$ptitle.'</title>';
@@ -870,7 +881,7 @@ class rrdstat {
             $out .= '</a>';
           }
           else {
-            $out .= 'RRD error: status is "'.$s_rrd->status.'"';
+            $out .= sprintf(dgettext($td, 'RRD error: status is "%s"'), $s_rrd->status);
           }
         }
         else {
@@ -889,13 +900,14 @@ class rrdstat {
 
   function page_simple($pconf, $graph_extras = null) {
     // create a simple (MRTG-like) HTML page and return it in a string
+    $td = $this->mod_textdomain;
 
-    $ptitle = isset($pconf['title_page'])?$pconf['title_page']:$this->basename.' - RRD statistics';
+    $ptitle = isset($pconf['title_page'])?$pconf['title_page']:sprintf(dgettext($td, '%s - RRD statistics'),$this->basename);
     $gtitle = array();
-    $gtitle['day'] = isset($pconf['title_day'])?$pconf['title_day']:'Day overview (scaling 5 minutes)';
-    $gtitle['week'] = isset($pconf['title_week'])?$pconf['title_week']:'Week overview (scaling 30 minutes)';
-    $gtitle['month'] = isset($pconf['title_month'])?$pconf['title_month']:'Month overview (scaling 2 hours)';
-    $gtitle['year'] = isset($pconf['title_year'])?$pconf['title_year']:'Year overview (scaling 1 day)';
+    $gtitle['day'] = isset($pconf['title_day'])?$pconf['title_day']:dgettext($td, 'Day overview (scaling 5 minutes)');
+    $gtitle['week'] = isset($pconf['title_week'])?$pconf['title_week']:dgettext($td, 'Week overview (scaling 30 minutes)');
+    $gtitle['month'] = isset($pconf['title_month'])?$pconf['title_month']:dgettext($td, 'Month overview (scaling 2 hours)');
+    $gtitle['year'] = isset($pconf['title_year'])?$pconf['title_year']:dgettext($td, 'Year overview (scaling 1 day)');
 
     $out = '<html><head>';
     $out .= '<title>'.$ptitle.'</title>';
@@ -916,7 +928,12 @@ class rrdstat {
 
     $out .= '<h1>'.$ptitle.'</h1>';
     if (!isset($pconf['show_update']) || $pconf['show_update']) {
-      $out .= '<p class="last_up">Last Update: '.(is_null($this->last_update())?'unknown':date('Y-m-d H:i:s', $this->last_update())).'</p>';
+      $out .= '<p class="last_up">';
+      if (is_null($this->last_update())) { $up_time = dgettext($td, 'unknown'); }
+      elseif (class_exists('baseutils')) { $up_time = baseutils::dateFormat($this->last_update(), 'short'); }
+      else { $up_time = date('Y-m-d H:i:s', $this->last_update()); }
+      $out .= sprintf(dgettext($td, 'Last Update: %s'), $up_time);
+      $out .= '</p>';
     }
 
     $g_sub = isset($pconf['graph_sub'])?$pconf['graph_sub']:null;
@@ -964,7 +981,7 @@ class rrdstat {
       }
     }
     else {
-      $out .= 'RRD error: status is "'.$this->status.'"';
+      $out .= sprintf(dgettext($td, 'RRD error: status is "%s"'), $this->status);
     }
 
     $out .= $this->h_page_footer();
@@ -1015,8 +1032,9 @@ class rrdstat {
   function h_page_footer() {
     // return generic page footer
     $out = '<p class="footer">';
-    $out .= 'Statistics created by <a href="http://people.ee.ethz.ch/~oetiker/webtools/rrdtool/">RRDtool</a>';
-    $out .= ' using a library created by <a href="http://www.kairo.at/">KaiRo.at</a>.';
+    $out .= sprintf(dgettext($this->mod_textdomain, 'Statistics created with %s using a library created by %s.'),
+                    '<a href="http://people.ee.ethz.ch/~oetiker/webtools/rrdtool/">RRDtool</a>',
+                    '<a href="http://www.kairo.at/">KaiRo.at</a>');
     $out .= '</p>';
   return $out;
   }

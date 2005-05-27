@@ -200,7 +200,7 @@ class rrdstat {
     }
     elseif (isset($iinfo['file'])) {
       $this->rrd_file = (($iinfo['file']{0} != '/')?$this->basedir:'').$iinfo['file'];
-      $this->basename = (substr($this->rrd_file, -4) == '.rrd')?substr($this->rrd_file, 0, -4):$this->rrd_file;
+      $this->basename = basename((substr($this->rrd_file, -4) == '.rrd')?substr($this->rrd_file, 0, -4):$this->rrd_file);
     }
     elseif (!is_null($conf_id) && file_exists($conf_id.'.rrd')) {
       $this->rrd_file = (($iinfo['file']{0} != '/')?$this->basedir:'').$conf_id.'.rrd';
@@ -354,7 +354,7 @@ class rrdstat {
       }
     }
     $key_names = (!is_numeric(array_shift(array_keys($upvals))));
-    if (in_array('L', $upvals)) {
+    if (in_array('L', $upvals, true)) {
       // for at least one value, we need to set the same as the last recorded value
       $fvals = $this->fetch();
       $rowids = array_shift($fvals);
@@ -563,6 +563,7 @@ class rrdstat {
           $grow['legend'] = $ds['legend'];
           if (!isset($gconf['show_legend'])) { $gconf['show_legend'] = true; }
         }
+        if (isset($ds['desc'])) { $grow['desc'] = $ds['desc']; }
         $graphrows[] = $grow;
       }
     }
@@ -707,7 +708,7 @@ class rrdstat {
     $pconf = $pconf + (array)$this->config_page;
 
     $return = null;
-    switch ($pconf['type']) {
+    switch (@$pconf['type']) {
       case 'index':
         $return = $this->page_index($pconf);
         break;
@@ -765,14 +766,27 @@ class rrdstat {
 
     $stats = $this->h_page_statsArray($pconf);
 
+    if (isset($pconf['stats_url'])) { $sURL_base = $pconf['stats_url']; }
+    else { $sURL_base = '?stat=%i%a'; }
+
+    if (isset($pconf['stats_url_add'])) { $sURL_add = $pconf['stats_url_add']; }
+    else { $sURL_add = '&sub=%s'; }
+
     $out .= '<ul class="indexlist">';
     foreach ($stats as $stat) {
       $out .= '<li'.(isset($stat['class'])?' class="'.$stat['class'].'"':'').'>';
-      $surl = '?stat='.$stat['name'];
-      $out .= '<a href="'.$surl.'">'.$stat['name'].'</a>';
+      $sURL = str_replace('%i', $stat['name'], $sURL_base);
+      $sURL = str_replace('%a', '', $sURL);
+      $sURL = str_replace('%s', '', $sURL);
+      $out .= '<a href="'.$sURL.'">'.$stat['name'].'</a>';
       if (isset($stat['sub']) && count($stat['sub'])) {
         $sprt = array();
-        foreach ($stat['sub'] as $ssub) { $sprt[] = '<a href="'.$surl.'&sub='.$ssub.'">'.$ssub.'</a>'; }
+        foreach ($stat['sub'] as $ssub) {
+          $sURL = str_replace('%i', $stat['name'], $sURL_base);
+          $sURL = str_replace('%a', $sURL_add, $sURL);
+          $sURL = str_replace('%s', $ssub, $sURL);
+          $sprt[] = '<a href="'.$sURL.'">'.$ssub.'</a>';
+        }
         $out .= ' <span="subs">('.implode(', ', $sprt).')</span>';
       }
       $out .= '</li>';
@@ -911,8 +925,8 @@ class rrdstat {
         $gmeta = $this->graph_plus($tframe, $g_sub, $graph_extras);
         if (isset($pconf['graph_url'])) {
           $gURL = $pconf['graph_url'];
-          $fname = str_replace('%f', basename($gmeta['filename']), $gURL);
-          $fname = str_replace('%p', $gmeta['filename'], $gURL);
+          $gURL = str_replace('%f', basename($gmeta['filename']), $gURL);
+          $gURL = str_replace('%p', $gmeta['filename'], $gURL);
           if (substr($gURL, -1) == '/') { $gURL .= $gmeta['filename']; }
         }
         else {
@@ -923,7 +937,8 @@ class rrdstat {
         $out .= '<h2>'.$gtitle[$tframe].'</h2>';
         $out .= '<img src="'.$gURL.'"';
         $out .= ' alt="'.$this->basename.(!is_null($g_sub)?' - '.$g_sub:'').' - '.$tframe.'" class="rrdgraph"';
-        $out .= ' style="width:'.$gmeta['width'].'px;height:'.$gmeta['height'].'px;">';
+        if (isset($gmeta['width']) && isset($gmeta['height'])) { $out .= ' style="width:'.$gmeta['width'].'px;height:'.$gmeta['height'].'px;"'; }
+        $out .= '>';
         if (isset($gmeta['data']) && count($gmeta['data'])) {
           $out .= '<table class="gdata">';
           foreach ($gmeta['data'] as $field=>$gdata) {

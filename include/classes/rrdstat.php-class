@@ -543,6 +543,7 @@ class rrdstat {
           }
           $grow['gType'] = isset($erow['gType'])?$erow['gType']:'LINE1';
           $grow['color'] = isset($erow['color'])?$erow['color']:$gColors[$gC++];
+          $grow['color_bg'] = isset($erow['color_bg'])?$erow['color_bg']:'';
           if ($gC >= count($gColors)) { $gC = 0; }
           if (isset($erow['legend'])) {
             $grow['legend'] = $erow['legend'];
@@ -550,6 +551,7 @@ class rrdstat {
           }
           if (isset($erow['stack'])) { $grow['stack'] = ($erow['stack'] == true); }
           if (isset($erow['desc'])) { $grow['desc'] = $erow['desc']; }
+          if (isset($erow['legend_long'])) { $grow['legend_long'] = $erow['legend_long']; }
           $graphrows[] = $grow;
         }
       }
@@ -575,6 +577,7 @@ class rrdstat {
           if (!isset($gconf['show_legend'])) { $gconf['show_legend'] = true; }
         }
         if (isset($ds['desc'])) { $grow['desc'] = $ds['desc']; }
+        if (isset($ds['legend_long'])) { $grow['legend_long'] = $ds['legend_long']; }
         $graphrows[] = $grow;
       }
     }
@@ -675,13 +678,21 @@ class rrdstat {
       trigger_error($this->rrd_file.' - rrd graph error: '.$return, E_USER_WARNING);
       $return = $graph_cmd."\n\n".$return;
     }
-    $return = 'file:'.$fname."\n".$return;
+    $legendlines = '';
+    foreach ($graphrows as $grow) {
+      $legendline = isset($grow['desc'])?$grow['desc']:(isset($grow['legend'])?$grow['legend']:$grow['name']);
+      $legendline .= '|'.$grow['color'];
+      $legendline .= '|'.(isset($grow['color_bg'])?$grow['color_bg']:'');
+      $legendline .= '|'.(isset($grow['legend_long'])?$grow['legend_long']:'');
+      $legendlines .= 'legend:'.$legendline."\n";
+    }
+    $return = 'file:'.$fname."\n".$legendlines.$return;
   return $return;
   }
 
   function graph_plus($timeframe = 'day', $sub = null, $extra = null) {
     // create a RRD graph and return meta info as a ready-to-use array
-    $gmeta = array('filename'=>null);
+    $gmeta = array('filename'=>null,'legends_long'=>false,'default_colorize'=>false);
     $ret = $this->graph($timeframe, $sub, $extra);
     if (strpos($ret, "\n\n") !== false) { $gmeta['graph_cmd'] = substr($ret, 0, strpos($ret, "\n\n")); $ret = substr($ret, strpos($ret, "\n\n")+2); }
     else { $gmeta['graph_cmd'] = null; }
@@ -689,6 +700,11 @@ class rrdstat {
     foreach ($grout as $gline) {
       if (preg_match('/^file:(.+)$/', $gline, $regs)) {
         $gmeta['filename'] = $regs[1];
+      }
+      elseif (preg_match('/^legend:([^\|]+)\|([^|]+)\|([^\|]*)\|(.*)$/', $gline, $regs)) {
+        $gmeta['legend'][$regs[1]] = array('color'=>$regs[2], 'color_bg'=>$regs[3], 'desc_long'=>$regs[4]);
+        if (strlen($regs[4])) { $gmeta['legends_long'] = true; }
+        if (strlen($regs[3]) || strlen($regs[4])) { $gmeta['default_colorize'] = true; }
       }
       elseif (preg_match('/^(\d+)x(\d+)$/', $gline, $regs)) {
         $gmeta['width'] = $regs[1]; $gmeta['height'] = $regs[2];
@@ -883,7 +899,7 @@ class rrdstat {
             }
             $sURL = str_replace('%i', $sname, $sURL_base);
             $sURL = str_replace('%a', isset($s_psub)?$sURL_add:'', $sURL);
-            $sURL = str_replace('%s', isset($s_psub)?$s_pub:'', $sURL);
+            $sURL = str_replace('%s', isset($s_psub)?$s_psub:'', $sURL);
             $out .= '<a href="'.$sURL.'">';
             $out .= '<img src="'.$gURL.'"';
             $out .= ' alt="'.$s_rrd->basename.(!is_null($g_sub)?' - '.$g_sub:'').' - '.$tframe.'" class="rrdgraph"';
@@ -918,6 +934,7 @@ class rrdstat {
     $gtitle['week'] = isset($pconf['title_week'])?$pconf['title_week']:dgettext($td, 'Week overview (scaling 30 minutes)');
     $gtitle['month'] = isset($pconf['title_month'])?$pconf['title_month']:dgettext($td, 'Month overview (scaling 2 hours)');
     $gtitle['year'] = isset($pconf['title_year'])?$pconf['title_year']:dgettext($td, 'Year overview (scaling 1 day)');
+    $ltitle = isset($pconf['title_legend'])?$pconf['title_legend']:dgettext($td, 'Legend:');
 
     $out = '<html><head>';
     $out .= '<title>'.$ptitle.'</title>';
@@ -927,8 +944,11 @@ class rrdstat {
       $out .= 'h1 { font-weight: bold; font-size: 1.5em; }';
       $out .= 'h2 { font-weight: bold; font-size: 1em; }';
       $out .= '.gdata, .gvar, .ginfo { font-size: 0.75em; margin: 0.5em 0; }';
-      $out .= 'table.gdata { border: 1px solid gray; border-collapse: collapse; }';
-      $out .= 'table.gdata td, table.gdata th { border: 1px solid gray; padding: 0.1em 0.2em; }';
+      $out .= 'table.gdata, table.legend  { border: 1px solid gray; border-collapse: collapse; }';
+      $out .= 'table.gdata td, table.gdata th, ';
+      $out .= 'table.legend td, table.legend th { border: 1px solid gray; padding: 0.1em 0.2em; }';
+      $out .= 'div.legend { font-size: 0.75em; margin: 0.5em 0; }';
+      $out .= 'div.legend p { margin: 0; }';
       $out .= '.footer { font-size: 0.75em; margin: 0.5em 0; }';
     }
     if (isset($pconf['style'])) { $out .= $pconf['style']; }
@@ -966,10 +986,19 @@ class rrdstat {
         $out .= ' alt="'.$this->basename.(!is_null($g_sub)?' - '.$g_sub:'').' - '.$tframe.'" class="rrdgraph"';
         if (isset($gmeta['width']) && isset($gmeta['height'])) { $out .= ' style="width:'.$gmeta['width'].'px;height:'.$gmeta['height'].'px;"'; }
         $out .= '>';
+        $colorize_data = (isset($pconf['data_colorize']) && $pconf['data_colorize']) || (!isset($pconf['data_colorize']) && $gmeta['default_colorize']);
         if (isset($gmeta['data']) && count($gmeta['data'])) {
           $out .= '<table class="gdata">';
           foreach ($gmeta['data'] as $field=>$gdata) {
-            $out .= '<tr><th>'.$field.'</th>';
+            $out .= '<tr><th';
+            if ($colorize_data && isset($gmeta['legend'][$field])) {
+              $out .= ' style="color:'.$gmeta['legend'][$field]['color'].';';
+              if (strlen($gmeta['legend'][$field]['color_bg'])) {
+                $out .= 'background-color:'.$gmeta['legend'][$field]['color_bg'].';';
+              }
+              $out .= '"';
+            }
+            $out .= '>'.$field.'</th>';
             foreach ($gdata as $gkey=>$gval) {
               $out .= '<td><span class="gkey">'.$gkey.': </span>'.$gval.'</td>';
             }
@@ -987,6 +1016,26 @@ class rrdstat {
             $out .= '<p class="ginfo">'.$gval.'</p>';
           }
         }
+        $out .= '</div>';
+      }
+      if ($gmeta['legends_long'] && (!isset($pconf['show_legend']) || $pconf['show_legend'])) {
+        $out .= '<div class="legend">';
+        $out .= '<p>'.$ltitle.'</p>';
+        $out .= '<table class="legend">';
+        foreach ($gmeta['legend'] as $field=>$legend) {
+          $out .= '<tr><th';
+          if ($colorize_data && isset($gmeta['legend'][$field])) {
+            $out .= ' style="color:'.$gmeta['legend'][$field]['color'].';';
+            if (strlen($gmeta['legend'][$field]['color_bg'])) {
+              $out .= 'background-color:'.$gmeta['legend'][$field]['color_bg'].';';
+            }
+            $out .= '"';
+          }
+          $out .= '>'.$field.'</th>';
+          $out .= '<td>'.$legend['desc_long'].'</td>';
+          $out .= '</tr>';
+        }
+        $out .= '</table>';
         $out .= '</div>';
       }
     }

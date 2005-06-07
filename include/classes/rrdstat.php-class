@@ -628,11 +628,15 @@ class rrdstat {
       if (($gconf['height'] <= 32) && isset($gconf['thumb']) && ($gconf['thumb'])) { $gOpts .= ' --only-graph'; }
     }
     if (!isset($gconf['show_legend']) || (!$gconf['show_legend'])) { $gOpts .= ' --no-legend'; }
+    if (isset($gconf['logarithmic']) && $gconf['logarithmic']) { $gOpts .= ' --logarithmic'; }
     if (isset($gconf['min_y'])) { $gOpts .= ' --lower-limit '.$gconf['min_y']; }
     if (isset($gconf['max_y'])) { $gOpts .= ' --upper-limit '.$gconf['max_y']; }
     if (isset($gconf['fix_scale_y']) && $gconf['fix_scale_y']) { $gOpts .= ' --rigid'; }
     if (isset($gconf['grid_x'])) { $gOpts .= ' --x-grid '.$gconf['grid_x']; }
     if (isset($gconf['grid_y'])) { $gOpts .= ' --y-grid '.$gconf['grid_y']; }
+    if (isset($gconf['gridfit']) && (!$gconf['gridfit'])) { $gOpts .= ' --no-gridfit'; }
+    if (isset($gconf['calc_scale_y']) && $gconf['calc_scale_y']) { $gOpts .= ' --alt-autoscale'; }
+    if (isset($gconf['calc_max_y']) && $gconf['calc_max_y']) { $gOpts .= ' --alt-autoscale-max'; }
     if (isset($gconf['units_exponent'])) { $gOpts .= ' --units-exponent '.$gconf['units_exponent']; }
     if (isset($gconf['units_length'])) { $gOpts .= ' --units-length '.$gconf['units_length']; }
     if (!isset($gconf['force_recreate']) || (!$gconf['force_recreate'])) { $gOpts .= ' --lazy'; }
@@ -847,7 +851,7 @@ class rrdstat {
     $out .= '<body>';
 
     $out .= '<h1>'.$ptitle.'</h1>';
-    if (isset($pconf['text_intro'])) { $out .= '<p class="intro">'.$pconf['text_intro'].'</p>'; }
+    if (isset($pconf['text_intro']) && strlen($pconf['text_intro'])) { $out .= '<p class="intro">'.$pconf['text_intro'].'</p>'; }
 
     $stats = $this->h_page_statsArray($pconf);
 
@@ -957,6 +961,7 @@ class rrdstat {
     $out .= '<body>';
 
     $out .= '<h1>'.$ptitle.'</h1>';
+    if (isset($pconf['text_intro']) && strlen($pconf['text_intro'])) { $out .= '<p class="intro">'.$pconf['text_intro'].'</p>'; }
     if (!isset($pconf['show_update']) || $pconf['show_update']) {
       $out .= '<p class="last_up">';
       if (is_null($this->last_update())) { $up_time = dgettext($td, 'unknown'); }
@@ -1023,17 +1028,19 @@ class rrdstat {
         $out .= '<p>'.$ltitle.'</p>';
         $out .= '<table class="legend">';
         foreach ($gmeta['legend'] as $field=>$legend) {
-          $out .= '<tr><th';
-          if ($colorize_data && isset($gmeta['legend'][$field])) {
-            $out .= ' style="color:'.$gmeta['legend'][$field]['color'].';';
-            if (strlen($gmeta['legend'][$field]['color_bg'])) {
-              $out .= 'background-color:'.$gmeta['legend'][$field]['color_bg'].';';
+          if (strlen($legend['desc_long'])) {
+            $out .= '<tr><th';
+            if ($colorize_data && isset($gmeta['legend'][$field])) {
+              $out .= ' style="color:'.$gmeta['legend'][$field]['color'].';';
+              if (strlen($gmeta['legend'][$field]['color_bg'])) {
+                $out .= 'background-color:'.$gmeta['legend'][$field]['color_bg'].';';
+              }
+              $out .= '"';
             }
-            $out .= '"';
+            $out .= '>'.$field.'</th>';
+            $out .= '<td>'.$legend['desc_long'].'</td>';
+            $out .= '</tr>';
           }
-          $out .= '>'.$field.'</th>';
-          $out .= '<td>'.$legend['desc_long'].'</td>';
-          $out .= '</tr>';
         }
         $out .= '</table>';
         $out .= '</div>';

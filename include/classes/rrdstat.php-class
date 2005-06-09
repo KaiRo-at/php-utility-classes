@@ -523,6 +523,45 @@ class rrdstat {
       foreach ($gconf['rows'] as $erow) {
         if (isset($erow['name']) && strlen($erow['name'])) {
           if (!isset($erow['scale']) && isset($gconf['scale'])) { $erow['scale'] = $gconf['scale']; }
+          if (!isset($erow['scale_time_src']) && isset($gconf['scale_time_src'])) { $erow['scale_time_src'] = $gconf['scale_time_src']; }
+          if (!isset($erow['scale_time_tgt']) && isset($gconf['scale_time_tgt'])) { $erow['scale_time_tgt'] = $gconf['scale_time_tgt']; }
+          foreach (array('scale_time_src','scale_time_tgt') as $st) {
+            if (!isset($erow[$st]) || !is_numeric($erow[$st])) {
+              switch (@$erow[$st]) {
+                case 'dyn':
+                case 'auto':
+                  $erow[$st] = $slice;
+                  break;
+                case 'day':
+                  $erow[$st] = 24*3600;
+                  break;
+                case '2hr':
+                case '2hours':
+                  $erow[$st] = 7200;
+                  break;
+                case 'hr':
+                case 'hour':
+                  $erow[$st] = 3600;
+                  break;
+                case '30min':
+                  $erow[$st] = 1800;
+                  break;
+                case '5min':
+                  $erow[$st] = 300;
+                  break;
+                case 'min':
+                  $erow[$st] = 60;
+                  break;
+                case 's':
+                case 'sec':
+                default:
+                  $erow[$st] = 1;
+                  break;
+              }
+            }
+          }
+          $scale_time_factor = $erow['scale_time_tgt']/$erow['scale_time_src'];
+          if ($scale_time_factor != 1) { $erow['scale'] = (isset($erow['scale'])?$erow['scale']:1)*$scale_time_factor; }
           $grow = array();
           $grow['dType'] = isset($erow['dType'])?$erow['dType']:'DEF';
           $grow['name'] = $erow['name'].(isset($erow['scale'])?'_tmp':'');
@@ -685,7 +724,7 @@ class rrdstat {
     $legendlines = '';
     foreach ($graphrows as $grow) {
       $legendline = isset($grow['desc'])?$grow['desc']:(isset($grow['legend'])?$grow['legend']:$grow['name']);
-      $legendline .= '|'.$grow['color'];
+      $legendline .= '|'.@$grow['color'];
       $legendline .= '|'.(isset($grow['color_bg'])?$grow['color_bg']:'');
       $legendline .= '|'.(isset($grow['legend_long'])?$grow['legend_long']:'');
       $legendlines .= 'legend:'.$legendline."\n";
@@ -871,9 +910,9 @@ class rrdstat {
         $idx = $col * $num_rows + $row;
         $out .= '<td>';
         if ($idx < count($stats)) {
-          list($sname, $s_psub) = explode('|', $stats[$idx]['name'], 2);
+          @list($sname, $s_psub) = explode('|', $stats[$idx]['name'], 2);
           $s_psname = 'page'.(isset($s_psub)?'.'.$s_psub:'');
-          $g_sub = $this->config_all[$sname][$s_psname]['graph_sub'];
+          $g_sub = @$this->config_all[$sname][$s_psname]['graph_sub'];
 
           if (isset($this->config_all[$sname][$s_psname]['title_page'])) {
             $s_ptitle = $this->config_all[$sname][$s_psname]['title_page'];

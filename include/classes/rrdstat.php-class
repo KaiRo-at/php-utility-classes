@@ -744,7 +744,7 @@ class rrdstat {
       if (preg_match('/^file:(.+)$/', $gline, $regs)) {
         $gmeta['filename'] = $regs[1];
       }
-      elseif (preg_match('/^legend:([^\|]+)\|([^|]+)\|([^\|]*)\|(.*)$/', $gline, $regs)) {
+      elseif (preg_match('/^legend:([^\|]+)\|([^|]*)\|([^\|]*)\|(.*)$/', $gline, $regs)) {
         $gmeta['legend'][$regs[1]] = array('color'=>$regs[2], 'color_bg'=>$regs[3], 'desc_long'=>$regs[4]);
         if (strlen($regs[4])) { $gmeta['legends_long'] = true; }
         if (strlen($regs[3]) || strlen($regs[4])) { $gmeta['default_colorize'] = true; }

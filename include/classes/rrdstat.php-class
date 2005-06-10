@@ -519,104 +519,81 @@ class rrdstat {
       $slice = isset($gconf['slice'])?$gconf['slice']:$this->rrd_step; // whatever our step is
     }
 
-    if (isset($gconf['rows']) && count($gconf['rows'])) {
-      foreach ($gconf['rows'] as $erow) {
-        if (isset($erow['name']) && strlen($erow['name'])) {
-          if (!isset($erow['scale']) && isset($gconf['scale'])) { $erow['scale'] = $gconf['scale']; }
-          if (!isset($erow['scale_time_src']) && isset($gconf['scale_time_src'])) { $erow['scale_time_src'] = $gconf['scale_time_src']; }
-          if (!isset($erow['scale_time_tgt']) && isset($gconf['scale_time_tgt'])) { $erow['scale_time_tgt'] = $gconf['scale_time_tgt']; }
-          foreach (array('scale_time_src','scale_time_tgt') as $st) {
-            if (!isset($erow[$st]) || !is_numeric($erow[$st])) {
-              switch (@$erow[$st]) {
-                case 'dyn':
-                case 'auto':
-                  $erow[$st] = $slice;
-                  break;
-                case 'day':
-                  $erow[$st] = 24*3600;
-                  break;
-                case '2hr':
-                case '2hours':
-                  $erow[$st] = 7200;
-                  break;
-                case 'hr':
-                case 'hour':
-                  $erow[$st] = 3600;
-                  break;
-                case '30min':
-                  $erow[$st] = 1800;
-                  break;
-                case '5min':
-                  $erow[$st] = 300;
-                  break;
-                case 'min':
-                  $erow[$st] = 60;
-                  break;
-                case 's':
-                case 'sec':
-                default:
-                  $erow[$st] = 1;
-                  break;
-              }
+    $use_gcrows = (isset($gconf['rows']) && count($gconf['rows']));
+    if ($use_gcrows) { $grow_def =& $gconf['rows']; }
+    else { $grow_def =& $this->rrd_fields; }
+    foreach ($grow_def as $key=>$erow) {
+      if (isset($erow['name']) && strlen($erow['name'])) {
+        if (!isset($erow['scale']) && isset($gconf['scale'])) { $erow['scale'] = $gconf['scale']; }
+        if (!isset($erow['scale_time_src']) && isset($gconf['scale_time_src'])) { $erow['scale_time_src'] = $gconf['scale_time_src']; }
+        if (!isset($erow['scale_time_tgt']) && isset($gconf['scale_time_tgt'])) { $erow['scale_time_tgt'] = $gconf['scale_time_tgt']; }
+        foreach (array('scale_time_src','scale_time_tgt') as $st) {
+          if (!isset($erow[$st]) || !is_numeric($erow[$st])) {
+            switch (@$erow[$st]) {
+              case 'dyn':
+              case 'auto':
+                $erow[$st] = $slice;
+                break;
+              case 'day':
+                $erow[$st] = 24*3600;
+                break;
+              case '2hr':
+              case '2hours':
+                $erow[$st] = 7200;
+                break;
+              case 'hr':
+              case 'hour':
+                $erow[$st] = 3600;
+                break;
+              case '30min':
+                $erow[$st] = 1800;
+                break;
+              case '5min':
+                $erow[$st] = 300;
+                break;
+              case 'min':
+                $erow[$st] = 60;
+                break;
+              case 's':
+              case 'sec':
+              default:
+                $erow[$st] = 1;
+                break;
             }
           }
-          $scale_time_factor = $erow['scale_time_tgt']/$erow['scale_time_src'];
-          if ($scale_time_factor != 1) { $erow['scale'] = (isset($erow['scale'])?$erow['scale']:1)*$scale_time_factor; }
-          $grow = array();
-          $grow['dType'] = isset($erow['dType'])?$erow['dType']:'DEF';
-          $grow['name'] = $erow['name'].(isset($erow['scale'])?'_tmp':'');
-          if ($grow['dType'] == 'DEF') {
-            $grow['dsname'] = isset($erow['dsname'])?$erow['dsname']:$erow['name'];
-            if (isset($erow['dsfile'])) { $grow['dsfile'] = $erow['dsfile']; }
-            $grow['cf'] = isset($erow['cf'])?$erow['cf']:'AVERAGE';
-          }
-          else {
-            $grow['rpn_expr'] = isset($erow['rpn_expr'])?$erow['rpn_expr']:'0';
-          }
-          if (isset($erow['scale'])) {
-            $graphrows[] = $grow;
-            $grow = array();
-            $grow['dType'] = 'CDEF';
-            $grow['name'] = $erow['name'];
-            $grow['rpn_expr'] = $erow['name'].'_tmp,'.$erow['scale'].',*';
-          }
-          $grow['gType'] = isset($erow['gType'])?$erow['gType']:'LINE1';
-          $grow['color'] = isset($erow['color'])?$erow['color']:$gColors[$gC++];
-          $grow['color_bg'] = isset($erow['color_bg'])?$erow['color_bg']:'';
-          if ($gC >= count($gColors)) { $gC = 0; }
-          if (isset($erow['legend'])) {
-            $grow['legend'] = $erow['legend'];
-            if (!isset($gconf['show_legend'])) { $gconf['show_legend'] = true; }
-          }
-          if (isset($erow['stack'])) { $grow['stack'] = ($erow['stack'] == true); }
-          if (isset($erow['desc'])) { $grow['desc'] = $erow['desc']; }
-          if (isset($erow['legend_long'])) { $grow['legend_long'] = $erow['legend_long']; }
-          $graphrows[] = $grow;
         }
-      }
-    }
-    else {
-      foreach ($this->rrd_fields as $key=>$ds) {
+        $scale_time_factor = $erow['scale_time_tgt']/$erow['scale_time_src'];
+        if ($scale_time_factor != 1) { $erow['scale'] = (isset($erow['scale'])?$erow['scale']:1)*$scale_time_factor; }
         $grow = array();
-        $grow['dType'] = 'DEF';
-        $grow['name'] = $ds['name'].(isset($gconf['scale'])?'_tmp':'');
-        $grow['dsname'] = $ds['name'];
-        $grow['cf'] = 'AVERAGE';
-        if (isset($gconf['scale'])) {
+        $grow['dType'] = ($use_gcrows && isset($erow['dType']))?$erow['dType']:'DEF';
+        $grow['name'] = $erow['name'].(isset($erow['scale'])?'_tmp':'');
+        if ($grow['dType'] == 'DEF') {
+          $grow['dsname'] = ($use_gcrows && isset($erow['dsname']))?$erow['dsname']:$erow['name'];
+          if ($use_gcrows && isset($erow['dsfile'])) { $grow['dsfile'] = $erow['dsfile']; }
+          $grow['cf'] = ($use_gcrows && isset($erow['cf']))?$erow['cf']:'AVERAGE';
+        }
+        else {
+          $grow['rpn_expr'] = isset($erow['rpn_expr'])?$erow['rpn_expr']:'0';
+        }
+        if (isset($erow['scale'])) {
           $graphrows[] = $grow;
           $grow = array();
           $grow['dType'] = 'CDEF';
-          $grow['name'] = $ds['name'];
-          $grow['rpn_expr'] = $ds['name'].'_tmp,'.$gconf['scale'].',*';
+          $grow['name'] = $erow['name'];
+          $grow['rpn_expr'] = $erow['name'].'_tmp,'.$erow['scale'].',*';
         }
-        $grow['gType'] = ((count($this->rrd_fields)==2) && ($key==0))?'AREA':'LINE1';
-        $grow['color'] = $gColors[$gC++]; if ($gC >= count($gColors)) { $gC = 0; }
-        if (isset($ds['legend'])) {
-          $grow['legend'] = $ds['legend'];
+        if ($use_gcrows) { $grow['gType'] = isset($erow['gType'])?$erow['gType']:'LINE1'; }
+        else { $grow['gType'] = ((count($grow_def)==2) && ($key==0))?'AREA':'LINE1'; }
+        $grow['color'] = isset($erow['color'])?$erow['color']:$gColors[$gC++];
+        $grow['color_bg'] = isset($erow['color_bg'])?$erow['color_bg']:'';
+        if ($gC >= count($gColors)) { $gC = 0; }
+        if (isset($erow['legend'])) {
+          $grow['legend'] = $erow['legend'];
           if (!isset($gconf['show_legend'])) { $gconf['show_legend'] = true; }
         }
-        if (isset($ds['desc'])) { $grow['desc'] = $ds['desc']; }
-        if (isset($ds['legend_long'])) { $grow['legend_long'] = $ds['legend_long']; }
+        if (isset($erow['stack'])) { $grow['stack'] = ($erow['stack'] == true); }
+        if (isset($erow['desc'])) { $grow['desc'] = $erow['desc']; }
+        if (isset($erow['legend_long'])) { $grow['legend_long'] = $erow['legend_long']; }
         $graphrows[] = $grow;
       }
     }

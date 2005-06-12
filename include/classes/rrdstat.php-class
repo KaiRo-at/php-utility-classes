@@ -485,31 +485,32 @@ class rrdstat {
     $graphrows = array(); $specialrows = array(); $gC = 0;
     $gDefs = ''; $gGraphs = ''; $addSpecial = '';
 
+    // the default size for the graph area has a width of 400px, so use 400 slices by default
     if ($timeframe == 'day') {
-      $duration = isset($gconf['duration'])?$gconf['duration']:30*3600; // 30 hours
       $slice = isset($gconf['slice'])?$gconf['slice']:300; // 5 minutes
+      $duration = isset($gconf['duration'])?$gconf['duration']:400*$slice; // 33.33 hours
       // vertical lines at day borders
       $addSpecial .= ' VRULE:'.strtotime(date('Y-m-d')).'#FF0000';
       $addSpecial .= ' VRULE:'.strtotime(date('Y-m-d').' -1 day').'#FF0000';
       if (!isset($gconf['grid_x'])) { $gconf['grid_x'] = 'HOUR:1:HOUR:6:HOUR:2:0:%-H'; }
     }
     elseif ($timeframe == 'week') {
-      $duration = isset($gconf['duration'])?$gconf['duration']:8*86400; // 8 days
       $slice = isset($gconf['slice'])?$gconf['slice']:1800; // 30 minutes
+      $duration = isset($gconf['duration'])?$gconf['duration']:400*$slice; // 8.33 days
       // vertical lines at week borders
       $addSpecial .= ' VRULE:'.strtotime(date('Y-m-d').' '.(-date('w')+1).' day').'#FF0000';
       $addSpecial .= ' VRULE:'.strtotime(date('Y-m-d').' '.(-date('w')-6).' day').'#FF0000';
     }
     elseif ($timeframe == 'month') {
-      $duration = isset($gconf['duration'])?$gconf['duration']:36*86400; // 36 days
       $slice = isset($gconf['slice'])?$gconf['slice']:7200; // 2 hours
+      $duration = isset($gconf['duration'])?$gconf['duration']:400*$slice; // 33.33 days
       // vertical lines at month borders
       $addSpecial .= ' VRULE:'.strtotime(date('Y-m-01')).'#FF0000';
       $addSpecial .= ' VRULE:'.strtotime(date('Y-m-01').' -1 month').'#FF0000';
     }
     elseif ($timeframe == 'year') {
-      $duration = isset($gconf['duration'])?$gconf['duration']:396*86400; // 365+31 days
       $slice = isset($gconf['slice'])?$gconf['slice']:86400; // 1 day
+      $duration = isset($gconf['duration'])?$gconf['duration']:400*$slice; // 400 days
       // vertical lines at month borders
       $addSpecial .= ' VRULE:'.strtotime(date('Y-01-01 12:00:00')).'#FF0000';
       $addSpecial .= ' VRULE:'.strtotime(date('Y-01-01 12:00:00').' -1 year').'#FF0000';

@@ -526,7 +526,7 @@ class userAgent {
       if ($this->hasEngine('gecko')) {
         if (preg_match('|Mozilla/5.0 \(([^;]+); [^;]+; ([^;]+); ([^;]+); rv:([^\);]+)(; [^\)]+)?\)|', $this->uastring, $regs)) {
           $this->uadata['os'] = $regs[2];
-          $this->uadata['lang'] = $regs[3];
+          $this->uadata['lang'] = (strpos($regs[3],'chrome://')===false)?$regs[3]:null;
           $this->uadata['eng_version'] = $regs[4];
         }
         elseif (preg_match('|Mozilla/5.0 \(([^;]+); [^;]+; ([^;]+); rv:([^\);]+)(; [^\)]+)?\)|', $this->uastring, $regs)) {
@@ -543,6 +543,11 @@ class userAgent {
           $this->uadata['os'] = $regs[2];
           $this->uadata['lang'] = $regs[3];
           $this->uadata['eng_version'] = null;
+        }
+        elseif (preg_match('|Mozilla/5.0 \(([^;]+); ([^;]+); rv:([^\);]+)\)|', $this->uastring, $regs)) {
+          $this->uadata['os'] = $regs[2];
+          $this->uadata['lang'] = null;
+          $this->uadata['eng_version'] = $regs[3];
         }
         elseif (preg_match('|Mozilla/5.0 \(([^;]+); [^;]+; ([^\);]+)\)|', $this->uastring, $regs)) {
           $this->uadata['os'] = $regs[2];
@@ -595,40 +600,45 @@ class userAgent {
         }
       }
       elseif ($this->hasEngine('presto')) {
-        if (preg_match('/Opera\/[^\(]+ \(([^;]+)[^\)]+\) +\[([a-z_-]+)\]/i', $this->uastring, $regs)) {
+        if (preg_match('/Opera\/[^\(]+ \((?:X11; )?([^;]+)[^\)]+\) +\[([a-z_-]+)\]/i', $this->uastring, $regs)) {
           $this->uadata['eng_version'] = $this->getVersion();
           $this->uadata['os'] = $regs[1];
           $this->uadata['lang'] = $regs[2];
         }
-        elseif (preg_match('/Mozilla\/[^\(]+ \(compatible; .+; ([^;]+)\) Opera [^ ]+ \[([a-z_-]+)\]/i', $this->uastring, $regs)) {
+        elseif (preg_match('/Mozilla\/[^\(]+ \(compatible; MSIE [^;]+; (?:X11; )?([^;\)]+)[^\)]*\) Opera [^ ]+ +\[([a-z_-]+)\]/i', $this->uastring, $regs)) {
           $this->uadata['eng_version'] = $this->getVersion();
           $this->uadata['os'] = $regs[1];
           $this->uadata['lang'] = $regs[2];
         }
-        elseif (preg_match('/Mozilla\/[^\(]+ \(([^;]+);.+\) Opera [^ ]+ \[([a-z_-]+)\]/i', $this->uastring, $regs)) {
+        elseif (preg_match('/Mozilla\/[^\(]+ \((?:X11; )?([^;]+);.+\) Opera [^ ]+ \[([a-z_-]+)\]/i', $this->uastring, $regs)) {
           $this->uadata['eng_version'] = $this->getVersion();
           $this->uadata['os'] = $regs[1];
           $this->uadata['lang'] = $regs[2];
         }
         // Opera 8
-        elseif (preg_match('/Opera\/[^\(]+ \(([^;]+); [^\)]+; ([a-z_-]+)\)/i', $this->uastring, $regs)) {
+        elseif (preg_match('/Opera\/[^\(]+ \((?:X11; )?([^;]+); [^\)]+; ([a-z_-]+)\)/i', $this->uastring, $regs)) {
           $this->uadata['eng_version'] = $this->getVersion();
           $this->uadata['os'] = $regs[1];
           $this->uadata['lang'] = $regs[2];
         }
-        elseif (preg_match('/Mozilla\/[^\(]+ \(compatible; .+; ([^;]+); ([a-z_-]+)\) Opera [^ ]+/i', $this->uastring, $regs)) {
+        elseif (preg_match('/Mozilla\/[^\(]+ \(compatible; MSIE [^;]+; (?:X11; )?([^;]+); ([a-z_-]+)\) Opera [^ ]+/i', $this->uastring, $regs)) {
           $this->uadata['eng_version'] = $this->getVersion();
           $this->uadata['os'] = $regs[1];
           $this->uadata['lang'] = $regs[2];
         }
-        elseif (preg_match('/Mozilla\/[^\(]+ \(([^;]+);.+; ([a-z_-]+)\) Opera [^ ]+/i', $this->uastring, $regs)) {
+        elseif (preg_match('/Mozilla\/[^\(]+ \((?:X11; )?([^;]+);.+; ([a-z_-]+)\) Opera [^ ]+/i', $this->uastring, $regs)) {
           $this->uadata['eng_version'] = $this->getVersion();
           $this->uadata['os'] = $regs[1];
           $this->uadata['lang'] = $regs[2];
         }
       }
       elseif ($this->hasEngine('nscp')) {
-        if (preg_match('/Mozilla\/([0-9a-zA-Z\.+]+) (?:\[([a-z_-]+)\][^\(]+)?\(([^;]+);[^\)]+\)/i', $this->uastring, $regs)) {
+        if (preg_match('/Mozilla\/([0-9a-zA-Z\.+]+) (?:\[([a-z_-]+)\][^\(]+)?\(X11; [^;]+; ([^\)]+)\)/i', $this->uastring, $regs)) {
+          $this->uadata['eng_version'] = $regs[1];
+          $this->uadata['os'] = $regs[3];
+          $this->uadata['lang'] = $regs[2];
+        }
+        elseif (preg_match('/Mozilla\/([0-9a-zA-Z\.+]+) (?:\[([a-z_-]+)\][^\(]+)?\(([^;]+);[^\)]+\)/i', $this->uastring, $regs)) {
           $this->uadata['eng_version'] = $regs[1];
           $this->uadata['os'] = $regs[3];
           $this->uadata['lang'] = $regs[2];

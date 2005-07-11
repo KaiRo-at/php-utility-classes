@@ -217,6 +217,11 @@ class userAgent {
       $this->version = $regs[1];
       $this->bot = false;
     }
+    elseif (preg_match('|m([0-9]+)\)|', $this->uastring, $regs) && strstr($this->uastring, "Mozilla/") && strstr($this->uastring, "Gecko/")) {
+      $this->brand = 'Mozilla';
+      $this->version = 'M'.$regs[1];
+      $this->bot = false;
+    }
     elseif (preg_match('|Opera[ /]([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'Opera';
       $this->version = $regs[1];
@@ -538,6 +543,11 @@ class userAgent {
           $this->uadata['os'] = $regs[2];
           $this->uadata['lang'] = $regs[3];
           $this->uadata['eng_version'] = 'M'.$regs[4];
+        }
+        elseif (preg_match('|Mozilla/5.0 \(([^;]+); [^;]+; ([^;]+); m([^\);]+)\)|', $this->uastring, $regs)) {
+          $this->uadata['os'] = $regs[1];
+          $this->uadata['lang'] = $regs[2];
+          $this->uadata['eng_version'] = 'M'.$regs[3];
         }
         elseif (preg_match('|Mozilla/5.0 \(([^;]+); [^;]+; ([^;]+); ([^\);]+)\)|', $this->uastring, $regs)) {
           $this->uadata['os'] = $regs[2];

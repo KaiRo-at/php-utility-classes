@@ -253,7 +253,7 @@ class email {
     //print("To: ".$util->htmlify($recpt)."<br>\n");
     //print(nl2br($util->htmlify($hdrs)));
     //print(nl2br($util->htmlify($mtxt)));
-    mail($recpt, $subj, $mtxt, $hdrs);
+    return mail($recpt, $subj, $mtxt, $hdrs);
   }
 
   function mimeencode($fieldtext) {

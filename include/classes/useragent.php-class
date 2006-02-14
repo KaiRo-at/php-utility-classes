@@ -690,8 +690,13 @@ class userAgent {
       elseif ($this->uadata['os'] == 'Windows NT 5.0') { $this->uadata['os'] = 'Windows 2000'; }
       elseif ($this->uadata['os'] == 'Windows NT 5.1') { $this->uadata['os'] = 'Windows XP'; }
       elseif ($this->uadata['os'] == 'Windows NT 5.2') { $this->uadata['os'] = 'Windows 2003'; }
+      elseif ($this->uadata['os'] == 'Windows NT 5.2 x64') { $this->uadata['os'] = 'Windows 2003 (64bit)'; }
+      elseif ($this->uadata['os'] == 'Windows NT 6.0') { $this->uadata['os'] = 'Windows Vista'; }
       elseif ($this->uadata['os'] == 'Win95') { $this->uadata['os'] = 'Windows 95'; }
       elseif ($this->uadata['os'] == 'Win98') { $this->uadata['os'] = 'Windows 98'; }
+      elseif ($this->uadata['os'] == 'WinNT') { $this->uadata['os'] = 'Windows NT'; }
+      elseif ($this->uadata['os'] == 'Win32') { $this->uadata['os'] = 'Windows (32bit)'; }
+      elseif ($this->uadata['os'] == 'Win64') { $this->uadata['os'] = 'Windows (64bit)'; }
       elseif (preg_match('/Mac ?OS ?X/i',$this->uadata['os'])) { $this->uadata['os'] = 'MacOS X'; }
       elseif (preg_match('/Mac_P(ower|)PC/i',$this->uadata['os'])) { $this->uadata['os'] = 'MacOS'; }
       elseif (strpos($this->uadata['os'], 'darwin') !== false) { $this->uadata['os'] = 'MacOS X'; }

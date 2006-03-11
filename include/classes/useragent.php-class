@@ -454,7 +454,7 @@ class userAgent {
       foreach ($accLcomp as $lcomp) {
         if (strlen($lcomp)) {
           $ldef = explode(';', $lcomp);
-          $accLang[$ldef[0]] = (float)((strpos($ldef[1],'q=')===0)?substr($ldef[1],2):1);
+          $accLang[$ldef[0]] = (float)((strpos(@$ldef[1],'q=')===0)?substr($ldef[1],2):1);
         }
       }
       $this->uadata['accept-languages'] = $accLang;

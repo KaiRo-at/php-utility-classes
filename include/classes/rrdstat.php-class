@@ -75,6 +75,9 @@ class rrdstat {
   //   set definitions based on given configuration
   //   [intended for internal use, called by the constructor]
   //
+  // function rrd_version() {
+  //   get RRDtool version string
+  //
   // function create()
   //   create RRD file according to set config
   //
@@ -265,6 +268,26 @@ class rrdstat {
     if (isset($iinfo['page'])) { $this->config_page = $iinfo['page']; }
     $this->config_raw = $iinfo;
     $this->config_all = $complete_conf;
+  }
+
+  function rrd_version() {
+    // return RRDtool version
+    static $version;
+    if (!isset($version)) {
+      $create_cmd = 'rrdtool --version';
+      $return = `$create_cmd 2>&1`;
+      if (strpos($return, 'ERROR') !== false) {
+        trigger_error($this->rrd_file.' - rrd version error: '.$return, E_USER_WARNING);
+      }
+
+      if (preg_match('/^\s*RRDtool ([\d\.]+)\s+/', $return, $regs)) {
+        $version = $regs[1];
+      }
+      else {
+        $version = '0.0';
+      }
+    }
+  return $version;
   }
 
   function create() {
@@ -605,16 +628,22 @@ class rrdstat {
         $srow['sType'] = isset($crow['sType'])?$crow['sType']:'COMMENT';
         if ($grow['sType'] != 'COMMENT') {
           // XXX: use line below and remove cf var once we have rrdtol 1.2
-          // $srow['name'] = $crow['name'].(isset($crow['cf'])?'_'.$crow['cf']:'');
-          $srow['name'] = $crow['name'];
-          $srow['cf'] = isset($crow['cf'])?$crow['cf']:'AVERAGE';
+          if ($this->rrd_version() >= '1.2') {
+            $srow['name'] = $crow['name'].(isset($crow['cf'])?'_'.$crow['cf']:'');
+          }
+          else {
+            $srow['name'] = $crow['name'];
+            $srow['cf'] = isset($crow['cf'])?$crow['cf']:'AVERAGE';
+          }
           if (isset($crow['cf'])) {
-            // XXX: use line below once we have rrdtol 1.2
-            // $graphrows[] = array('dType'=>'VDEF', 'name'=>$srow['name'].'_'.$crow['cf'], 'rpn_expr'=>$srow['name'].','.$crow['cf']);
+            if ($this->rrd_version() >= '1.2') {
+              $graphrows[] = array('dType'=>'VDEF', 'name'=>$srow['name'].'_'.$crow['cf'], 'rpn_expr'=>$srow['name'].','.$crow['cf']);
+            }
           }
           elseif (isset($crow['rpn_expr'])) {
-            // XXX: does only work with rrdtool 1.2
-            $graphrows[] = array('dType'=>'VDEF', 'name'=>$srow['name'], 'rpn_expr'=>$crow['rpn_expr']);
+            if ($this->rrd_version() >= '1.2') {
+              $graphrows[] = array('dType'=>'VDEF', 'name'=>$srow['name'], 'rpn_expr'=>$crow['rpn_expr']);
+            }
           }
         }
         $srow['text'] = isset($crow['text'])?$crow['text']:'';
@@ -626,12 +655,19 @@ class rrdstat {
       foreach ($graphrows as $grow) {
         if (isset($grow['gType']) && strlen($grow['gType'])) {
           $textprefix = isset($grow['desc'])?$grow['desc']:(isset($grow['legend'])?$grow['legend']:$grow['name']);
-          // XXX: use lines below once we have rrdtol 1.2
-          // $graphrows[] = array('dType'=>'VDEF', 'name'=>$grow['name'].'_last', 'rpn_expr'=>$grow['name'].',LAST');
-          // $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'].'_last', 'text'=>'%3.2lf%s');
-          $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'], 'cf'=>'MAX', 'text'=>$textprefix.'|'.dgettext($td, 'Maximum').'|%.2lf%s');
-          $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'], 'cf'=>'AVERAGE', 'text'=>$textprefix.'|'.dgettext($td, 'Average').'|%.2lf%s');
-          $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'], 'cf'=>'LAST', 'text'=>$textprefix.'|'.dgettext($td, 'Current').'|%.2lf%s');
+          if ($this->rrd_version() >= '1.2') {
+            $graphrows[] = array('dType'=>'VDEF', 'name'=>$grow['name'].'_max', 'rpn_expr'=>$grow['name'].',MAXIMUM');
+            $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'].'_max', 'text'=>$textprefix.'|'.dgettext($td, 'Maximum').'|%.2lf%s');
+            $graphrows[] = array('dType'=>'VDEF', 'name'=>$grow['name'].'_avg', 'rpn_expr'=>$grow['name'].',AVERAGE');
+            $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'].'_avg', 'text'=>$textprefix.'|'.dgettext($td, 'Average').'|%.2lf%s');
+            $graphrows[] = array('dType'=>'VDEF', 'name'=>$grow['name'].'_last', 'rpn_expr'=>$grow['name'].',LAST');
+            $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'].'_last', 'text'=>$textprefix.'|'.dgettext($td, 'Current').'|%.2lf%s');
+          }
+          else {
+            $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'], 'cf'=>'MAX', 'text'=>$textprefix.'|'.dgettext($td, 'Maximum').'|%.2lf%s');
+            $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'], 'cf'=>'AVERAGE', 'text'=>$textprefix.'|'.dgettext($td, 'Average').'|%.2lf%s');
+            $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'], 'cf'=>'LAST', 'text'=>$textprefix.'|'.dgettext($td, 'Current').'|%.2lf%s');
+          }
         }
       }
     }
@@ -676,19 +712,27 @@ class rrdstat {
       }
       if (isset($grow['gType']) && strlen($grow['gType'])) {
         // XXX: change from STACK type to STACK flag once we have rrdtool 1.2
-        if (isset($grow['stack']) && $grow['stack']) { $grow['gType'] = 'STACK'; }
+        if ($this->rrd_version() < '1.2') {
+          // rrdtool 1.0 only know STACK type
+          if (isset($grow['stack']) && $grow['stack']) { $grow['gType'] = 'STACK'; }
+        }
         $gGraphs .= ' '.$grow['gType'].':'.$grow['name'].$grow['color'];
         if (isset($grow['legend'])) { $gGraphs .= ':'.$this->text_quote($grow['legend']); }
-        // XXX: remove above STACK if-command and uncomment the one below once we have rrdtool 1.2
-        //if (isset($grow['stack']) && $grow['stack']) { $gGraphs .= ':STACK'; }
+        if ($this->rrd_version() >= '1.2') {
+          // rrdtool 1.2 and above have STACK flag
+          if (isset($grow['stack']) && $grow['stack']) { $gGraphs .= ':STACK'; }
+        }
       }
     }
 
     foreach ($specialrows as $srow) {
       $addSpecial .= ' '.$srow['sType'];
-      // XXX: eliminate cf once we have rrdtool 1.2
-      // $addSpecial .= ($grow['sType']!='COMMENT')?':'.$grow['name']:'');
-      $addSpecial .= (($srow['sType']!='COMMENT')?':'.$srow['name'].':'.$srow['cf']:'');
+      if ($this->rrd_version() >= '1.2') {
+        $addSpecial .= (($srow['sType']!='COMMENT')?':'.$srow['name']:'');
+      }
+      else {
+        $addSpecial .= (($srow['sType']!='COMMENT')?':'.$srow['name'].':'.$srow['cf']:'');
+      }
       $addSpecial .= ':'.$this->text_quote($srow['text']);
     }
 
@@ -697,7 +741,11 @@ class rrdstat {
 
     if (strpos($return, 'ERROR') !== false) {
       trigger_error($this->rrd_file.' - rrd graph error: '.$return, E_USER_WARNING);
-      $return = $graph_cmd."\n\n".$return;
+      $return = 'command:'.$graph_cmd."\n\n".$return;
+    }
+    if (0) {
+      // debug output
+      $return = 'command:'.$graph_cmd."\n\n".$return;
     }
     $legendlines = '';
     foreach ($graphrows as $grow) {
@@ -715,11 +763,18 @@ class rrdstat {
     // create a RRD graph and return meta info as a ready-to-use array
     $gmeta = array('filename'=>null,'legends_long'=>false,'default_colorize'=>false);
     $ret = $this->graph($timeframe, $sub, $extra);
-    if (strpos($ret, "\n\n") !== false) { $gmeta['graph_cmd'] = substr($ret, 0, strpos($ret, "\n\n")); $ret = substr($ret, strpos($ret, "\n\n")+2); }
-    else { $gmeta['graph_cmd'] = null; }
+    if (0) {
+      // debug output
+      $gmeta['ret'] = $ret;
+    }
+//    if (preg_match('/\ncommand:(.*?)\n\n/', $ret, $regs)) { $gmeta['graph_cmd'] = $regs[1]; $ret = str_replace($regs[0], "\n",$ret); }
+//    else { $gmeta['graph_cmd'] = null; }
     $grout = explode("\n", $ret);
     foreach ($grout as $gline) {
-      if (preg_match('/^file:(.+)$/', $gline, $regs)) {
+      if (preg_match('/^command:(.+)$/', $gline, $regs)) {
+        $gmeta['graph_cmd'] = $regs[1];
+      }
+      elseif (preg_match('/^file:(.+)$/', $gline, $regs)) {
         $gmeta['filename'] = $regs[1];
       }
       elseif (preg_match('/^legend:([^\|]+)\|([^|]*)\|([^\|]*)\|(.*)$/', $gline, $regs)) {
@@ -791,26 +846,26 @@ class rrdstat {
     $td = $this->mod_textdomain;
     $ptitle = isset($pconf['title_page'])?$pconf['title_page']:dgettext($td, 'RRD statistics index');
 
-    $out = '<html><head>';
-    $out .= '<title>'.$ptitle.'</title>';
-    $out .= '<style>';
+    $out = '<html><head>'."\n";
+    $out .= '<title>'.$ptitle.'</title>'."\n";
+    $out .= '<style type="text/css">'."\n";
     if (isset($pconf['style_base'])) { $out .= $pconf['style_base']; }
     else {
-      $out .= 'h1 { font-weight: bold; font-size: 1.5em; }';
-      $out .= '.footer { font-size: 0.75em; margin: 0.5em 0; }';
-      $out .= 'li.scanfile { font-style: italic; }';
+      $out .= 'h1 { font-weight: bold; font-size: 1.5em; }'."\n";
+      $out .= '.footer { font-size: 0.75em; margin: 0.5em 0; }'."\n";
+      $out .= 'li.scanfile { font-style: italic; }'."\n";
     }
     if (isset($pconf['style'])) { $out .= $pconf['style']; }
-    $out .= '</style>';
-    $out .= '</head>';
-    $out .= '<body>';
+    $out .= '</style>'."\n";
+    $out .= '</head>'."\n";
+    $out .= '<body>'."\n";
 
-    $out .= '<h1>'.$ptitle.'</h1>';
+    $out .= '<h1>'.$ptitle.'</h1>'."\n";
     if (isset($pconf['text_intro']) && strlen($pconf['text_intro'])) {
-      $out .= '<p class="intro">'.$pconf['text_intro'].'</p>';
+      $out .= '<p class="intro">'.$pconf['text_intro'].'</p>'."\n";
     }
     elseif (!isset($pconf['text_intro'])) {
-      $out .= '<p class="intro">'.dgettext($td, 'The following RRD stats are available:').'</p>';
+      $out .= '<p class="intro">'.dgettext($td, 'The following RRD stats are available:').'</p>'."\n";
     }
 
     $stats = $this->h_page_statsArray($pconf);
@@ -821,7 +876,7 @@ class rrdstat {
     if (isset($pconf['stats_url_add'])) { $sURL_add = $pconf['stats_url_add']; }
     else { $sURL_add = '&sub=%s'; }
 
-    $out .= '<ul class="indexlist">';
+    $out .= '<ul class="indexlist">'."\n";
     foreach ($stats as $stat) {
       $out .= '<li'.(isset($stat['class'])?' class="'.$stat['class'].'"':'').'>';
       $sURL = str_replace('%i', $stat['name'], $sURL_base);
@@ -838,12 +893,12 @@ class rrdstat {
         }
         $out .= ' <span="subs">('.implode(', ', $sprt).')</span>';
       }
-      $out .= '</li>';
+      $out .= '</li>'."\n";
     }
-    $out .= '</ul>';
+    $out .= '</ul>'."\n";
 
     $out .= $this->h_page_footer();
-    $out .= '</body></html>';
+    $out .= '</body></html>'."\n";
   return $out;
   }
 
@@ -852,22 +907,22 @@ class rrdstat {
     $td = $this->mod_textdomain;
     $ptitle = isset($pconf['title_page'])?$pconf['title_page']:dgettext($td, 'RRD statistics overview');
 
-    $out = '<html><head>';
-    $out .= '<title>'.$ptitle.'</title>';
-    $out .= '<style>';
+    $out = '<html><head>'."\n";
+    $out .= '<title>'.$ptitle.'</title>'."\n";
+    $out .= '<style type="text/css">'."\n";
     if (isset($pconf['style_base'])) { $out .= $pconf['style_base']; }
     else {
-      $out .= 'h1 { font-weight: bold; font-size: 1.5em; }';
-      $out .= 'h2 { font-weight: bold; font-size: 1em; margin: 0.5em 0; }';
-      $out .= '.footer { font-size: 0.75em; margin: 0.5em 0; }';
-      $out .= 'img.rrdgraph { border: none; }';
+      $out .= 'h1 { font-weight: bold; font-size: 1.5em; }'."\n";
+      $out .= 'h2 { font-weight: bold; font-size: 1em; margin: 0.5em 0; }'."\n";
+      $out .= '.footer { font-size: 0.75em; margin: 0.5em 0; }'."\n";
+      $out .= 'img.rrdgraph { border: none; }'."\n";
     }
     if (isset($pconf['style'])) { $out .= $pconf['style']; }
-    $out .= '</style>';
-    $out .= '</head>';
-    $out .= '<body>';
+    $out .= '</style>'."\n";
+    $out .= '</head>'."\n";
+    $out .= '<body>'."\n";
 
-    $out .= '<h1>'.$ptitle.'</h1>';
+    $out .= '<h1>'.$ptitle.'</h1>'."\n";
     if (isset($pconf['text_intro']) && strlen($pconf['text_intro'])) { $out .= '<p class="intro">'.$pconf['text_intro'].'</p>'; }
 
     $stats = $this->h_page_statsArray($pconf);
@@ -881,12 +936,12 @@ class rrdstat {
     $num_rows = is_numeric($pconf['num_rows'])?$pconf['num_rows']:2;
     $num_cols = ceil(count($stats)/$num_rows);
 
-    $out .= '<table class="overview">';
+    $out .= '<table class="overview">'."\n";
     for ($col = 0; $col < $num_cols; $col++) {
-      $out .= '<tr>';
+      $out .= '<tr>'."\n";
       for ($row = 0; $row < $num_rows; $row++) {
         $idx = $col * $num_rows + $row;
-        $out .= '<td>';
+        $out .= '<td>'."\n";
         if ($idx < count($stats)) {
           @list($sname, $s_psub) = explode('|', $stats[$idx]['name'], 2);
           $s_psname = 'page'.(isset($s_psub)?'.'.$s_psub:'');
@@ -902,7 +957,7 @@ class rrdstat {
             $s_ptitle = isset($s_psub)?sprintf(dgettext($td, '%s (%s) statistics'), $sname, $s_psub):sprintf(dgettext($td, '%s statistics'), $sname);
           }
           if (!isset($pconf['hide_titles']) || !$pconf['hide_titles']) {
-            $out .= '<h2>'.$s_ptitle.'</h2>';
+            $out .= '<h2>'.$s_ptitle.'</h2>'."\n";
           }
 
           $s_rrd = new rrdstat($this->config_all, $sname);
@@ -925,23 +980,23 @@ class rrdstat {
             $out .= '<img src="'.$gURL.'"';
             $out .= ' alt="'.$s_rrd->basename.(!is_null($g_sub)?' - '.$g_sub:'').' - '.$tframe.'" class="rrdgraph"';
             if (isset($gmeta['width']) && isset($gmeta['height'])) { $out .= ' style="width:'.$gmeta['width'].'px;height:'.$gmeta['height'].'px;"'; }
-            $out .= '></a>';
+            $out .= '></a>'."\n";
           }
           else {
-            $out .= sprintf(dgettext($td, 'RRD error: status is "%s"'), $s_rrd->status);
+            $out .= sprintf(dgettext($td, 'RRD error: status is "%s"'), $s_rrd->status)."\n";
           }
         }
         else {
           $out .= '&nbsp;';
         }
-        $out .= '</td>';
+        $out .= '</td>'."\n";
       }
-      $out .= '</tr>';
+      $out .= '</tr>'."\n";
     }
-    $out .= '</table>';
+    $out .= '</table>'."\n";
 
     $out .= $this->h_page_footer();
-    $out .= '</body></html>';
+    $out .= '</body></html>'."\n";
   return $out;
   }
 
@@ -957,35 +1012,35 @@ class rrdstat {
     $gtitle['year'] = isset($pconf['title_year'])?$pconf['title_year']:dgettext($td, 'Year overview (scaling 1 day)');
     $ltitle = isset($pconf['title_legend'])?$pconf['title_legend']:dgettext($td, 'Legend:');
 
-    $out = '<html><head>';
-    $out .= '<title>'.$ptitle.'</title>';
-    $out .= '<style>';
+    $out = '<html><head>'."\n";
+    $out .= '<title>'.$ptitle.'</title>'."\n";
+    $out .= '<style type="text/css">'."\n";
     if (isset($pconf['style_base'])) { $out .= $pconf['style_base']; }
     else {
-      $out .= 'h1 { font-weight: bold; font-size: 1.5em; }';
-      $out .= 'h2 { font-weight: bold; font-size: 1em; }';
-      $out .= '.gdata, .gvar, .ginfo { font-size: 0.75em; margin: 0.5em 0; }';
-      $out .= 'table.gdata, table.legend  { border: 1px solid gray; border-collapse: collapse; }';
-      $out .= 'table.gdata td, table.gdata th, ';
-      $out .= 'table.legend td, table.legend th { border: 1px solid gray; padding: 0.1em 0.2em; }';
-      $out .= 'div.legend { font-size: 0.75em; margin: 0.5em 0; }';
-      $out .= 'div.legend p { margin: 0; }';
-      $out .= '.footer { font-size: 0.75em; margin: 0.5em 0; }';
+      $out .= 'h1 { font-weight: bold; font-size: 1.5em; }'."\n";
+      $out .= 'h2 { font-weight: bold; font-size: 1em; }'."\n";
+      $out .= '.gdata, .gvar, .ginfo { font-size: 0.75em; margin: 0.5em 0; }'."\n";
+      $out .= 'table.gdata, table.legend  { border: 1px solid gray; border-collapse: collapse; }'."\n";
+      $out .= 'table.gdata td, table.gdata th, '."\n";
+      $out .= 'table.legend td, table.legend th { border: 1px solid gray; padding: 0.1em 0.2em; }'."\n";
+      $out .= 'div.legend { font-size: 0.75em; margin: 0.5em 0; }'."\n";
+      $out .= 'div.legend p { margin: 0; }'."\n";
+      $out .= '.footer { font-size: 0.75em; margin: 0.5em 0; }'."\n";
     }
     if (isset($pconf['style'])) { $out .= $pconf['style']; }
-    $out .= '</style>';
-    $out .= '</head>';
-    $out .= '<body>';
+    $out .= '</style>'."\n";
+    $out .= '</head>'."\n";
+    $out .= '<body>'."\n";
 
-    $out .= '<h1>'.$ptitle.'</h1>';
-    if (isset($pconf['text_intro']) && strlen($pconf['text_intro'])) { $out .= '<p class="intro">'.$pconf['text_intro'].'</p>'; }
+    $out .= '<h1>'.$ptitle.'</h1>'."\n";
+    if (isset($pconf['text_intro']) && strlen($pconf['text_intro'])) { $out .= '<p class="intro">'.$pconf['text_intro'].'</p>'."\n"; }
     if (!isset($pconf['show_update']) || $pconf['show_update']) {
       $out .= '<p class="last_up">';
       if (is_null($this->last_update())) { $up_time = dgettext($td, 'unknown'); }
       elseif (class_exists('baseutils')) { $up_time = baseutils::dateFormat($this->last_update(), 'short'); }
       else { $up_time = date('Y-m-d H:i:s', $this->last_update()); }
       $out .= sprintf(dgettext($td, 'Last Update: %s'), $up_time);
-      $out .= '</p>';
+      $out .= '</p>'."\n";
     }
 
     $g_sub = isset($pconf['graph_sub'])?$pconf['graph_sub']:null;
@@ -1001,16 +1056,23 @@ class rrdstat {
         else {
           $gURL = $gmeta['filename'];
         }
-        $out .= '<div class="'.$tframe.'">';
-//         $out .= '<p>'.nl2br($ret).'</p>';
-        $out .= '<h2>'.$gtitle[$tframe].'</h2>';
+        $out .= '<div class="'.$tframe.'">'."\n";
+        if (0) {
+          // debug output
+          ob_start();
+          print_r($gmeta);
+          $buffer = ob_get_contents();
+          ob_end_clean();
+          $out .= '<p>'.nl2br($buffer).'</p>';
+        }
+        $out .= '<h2>'.$gtitle[$tframe].'</h2>'."\n";
         $out .= '<img src="'.$gURL.'"';
         $out .= ' alt="'.$this->basename.(!is_null($g_sub)?' - '.$g_sub:'').' - '.$tframe.'" class="rrdgraph"';
         if (isset($gmeta['width']) && isset($gmeta['height'])) { $out .= ' style="width:'.$gmeta['width'].'px;height:'.$gmeta['height'].'px;"'; }
-        $out .= '>';
+        $out .= '>'."\n";
         $colorize_data = (isset($pconf['data_colorize']) && $pconf['data_colorize']) || (!isset($pconf['data_colorize']) && $gmeta['default_colorize']);
         if (isset($gmeta['data']) && count($gmeta['data'])) {
-          $out .= '<table class="gdata">';
+          $out .= '<table class="gdata">'."\n";
           foreach ($gmeta['data'] as $field=>$gdata) {
             $out .= '<tr><th';
             if ($colorize_data && isset($gmeta['legend'][$field])) {
@@ -1024,26 +1086,26 @@ class rrdstat {
             foreach ($gdata as $gkey=>$gval) {
               $out .= '<td><span class="gkey">'.$gkey.': </span>'.$gval.'</td>';
             }
-            $out .= '</tr>';
+            $out .= '</tr>'."\n";
           }
-          $out .= '</table>';
+          $out .= '</table>'."\n";
         }
         if (isset($gmeta['var']) && count($gmeta['var'])) {
           foreach ($gmeta['var'] as $gkey=>$gval) {
-            $out .= '<p class="gvar"><span class="gkey">'.$gkey.': </span>'.$gval.'</p>';
+            $out .= '<p class="gvar"><span class="gkey">'.$gkey.': </span>'.$gval.'</p>'."\n";
           }
         }
         if (isset($gmeta['info']) && count($gmeta['info'])) {
           foreach ($gmeta['info'] as $gval) {
-            $out .= '<p class="ginfo">'.$gval.'</p>';
+            $out .= '<p class="ginfo">'.$gval.'</p>'."\n";
           }
         }
-        $out .= '</div>';
+        $out .= '</div>'."\n";
       }
       if ($gmeta['legends_long'] && (!isset($pconf['show_legend']) || $pconf['show_legend'])) {
-        $out .= '<div class="legend">';
-        $out .= '<p>'.$ltitle.'</p>';
-        $out .= '<table class="legend">';
+        $out .= '<div class="legend">'."\n";
+        $out .= '<p>'.$ltitle.'</p>'."\n";
+        $out .= '<table class="legend">'."\n";
         foreach ($gmeta['legend'] as $field=>$legend) {
           if (strlen($legend['desc_long'])) {
             $out .= '<tr><th';
@@ -1056,19 +1118,19 @@ class rrdstat {
             }
             $out .= '>'.$field.'</th>';
             $out .= '<td>'.$legend['desc_long'].'</td>';
-            $out .= '</tr>';
+            $out .= '</tr>'."\n";
           }
         }
-        $out .= '</table>';
-        $out .= '</div>';
+        $out .= '</table>'."\n";
+        $out .= '</div>'."\n";
       }
     }
     else {
-      $out .= sprintf(dgettext($td, 'RRD error: status is "%s"'), $this->status);
+      $out .= sprintf(dgettext($td, 'RRD error: status is "%s"'), $this->status)."\n";
     }
 
     $out .= $this->h_page_footer();
-    $out .= '</body></html>';
+    $out .= '</body></html>'."\n";
   return $out;
   }
 
@@ -1118,7 +1180,7 @@ class rrdstat {
     $out .= sprintf(dgettext($this->mod_textdomain, 'Statistics created with %s using a library created by %s.'),
                     '<a href="http://people.ee.ethz.ch/~oetiker/webtools/rrdtool/">RRDtool</a>',
                     '<a href="http://www.kairo.at/">KaiRo.at</a>');
-    $out .= '</p>';
+    $out .= '</p>'."\n";
   return $out;
   }
 

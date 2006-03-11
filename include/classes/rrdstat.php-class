@@ -692,7 +692,11 @@ class rrdstat {
     if (isset($gconf['calc_max_y']) && $gconf['calc_max_y']) { $gOpts .= ' --alt-autoscale-max'; }
     if (isset($gconf['units_exponent'])) { $gOpts .= ' --units-exponent '.$gconf['units_exponent']; }
     if (isset($gconf['units_length'])) { $gOpts .= ' --units-length '.$gconf['units_length']; }
-    if (!isset($gconf['force_recreate']) || (!$gconf['force_recreate'])) { $gOpts .= ' --lazy'; }
+    if (($this->rrd_version() < '1.2') || !count($specialrows)) {
+      // lazy graphics omit all print reporting in RRDtool 1.2!
+      // --> so don't use them there when we want to print stuff
+      if (!isset($gconf['force_recreate']) || (!$gconf['force_recreate'])) { $gOpts .= ' --lazy'; }
+    }
     if (isset($gconf['force_color']) && is_array($gconf['force_color'])) {
       foreach ($gconf['force_color'] as $ctag=>$cval) { $gOpts .= ' --color '.$ctag.$cval; }
     }
@@ -767,8 +771,6 @@ class rrdstat {
       // debug output
       $gmeta['ret'] = $ret;
     }
-//    if (preg_match('/\ncommand:(.*?)\n\n/', $ret, $regs)) { $gmeta['graph_cmd'] = $regs[1]; $ret = str_replace($regs[0], "\n",$ret); }
-//    else { $gmeta['graph_cmd'] = null; }
     $grout = explode("\n", $ret);
     foreach ($grout as $gline) {
       if (preg_match('/^command:(.+)$/', $gline, $regs)) {

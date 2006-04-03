@@ -68,7 +68,7 @@ class userAgent {
   //
   // function getEngine()
   //   returns a string telling the detected rendering engine, null if we can't detect
-  //     one of gecko|khtml|trident|tasman|nscp|presto|gzilla|gtkhtml|links|unkown
+  //     one of gecko|khtml|trident|tasman|nscp|presto|gzilla|gtkhtml|links|unknown
   //
   // function hasEngine($rnd_engine)
   //   returns true if the given rendering engine was detected
@@ -83,7 +83,7 @@ class userAgent {
   //
   // function getPlatform()
   //   returns a string telling the detected OS platform, null if we can't detect
-  //     one of windows|linux|mac|solaris|unkown
+  //     one of windows|linux|mac|solaris|unknown
   //
   // function getLanguage() {
   //   returns a string telling the detected browser UI language, null if we can't detect
@@ -465,9 +465,9 @@ class userAgent {
   function getUAString() { return $this->uastring; }
 
   function getEngine() {
-    // return gecko|khtml|trident|tasman|nscp|presto|gzilla|gtkhtml|links|unkown
+    // return gecko|khtml|trident|tasman|nscp|presto|gzilla|gtkhtml|links|unknown
     if (!isset($this->uadata['engine'])) {
-      $this->uadata['engine'] = 'unkown';
+      $this->uadata['engine'] = 'unknown';
       $this->uadata['geckodate'] = null;
       if (preg_match('|Gecko/([0-9]+)|', $this->uastring, $regs)) {
         $this->uadata['engine'] = 'gecko';

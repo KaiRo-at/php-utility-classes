@@ -656,12 +656,12 @@ class rrdstat {
         if (isset($grow['gType']) && strlen($grow['gType'])) {
           $textprefix = isset($grow['desc'])?$grow['desc']:(isset($grow['legend'])?$grow['legend']:$grow['name']);
           if ($this->rrd_version() >= '1.2') {
-            $graphrows[] = array('dType'=>'VDEF', 'name'=>$grow['name'].'_max', 'rpn_expr'=>$grow['name'].',MAXIMUM');
-            $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'].'_max', 'text'=>$textprefix.'|'.dgettext($td, 'Maximum').'|%.2lf%s');
-            $graphrows[] = array('dType'=>'VDEF', 'name'=>$grow['name'].'_avg', 'rpn_expr'=>$grow['name'].',AVERAGE');
-            $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'].'_avg', 'text'=>$textprefix.'|'.dgettext($td, 'Average').'|%.2lf%s');
-            $graphrows[] = array('dType'=>'VDEF', 'name'=>$grow['name'].'_last', 'rpn_expr'=>$grow['name'].',LAST');
-            $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'].'_last', 'text'=>$textprefix.'|'.dgettext($td, 'Current').'|%.2lf%s');
+            $graphrows[] = array('dType'=>'VDEF', 'name'=>'_'.$grow['name'].'__max', 'rpn_expr'=>$grow['name'].',MAXIMUM');
+            $specialrows[] = array('sType'=>'PRINT', 'name'=>'_'.$grow['name'].'__max', 'text'=>$textprefix.'|'.dgettext($td, 'Maximum').'|%.2lf%s');
+            $graphrows[] = array('dType'=>'VDEF', 'name'=>'_'.$grow['name'].'__avg', 'rpn_expr'=>$grow['name'].',AVERAGE');
+            $specialrows[] = array('sType'=>'PRINT', 'name'=>'_'.$grow['name'].'__avg', 'text'=>$textprefix.'|'.dgettext($td, 'Average').'|%.2lf%s');
+            $graphrows[] = array('dType'=>'VDEF', 'name'=>'_'.$grow['name'].'__last', 'rpn_expr'=>$grow['name'].',LAST');
+            $specialrows[] = array('sType'=>'PRINT', 'name'=>'_'.$grow['name'].'__last', 'text'=>$textprefix.'|'.dgettext($td, 'Current').'|%.2lf%s');
           }
           else {
             $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'], 'cf'=>'MAX', 'text'=>$textprefix.'|'.dgettext($td, 'Maximum').'|%.2lf%s');

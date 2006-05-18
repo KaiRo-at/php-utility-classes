@@ -12,7 +12,7 @@
  *
  * The Initial Developer of the Original Code is
  * KaiRo - Robert Kaiser.
- * Portions created by the Initial Developer are Copyright (C) 2003-2004
+ * Portions created by the Initial Developer are Copyright (C) 2003-2006
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s): Robert Kaiser <kairo@kairo.at>
@@ -106,7 +106,7 @@ class email {
   //   helper function:
   //   encode given field text, ready to be placed into an e-mail MIME header
 
-  var $debug_toSingleAddress = "";
+  var $debug_toSingleAddress = '';
   var $subject;
   var $sender = array();
   var $replyto = array();
@@ -114,9 +114,9 @@ class email {
   var $cc = array();
   var $bcc = array();
   var $headers = array();
-  var $content_type = "text/plain";
-  var $charset = "iso-8859-15";
-  var $mailtext = "";
+  var $content_type = 'text/plain';
+  var $charset = 'iso-8859-15';
+  var $mailtext = '';
   var $attachments = array();
 
   function email() {
@@ -127,130 +127,130 @@ class email {
 
   function setSubject($newsubject) { $this->subject = $newsubject; }
 
-  function setSender($email, $name = "") { $this->sender = array("mail" => $email, "name" => $name); }
+  function setSender($email, $name = '') { $this->sender = array('mail' => $email, 'name' => $name); }
 
-  function setReplyTo($email, $name = "") { $this->replyto = array("mail" => $email, "name" => $name); }
+  function setReplyTo($email, $name = '') { $this->replyto = array('mail' => $email, 'name' => $name); }
 
-  function addRecipient($email, $name = "") {
-    $this->recipients[] = array("mail" => $email, "name" => $name);
+  function addRecipient($email, $name = '') {
+    $this->recipients[] = array('mail' => $email, 'name' => $name);
   }
 
-  function addCC($email, $name = "") {
-    $this->cc[] = array("mail" => $email, "name" => $name);
+  function addCC($email, $name = '') {
+    $this->cc[] = array('mail' => $email, 'name' => $name);
   }
 
-  function addBCC($email, $name = "") {
-    $this->bcc[] = array("mail" => $email, "name" => $name);
+  function addBCC($email, $name = '') {
+    $this->bcc[] = array('mail' => $email, 'name' => $name);
   }
 
-  function addHeader($hname, $hcontent = "") {
-    $this->headers[] = array("name" => $hname, "content" => $hcontent);
+  function addHeader($hname, $hcontent = '') {
+    $this->headers[] = array('name' => $hname, 'content' => $hcontent);
   }
 
   function addMailText($textpart) { $this->mailtext .= $textpart; }
 
-  function addAttachment($aname, $acontent, $atype = "application/octet-stream") {
-    $this->attachments[] = array("name" => $aname, "content" => $acontent, "type" => $atype);
+  function addAttachment($aname, $acontent, $atype = 'application/octet-stream') {
+    $this->attachments[] = array('name' => $aname, 'content' => $acontent, 'type' => $atype);
   }
 
   function send() {
     global $util;
-    $mtxt = "";
-    $hdrs = "MIME-Version: 1.0\n";
+    $mtxt = '';
+    $hdrs = 'MIME-Version: 1.0'."\n";
     $subj = $this->mimeencode($this->subject);
-    if (strlen($this->sender["name"])) {
-      $hdrs .= "From: ".$this->mimeencode($this->sender["name"])." <".$this->sender["mail"].">\n";
+    if (strlen($this->sender['name'])) {
+      $hdrs .= 'From: '.$this->mimeencode($this->sender['name']).' <'.$this->sender['mail'].'>'."\n";
     }
-    else { $hdrs .= "From: ".$this->sender["mail"]."\n"; }
+    else { $hdrs .= 'From: '.$this->sender['mail']."\n"; }
     if (count($this->replyto)) {
-      if (strlen($this->replyto["name"])) {
-        $hdrs .= "Reply-to: ".$this->mimeencode($this->replyto["name"])." <".$this->replyto["mail"].">\n";
+      if (strlen($this->replyto['name'])) {
+        $hdrs .= 'Reply-to: '.$this->mimeencode($this->replyto['name']).' <'.$this->replyto['mail'].'>'."\n";
       }
-      else { $hdrs .= "Reply-to: ".$this->replyto["mail"]."\n"; }
+      else { $hdrs .= 'Reply-to: '.$this->replyto['mail']."\n"; }
     }
     if (count($this->recipients)) {
-      $recpt = "";
+      $recpt = '';
       foreach ($this->recipients as $address) {
-        if (strlen($address["name"])) { $recpt .= $this->mimeencode($address["name"])." <".$address["mail"].">,"; }
-        else { $recpt .= $address["mail"].","; }
+        if (strlen($address['name'])) { $recpt .= $this->mimeencode($address['name']).' <'.$address['mail'].'>,'; }
+        else { $recpt .= $address['mail'].','; }
       }
-      $recpt = ereg_replace(",$", "", $recpt);
+      $recpt = preg_replace('/,$/', '', $recpt);
     }
     if (count($this->cc)) {
-      $adrs = "";
+      $adrs = '';
       foreach ($this->cc as $address) {
-        if (strlen($address["name"])) { $adrs .= $this->mimeencode($address["name"])." <".$address["mail"].">,"; }
-        else { $adrs .= $address["mail"].","; }
+        if (strlen($address['name'])) { $adrs .= $this->mimeencode($address['name']).' <'.$address['mail'].'>,'; }
+        else { $adrs .= $address['mail'].','; }
       }
-      $adrs = ereg_replace(",$", "", $adrs);
-      $hdrs .= (strlen($this->debug_toSingleAddress)?"X-Real-":"")."Cc: $adrs\n";
+      $adrs = preg_replace('/,$/', '', $adrs);
+      $hdrs .= (strlen($this->debug_toSingleAddress)?'X-Real-':'').'Cc: '.$adrs."\n";
     }
     if (count($this->bcc)) {
-      $adrs = "";
+      $adrs = '';
       foreach ($this->bcc as $address) {
-        if (strlen($address["name"])) { $adrs .= $this->mimeencode($address["name"])." <".$address["mail"].">,"; }
-        else { $adrs .= $address["mail"].","; }
+        if (strlen($address['name'])) { $adrs .= $this->mimeencode($address['name']).' <'.$address['mail'].'>,'; }
+        else { $adrs .= $address['mail'].','; }
       }
-      $adrs = ereg_replace(",$", "", $adrs);
-      $hdrs .= (strlen($this->debug_toSingleAddress)?"X-Real-":"")."Bcc: $adrs\n";
+      $adrs = preg_replace('/,$/', '', $adrs);
+      $hdrs .= (strlen($this->debug_toSingleAddress)?'X-Real-':'').'Bcc: '.$adrs."\n";
     }
     if (count($this->headers)) {
       foreach ($this->headers as $header) {
-        $hdrs .= $header["name"].": ".$header["content"]."\n";
+        $hdrs .= $header['name'].': '.$header['content']."\n";
       }
     }
     if (count($this->attachments)) {
       // create random boundary, 20 chars, always beginning with KaiRo ;-)
       $boundary = 'KaiRo';
-      for ($i=1; $i<=15; $i++)	{
-        $r=rand(0,61);
-        if ($r<10) { $boundary .= chr($r+48); }
-        elseif ($r<36) { $boundary .= chr($r+55); }
-        elseif ($r<62) { $boundary .= chr($r+61); }
+      for ($i = 1; $i <= 15; $i++)	{
+        $r = rand(0, 61);
+        if ($r < 10) { $boundary .= chr($r + 48); }
+        elseif ($r < 36) { $boundary .= chr($r + 55); }
+        elseif ($r < 62) { $boundary .= chr($r + 61); }
       }
-      $hdrs .= "Content-Type: multipart/mixed; boundary=\"$boundary\";\n";
-      $hdrs .= "Content-Transfer-Encoding: 7bit\n";
-      $mtxt .= "This part of the E-mail should never be seen. If\n";
-      $mtxt .= "you are reading this, consider upgrading your e-mail\n";
-      $mtxt .= "client to a MIME-compatible client.\n";
-      $mtxt .= "\n--$boundary\n";
-      if (ereg("text/.*", $this->content_type)) {
-        $mtxt .= "Content-Type: ".$this->content_type."; charset=\"".$this->charset."\"\n";
+      $hdrs .= 'Content-Type: multipart/mixed; boundary="'.$boundary.'";'."\n";
+      $hdrs .= 'Content-Transfer-Encoding: 7bit'."\n";
+      $mtxt .= 'This part of the E-mail should never be seen. If'."\n";
+      $mtxt .= 'you are reading this, consider upgrading your e-mail'."\n";
+      $mtxt .= 'client to a MIME-compatible client.'."\n";
+      $mtxt .= "\n".'--'.$boundary."\n";
+      if (preg_match('|^text/|', $this->content_type)) {
+        $mtxt .= 'Content-Type: '.$this->content_type.'; charset="'.$this->charset.'"'."\n";
       }
       else {
-        $mtxt .= "Content-Type: ".$this->content_type."\n";
+        $mtxt .= 'Content-Type: '.$this->content_type."\n";
       }
-      $mtxt .= "Content-Transfer-Encoding: 8bit\n\n";
+      $mtxt .= 'Content-Transfer-Encoding: 8bit'."\n\n";
     }
     else {
-      if (ereg("text/.*", $this->content_type)) {
-        $hdrs .= "Content-Type: ".$this->content_type."; charset=\"".$this->charset."\"\n";
+      if (preg_match('|^text/|', $this->content_type)) {
+        $hdrs .= 'Content-Type: '.$this->content_type.'; charset="'.$this->charset.'"'."\n";
       }
       else {
-        $hdrs .= "Content-Type: ".$this->content_type."\n";
+        $hdrs .= 'Content-Type: '.$this->content_type."\n";
       }
-      $hdrs .= "Content-Transfer-Encoding: 8bit\n";
+      $hdrs .= 'Content-Transfer-Encoding: 8bit'."\n";
     }
     $mtxt .= stripslashes($this->mailtext);
     if (count($this->attachments)) {
       foreach ($this->attachments as $attach) {
-        $mtxt .= "\n--$boundary\n";
-        $mtxt .= "Content-Type: ".$attach["type"]."; name=\"".$attach["name"]."\";\n";
-        $mtxt .= "Content-Transfer-Encoding: base64\n";
-        $mtxt .= "Content-Disposition: attachment\n\n";
-        $mtxt .= rtrim(chunk_split(base64_encode($attach["content"]), 76)); ;
+        $mtxt .= "\n".'--'.$boundary."\n";
+        $mtxt .= 'Content-Type: '.$attach['type'].'; name="'.$attach['name'].'";'."\n";
+        $mtxt .= 'Content-Transfer-Encoding: base64'."\n";
+        $mtxt .= 'Content-Disposition: attachment'."\n\n";
+        $mtxt .= rtrim(chunk_split(base64_encode($attach['content']), 76)); ;
         $mtxt .= "\n";
       }
-      $mtext .= "--$boundary--\n";
+      $mtext .= '--'.$boundary.'--'."\n";
     }
 
     if (strlen($this->debug_toSingleAddress)) {
-      $hdrs .= "X-Real-To: $recpt\n";
+      $hdrs .= 'X-Real-To: '.$recpt."\n";
       $recpt = $this->debug_toSingleAddress;
     }
 
-    //print("Subject: ".$util->htmlify($subj)."<br>\n");
-    //print("To: ".$util->htmlify($recpt)."<br>\n");
+    //print('Subject: '.$util->htmlify($subj).'<br>'."\n");
+    //print('To: '.$util->htmlify($recpt).'<br>'."\n");
     //print(nl2br($util->htmlify($hdrs)));
     //print(nl2br($util->htmlify($mtxt)));
     return mail($recpt, $subj, $mtxt, $hdrs);
@@ -259,9 +259,9 @@ class email {
   function mimeencode($fieldtext) {
     $mText = imap_8bit($fieldtext);
     if ($mText != $fieldtext) {
-      $trans = array("_" => "=5F", " " => "_", "?" => "=3F");
+      $trans = array('_' => '=5F', ' ' => '_', '?' => '=3F');
       $mText = strtr($mText, $trans);
-      $mText = "=?ISO-8859-15?Q?".$mText."?=";
+      $mText = '=?'.strtoupper($this->charset).'?Q?'.$mText.'?=';
     }
   return $mText;
   }

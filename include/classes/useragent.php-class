@@ -39,90 +39,90 @@ class userAgent {
   // userAgent PHP class
   // get user agent and tell us what Browser is accessing
   //
-  // function userAgent([$ua_string])
+  // function __construct([$ua_string])
   //   CONSTRUCTOR; reads UA string (or takes the optional given UA string) and gets info from that into our variables.
   //
-  // var $uastring
+  // private $uastring
   //   the plain User Agent string
-  // var $brand
+  // private $brand
   //   the User Agent brand name
-  // var $version
+  // private $version
   //   the User Agent version
-  // var $bot
+  // private $bot
   //   bool: true if this agent is a bot
-  // var $uadata
+  // private $uadata
   //   array of static user agent data (static vars in functions are set for all objects of this class!)
   //
-  // function getBrand()
+  // public function getBrand()
   //   returns the User Agent Brand Name
   //
-  // function getVersion()
+  // public function getVersion()
   //   returns the User Agent version
   //
-  // function getAcceptLanguages()
+  // public function getAcceptLanguages()
   //   returns an associated array with the accepted languages of this UA
   //     keys are language codes, values are q factors (weights)
   //
-  // function getUAString()
+  // public function getUAString()
   //   returns the full User Agent string
   //
-  // function getEngine()
+  // public function getEngine()
   //   returns a string telling the detected rendering engine, null if we can't detect
   //     one of gecko|khtml|trident|tasman|nscp|presto|gzilla|gtkhtml|links|unknown
   //
-  // function hasEngine($rnd_engine)
+  // public function hasEngine($rnd_engine)
   //   returns true if the given rendering engine was detected
   //
-  // function getEngineVersion()
+  // public function getEngineVersion()
   //   returns a the version number for the rendering engine
   //     this may be the same as getVersion() for many engines, or null if we don't know
   //
-  // function getOS()
+  // public function getOS()
   //   returns a string telling the detected operating system, null if we can't detect
   //     might be very verbose, uses no abbreviations for most names
   //
-  // function getPlatform()
+  // public function getPlatform()
   //   returns a string telling the detected OS platform, null if we can't detect
   //     one of windows|linux|mac|solaris|unknown
   //
-  // function getLanguage() {
+  // public function getLanguage() {
   //   returns a string telling the detected browser UI language, null if we can't detect
   //     should be an ISO code
   //
-  // function isBot()
+  // public function isBot()
   //   returns true if User Agent seems to be a bot
   //
   // *** functions that only return useable info for some agents ***
   //
-  // function getGeckoDate()
+  // public function getGeckoDate()
   //   returns the Gecko date for Gecko-based browsers, null for others
   //
   // *** functions for compat to older versions of this class ***
   //
-  // function isns()
+  // public function isns()
   //   returns true if User Agent seems to be Netscape brand, false if not
-  // function isns4()
+  // public function isns4()
   //   returns true if User Agent seems to be Netscape Communicator 4.x, false if not
-  // function isie()
+  // public function isie()
   //   returns true if User Agent seems to be a version of Internet Exploder, false if not
-  // function geckobased()
+  // public function geckobased()
   //   returns true if User Agent seems to be a Gecko-based browser, false if not
-  // function geckodate()
+  // public function geckodate()
   //   returns the Gecko date when it's a Gecko-based browser, 0 if not
-  // function khtmlbased()
+  // public function khtmlbased()
   //   returns true if User Agent seems to be a KHTML-based browser, false if not
 
   // collection of some known User Agent Strings:
   // *** see testbed/ua_list_raw.txt ***
   // *** see also http://www.pgts.com.au/pgtsj/pgtsj0208c.html ***
 
-  var $uastring;
-  var $brand;
-  var $version;
-  var $bot = false;
-  var $uadata = array();
+  private $uastring;
+  private $brand;
+  private $version;
+  private $bot = false;
+  private $uadata = array();
 
-  function userAgent($ua_string = '') {
+  function __construct($ua_string = '') {
     // *** constructor ***
     if (strlen($ua_string)) {
       $this->uastring = $ua_string;
@@ -443,10 +443,10 @@ class userAgent {
     }
   }
 
-  function getBrand() { return $this->brand; }
-  function getVersion() { return $this->version; }
+  public function getBrand() { return $this->brand; }
+  public function getVersion() { return $this->version; }
 
-  function getAcceptLanguages() {
+  public function getAcceptLanguages() {
     if (!isset($this->uadata['accept-languages'])) {
       $headers = getAllHeaders();
       $accLcomp = explode(',', $headers['Accept-Language']);
@@ -462,9 +462,9 @@ class userAgent {
   return $this->uadata['accept-languages'];
   }
 
-  function getUAString() { return $this->uastring; }
+  public function getUAString() { return $this->uastring; }
 
-  function getEngine() {
+  public function getEngine() {
     // return gecko|khtml|trident|tasman|nscp|presto|gzilla|gtkhtml|links|unknown
     if (!isset($this->uadata['engine'])) {
       $this->uadata['engine'] = 'unknown';
@@ -514,9 +514,9 @@ class userAgent {
   return $this->uadata['engine'];
   }
 
-  function hasEngine($rnd_engine) { return ($this->getEngine() == $rnd_engine); }
+  public function hasEngine($rnd_engine) { return ($this->getEngine() == $rnd_engine); }
 
-  function getEngineVersion() {
+  public function getEngineVersion() {
     if (!isset($this->uadata['eng_version'])) {
       $this->uadata['eng_version'] = null;
       // getOS() should get the date for us
@@ -525,7 +525,7 @@ class userAgent {
   return $this->uadata['eng_version'];
   }
 
-  function getOS() {
+  public function getOS() {
     if (!isset($this->uadata['os'])) {
       $this->uadata['os'] = null;
       if ($this->hasEngine('gecko')) {
@@ -729,7 +729,7 @@ class userAgent {
   return $this->uadata['os'];
   }
 
-  function getPlatform() {
+  public function getPlatform() {
     if (!isset($this->uadata['platform'])) {
       $this->uadata['platform'] = null;
       // getOS() should get the date for us
@@ -738,7 +738,7 @@ class userAgent {
   return $this->uadata['platform'];
   }
 
-  function getLanguage() {
+  public function getLanguage() {
     if (!isset($this->uadata['lang'])) {
       $this->uadata['lang'] = null;
       // getOS() should get the date for us
@@ -747,7 +747,7 @@ class userAgent {
   return $this->uadata['lang'];
   }
 
-  function getGeckoDate() {
+  public function getGeckoDate() {
     if (!isset($this->uadata['geckodate'])) {
       $this->uadata['geckodate'] = null;
       // getEngine() should get the date for us
@@ -756,12 +756,31 @@ class userAgent {
   return $this->uadata['geckodate'];
   }
 
-  function isbot() { return $this->bot; }
-  function isns() { return (strpos($this->brand, 'Netscape') !== false); }
-  function isns4() { return ((strpos($this->brand, 'Netscape') !== false) && (intval($this->version) == 4)); }
-  function isie() { return $this->hasEngine('trident'); }
-  function geckodate() { return (!is_null($this->getGeckoDate())?$this->getGeckoDate():0); }
-  function geckobased() { return $this->hasEngine('gecko'); }
-  function khtmlbased() { return $this->hasEngine('khtml'); }
+  public function isBot() { return $this->bot; }
+
+  public function isns() {
+    trigger_error(__CLASS__.'::'.__FUNCTION__.' is a deprecated function', E_USER_NOTICE);
+    return (strpos($this->brand, 'Netscape') !== false);
+  }
+  public function isns4() {
+    trigger_error(__CLASS__.'::'.__FUNCTION__.' is a deprecated function', E_USER_NOTICE);
+    return ((strpos($this->brand, 'Netscape') !== false) && (intval($this->version) == 4));
+  }
+  public function isie() {
+    trigger_error(__CLASS__.'::'.__FUNCTION__.' is a deprecated function', E_USER_NOTICE);
+    return $this->hasEngine('trident');
+  }
+  public function geckodate() {
+    trigger_error(__CLASS__.'::'.__FUNCTION__.' is a deprecated function', E_USER_NOTICE);
+    return (!is_null($this->getGeckoDate())?$this->getGeckoDate():0);
+  }
+  public function geckobased() {
+    trigger_error(__CLASS__.'::'.__FUNCTION__.' is a deprecated function', E_USER_NOTICE);
+    return $this->hasEngine('gecko');
+  }
+  public function khtmlbased() {
+    trigger_error(__CLASS__.'::'.__FUNCTION__.' is a deprecated function', E_USER_NOTICE);
+    return $this->hasEngine('khtml');
+  }
 }
 ?>

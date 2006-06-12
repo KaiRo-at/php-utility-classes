@@ -23,137 +23,137 @@ class email {
   // email PHP class
   // class/object for creating a new mail and send it
   //
-  // function email()
+  // function __construct()
   //   CONSTRUCTOR
   //
-  // var $debug_toSingleAddress
+  // private $debug_toSingleAddress
   //   address to send mail to in debug mode
   //
-  // var $subject
+  // private $subject
   //   the mail's subject line
   //
-  // var $sender
+  // private $sender
   //   the mail's sender (array; fields see recipients)
   //
-  // var $replyto
+  // private $replyto
   //   Reply-to address (array; fields see recipients)
   //
-  // var $recipients
+  // private $recipients
   //   array of recipients (To: line)
   //   fields: name - real name
   //           mail - email address
   //
-  // var $cc
+  // private $cc
   //   array of CC recipients (fields like recipients)
   //
-  // var $bcc
+  // private $bcc
   //   array of BCC recipients (fields like recipients)
   //
-  // var $headers
+  // private $headers
   //   array containing all additional headers
   //   fields: name - headers name
   //           content - header content
   //
-  // var $content_type
+  // private $content_type
   //   the mail's content type (MIME-type) [default: text/plain]
   //
-  // var $charset
+  // private $charset
   //   the mail's charset [default: iso-8859-15]
   //
-  // var $mailtext
+  // private $mailtext
   //   the main mail body
   //
-  // var $attachments
+  // private $attachments
   //   array containing all attachments
   //   fields: name - attachment name
   //           content - attachment content
   //           type - MIME type of that attachment
   //
-  // function setDebugAddress($debug_email)
+  // public function setDebugAddress($debug_email)
   //   debug mode: send only to this address
   //
-  // function setSubject($newsubject)
+  // public function setSubject($newsubject)
   //   set subject of mail
   //
-  // function setSender($email, [$name])
+  // public function setSender($email, [$name])
   //   set sender of mail
   //
-  // function setReplyTo($email, [$name])
+  // public function setReplyTo($email, [$name])
   //   set reply-to address
   //
-  // function addRecipient($email, [$name])
+  // public function addRecipient($email, [$name])
   //   add a recipient to the mail
   //
-  // function addCC($email, [$name])
+  // public function addCC($email, [$name])
   //   add a CC recipient to the mail
   //
-  // function addBCC($email, [$name])
+  // public function addBCC($email, [$name])
   //   add a BCC recipient to the mail
   //
-  // function addHeader($hname, [$hcontent])
+  // public function addHeader($hname, [$hcontent])
   //   add a header to the mail
   //
-  // function addMailText($textpart)
+  // public function addMailText($textpart)
   //   add some text to the mail
   //
-  // function addAttachment($aname, $acontent, [$atype])
+  // public function addAttachment($aname, $acontent, [$atype])
   //   add an attachment to the mail, use given file name, content and MIME type (defaults to application/octet-stream)
   //
-  // function send()
+  // public function send()
   //   really send the mail
   //
-  // function mimeencode($fieldtext)
+  // private function mimeencode($fieldtext)
   //   helper function:
   //   encode given field text, ready to be placed into an e-mail MIME header
 
-  var $debug_toSingleAddress = '';
-  var $subject;
-  var $sender = array();
-  var $replyto = array();
-  var $recipients = array();
-  var $cc = array();
-  var $bcc = array();
-  var $headers = array();
-  var $content_type = 'text/plain';
-  var $charset = 'iso-8859-15';
-  var $mailtext = '';
-  var $attachments = array();
+  private $debug_toSingleAddress = '';
+  private $subject;
+  private $sender = array();
+  private $replyto = array();
+  private $recipients = array();
+  private $cc = array();
+  private $bcc = array();
+  private $headers = array();
+  private $content_type = 'text/plain';
+  private $charset = 'iso-8859-15';
+  private $mailtext = '';
+  private $attachments = array();
 
-  function email() {
+  function __construct() {
     // *** constructor ***
   }
 
-  function setDebugAddress($debug_email) { $this->debug_toSingleAddress = $debug_email; }
+  public function setDebugAddress($debug_email) { $this->debug_toSingleAddress = $debug_email; }
 
-  function setSubject($newsubject) { $this->subject = $newsubject; }
+  public function setSubject($newsubject) { $this->subject = $newsubject; }
 
-  function setSender($email, $name = '') { $this->sender = array('mail' => $email, 'name' => $name); }
+  public function setSender($email, $name = '') { $this->sender = array('mail' => $email, 'name' => $name); }
 
-  function setReplyTo($email, $name = '') { $this->replyto = array('mail' => $email, 'name' => $name); }
+  public function setReplyTo($email, $name = '') { $this->replyto = array('mail' => $email, 'name' => $name); }
 
-  function addRecipient($email, $name = '') {
+  public function addRecipient($email, $name = '') {
     $this->recipients[] = array('mail' => $email, 'name' => $name);
   }
 
-  function addCC($email, $name = '') {
+  public function addCC($email, $name = '') {
     $this->cc[] = array('mail' => $email, 'name' => $name);
   }
 
-  function addBCC($email, $name = '') {
+  public function addBCC($email, $name = '') {
     $this->bcc[] = array('mail' => $email, 'name' => $name);
   }
 
-  function addHeader($hname, $hcontent = '') {
+  public function addHeader($hname, $hcontent = '') {
     $this->headers[] = array('name' => $hname, 'content' => $hcontent);
   }
 
-  function addMailText($textpart) { $this->mailtext .= $textpart; }
+  public function addMailText($textpart) { $this->mailtext .= $textpart; }
 
-  function addAttachment($aname, $acontent, $atype = 'application/octet-stream') {
+  public function addAttachment($aname, $acontent, $atype = 'application/octet-stream') {
     $this->attachments[] = array('name' => $aname, 'content' => $acontent, 'type' => $atype);
   }
 
-  function send() {
+  public function send() {
     global $util;
     $mtxt = '';
     $hdrs = 'MIME-Version: 1.0'."\n";
@@ -256,7 +256,7 @@ class email {
     return mail($recpt, $subj, $mtxt, $hdrs);
   }
 
-  function mimeencode($fieldtext) {
+  private function mimeencode($fieldtext) {
     $mText = imap_8bit($fieldtext);
     if ($mText != $fieldtext) {
       $trans = array('_' => '=5F', ' ' => '_', '?' => '=3F');

@@ -23,138 +23,138 @@ class rrdstat {
   // rrdstat PHP class
   // rrdtool statistics functions
   //
-  // function rrdstat($rrdconfig, [$conf_id])
+  // function __construct($rrdconfig, [$conf_id])
   //   CONSTRUCTOR
   //     if $conf_id is set, $rrdconfig is a total configuration set
   //     else it's the configuration for this one RRD
   //     currently only a config array is supported, XML config is planned
   //
-  // var $rrd_file
+  // private $rrd_file
   // RRD file name
   //
-  // var $basename
+  // private $basename
   // base name for this RRD (usually file name without .rrd)
   //
-  // var $basedir
+  // private $basedir
   // base directory for this RRD (with a trailing slash)
   //   note that $rrd_file usually includes that path as well, but graph directory gets based on this value
   //
-  // var $config_all
+  // private $config_all
   // complete, raw configuration array set
   //
-  // var $config_raw
+  // private $config_raw
   // configuration array set for current RRD
   //
-  // var $config_graph
+  // private $config_graph
   // configuration array set for default graph in this RRD
   //
-  // var $config_page
+  // private $config_page
   // configuration array set for default page in this RRD
   //
-  // var $rrd_fields
+  // private $rrd_fields
   // definition of this RRD's fields
   //
-  // var $rra_base
+  // private $rra_base
   // definition of this RRD's base RRAs
   //
-  // var $rrd_step
+  // private $rrd_step
   // basic stepping of this RRD in seconds (default: 300)
   //
-  // var $rra_add_max
+  // private $rra_add_max
   // should RRAs for MAX be added for every base RRA? (bool, default: true)
   //
-  // var $status
+  // private $status
   // status of the RRD (unused/ok/readonly/graphonly)
   //   note that most functions require certain status values
   //   (e.g. update only works if status is ok, graph for ok/readonly/graphonly)
   //
-  // var $mod_textdomain
+  // private $mod_textdomain
   //   GNU gettext domain for this module
   //
-  // function set_def($rrdconfig, [$conf_id])
+  // private function set_def($rrdconfig, [$conf_id])
   //   set definitions based on given configuration
   //   [intended for internal use, called by the constructor]
   //
-  // function rrd_version() {
+  // public function rrd_version() {
   //   get RRDtool version string
   //
-  // function create()
+  // public function create()
   //   create RRD file according to set config
   //
-  // function update([$upArray])
+  // public function update([$upArray])
   //   feed new data into RRD (either use given array of values or use auto-update info from config)
   //
-  // function fetch([$cf] = 'AVERAGE', $resolution = null, $start = null, $end = null)
+  // public function fetch([$cf] = 'AVERAGE', $resolution = null, $start = null, $end = null)
   //   fetch data from the defined RRD
   //     using given consolidation function [default is AVERAGE],
   //     resolution (seconds, default is the RRD's stepping),
   //     start and end times (unix epoch, defaults are the RRD's last update time)
   //
-  // function last_update()
+  // public function last_update()
   //   fetch time of last update in this RRD file
   //
-  // function graph([$timeframe], [$sub], [$extra])
+  // public function graph([$timeframe], [$sub], [$extra])
   //   create a RRD graph (and return all meta info in a flat string)
   //     for given timeframe (day [default]/week/month/year),
   //     sub-graph ID (if given) and extra config options (if given)
   //
-  // function graph_plus([$timeframe], [$sub], [$extra])
+  // public function graph_plus([$timeframe], [$sub], [$extra])
   //   create a RRD graph (see above) and return meta info as a ready-to-use array
   //
-  // function page([$sub], [$page_extras], [$graph_extras])
+  // public function page([$sub], [$page_extras], [$graph_extras])
   //   create a (HTML) page and return it in a string
   //     for given sub-page ID (if given, default is a simple HTML page)
   //     and extra page and graph config options (if given)
   //
-  // function simple_html([$sub], [$page_extras], [$graph_extras])
+  // public function simple_html([$sub], [$page_extras], [$graph_extras])
   //   create a simple (MRTG-like) HTML page and return it in a string
   //   XXX: this is here temporarily for compat only, it's preferred to use page()!
   //
-  // function page_index($pconf)
+  // private function page_index($pconf)
   //   create a bare, very simple index list HTML page and return it in a string
   //   using given page config options
   //   [intended for internal use, called by page()]
   //
-  // function page_overview($pconf, [$graph_extras])
+  // private function page_overview($pconf, [$graph_extras])
   //   create an overview HTML page (including graphs) and return it in a string
   //   using given page config options and extra graph options (if given)
   //   [intended for internal use, called by page()]
   //
-  // function page_simple($pconf, [$graph_extras])
+  // private function page_simple($pconf, [$graph_extras])
   //   create a simple (MRTG-like) HTML page and return it in a string
   //   using given page config options and extra graph options (if given)
   //   [intended for internal use, called by page()]
   //
-  // function h_page_statsArray($pconf)
+  // private function h_page_statsArray($pconf)
   //   return array of stats to list on a page, using given page config options
   //   [intended for internal use, called by page_*()]
   //
-  // function h_page_footer()
+  // private function h_page_footer()
   //   return generic page footer
   //   [intended for internal use, called by page_*()]
   //
-  // function text_quote($text)
+  // private function text_quote($text)
   //   return a quoted/escaped text for use in rrdtool commandline text fields
 
-  var $rrd_file = null;
-  var $basename = null;
-  var $basedir = null;
+  private $rrd_file = null;
+  private $basename = null;
+  private $basedir = null;
 
-  var $config_all = null;
-  var $config_raw = null;
-  var $config_graph = null;
-  var $config_page = null;
+  private $config_all = null;
+  private $config_raw = null;
+  private $config_graph = null;
+  private $config_page = null;
 
-  var $rrd_fields = array();
-  var $rra_base = array();
-  var $rrd_step = 300;
-  var $rra_add_max = true;
+  private $rrd_fields = array();
+  private $rra_base = array();
+  private $rrd_step = 300;
+  private $rra_add_max = true;
 
-  var $status = 'unused';
+  private $status = 'unused';
 
-  var $mod_textdomain;
+  private $mod_textdomain;
 
-  function rrdstat($rrdconfig, $conf_id = null) {
+  function __construct($rrdconfig, $conf_id = null) {
     // ***** init RRD stat module *****
     $this->mod_textdomain = 'class_rrdstat';
     $mod_charset = 'iso-8859-15';
@@ -181,7 +181,7 @@ class rrdstat {
     }
   }
 
-  function set_def($rrdconfig, $conf_id = null) {
+  private function set_def($rrdconfig, $conf_id = null) {
     if (is_array($rrdconfig)) {
       // we have an array in the format we like to have
       $complete_conf =& $rrdconfig;
@@ -270,7 +270,7 @@ class rrdstat {
     $this->config_all = $complete_conf;
   }
 
-  function rrd_version() {
+  public function rrd_version() {
     // return RRDtool version
     static $version;
     if (!isset($version)) {
@@ -290,7 +290,7 @@ class rrdstat {
   return $version;
   }
 
-  function create() {
+  public function create() {
     // create RRD file
 
     // compose create command
@@ -328,7 +328,7 @@ class rrdstat {
     else { $this->status = 'ok'; }
   }
 
-  function update($upArray = null) {
+  public function update($upArray = null) {
     // feed new data into RRD
     if ($this->status != 'ok') { trigger_error('Cannot update non-writeable file', E_USER_WARNING); return false; }
     $upvals = array();
@@ -413,7 +413,7 @@ class rrdstat {
   return $success;
   }
 
-  function fetch($cf = 'AVERAGE', $resolution = null, $start = null, $end = null) {
+  public function fetch($cf = 'AVERAGE', $resolution = null, $start = null, $end = null) {
     // fetch data from a RRD
     if (!in_array($this->status, array('ok','readonly'))) { trigger_error('Error: rrd status is '.$this->status, E_USER_WARNING); return false; }
 
@@ -455,7 +455,7 @@ class rrdstat {
   return $fresult;
   }
 
-  function last_update() {
+  public function last_update() {
     // fetch time of last update in this RRD file
     static $last_update;
     if (!isset($last_update) && in_array($this->status, array('ok','readonly'))) {
@@ -466,7 +466,7 @@ class rrdstat {
   return isset($last_update)?$last_update:null;
   }
 
-  function graph($timeframe = 'day', $sub = null, $extra = null) {
+  public function graph($timeframe = 'day', $sub = null, $extra = null) {
     // create a RRD graph
     static $gColors;
     if (!isset($gColors)) {
@@ -763,7 +763,7 @@ class rrdstat {
   return $return;
   }
 
-  function graph_plus($timeframe = 'day', $sub = null, $extra = null) {
+  public function graph_plus($timeframe = 'day', $sub = null, $extra = null) {
     // create a RRD graph and return meta info as a ready-to-use array
     $gmeta = array('filename'=>null,'legends_long'=>false,'default_colorize'=>false);
     $ret = $this->graph($timeframe, $sub, $extra);
@@ -803,7 +803,7 @@ class rrdstat {
   return $gmeta;
   }
 
-  function page($sub = null, $page_extras = null, $graph_extras = null) {
+  public function page($sub = null, $page_extras = null, $graph_extras = null) {
     // create a (HTML) page and return it in a string
 
     // assemble configuration
@@ -829,9 +829,10 @@ class rrdstat {
   return $return;
   }
 
-  function simple_html($sub = null, $page_extras = null, $graph_extras = null) {
+  public function simple_html($sub = null, $page_extras = null, $graph_extras = null) {
     // create a simple (MRTG-like) HTML page and return it in a string
     // XXX: this is here temporarily for compat only, it's preferred to use page()!
+    trigger_error(__CLASS__.'::'.__METHOD__.' is deprecated, use page() instead.', E_USER_NOTICE);
 
     // assemble configuration
     $pconf = (array)$page_extras;
@@ -843,7 +844,7 @@ class rrdstat {
   return $this->page_simple($pconf, $graph_extras);
   }
 
-  function page_index($pconf) {
+  private function page_index($pconf) {
     // create a bare, very simple index list HTML page and return it in a string
     $td = $this->mod_textdomain;
     $ptitle = isset($pconf['title_page'])?$pconf['title_page']:dgettext($td, 'RRD statistics index');
@@ -904,7 +905,7 @@ class rrdstat {
   return $out;
   }
 
-  function page_overview($pconf, $graph_extras = null) {
+  private function page_overview($pconf, $graph_extras = null) {
     // create an overview HTML page (including graphs) and return it in a string
     $td = $this->mod_textdomain;
     $ptitle = isset($pconf['title_page'])?$pconf['title_page']:dgettext($td, 'RRD statistics overview');
@@ -1002,7 +1003,7 @@ class rrdstat {
   return $out;
   }
 
-  function page_simple($pconf, $graph_extras = null) {
+  private function page_simple($pconf, $graph_extras = null) {
     // create a simple (MRTG-like) HTML page and return it in a string
     $td = $this->mod_textdomain;
 
@@ -1136,7 +1137,7 @@ class rrdstat {
   return $out;
   }
 
-  function h_page_statsArray($pconf) {
+  private function h_page_statsArray($pconf) {
     // return array of stats to list on a page
     $stats = array();
     $snames = array(); $s_exclude = array(); $sfiles = array();
@@ -1176,7 +1177,7 @@ class rrdstat {
   return $stats;
   }
 
-  function h_page_footer() {
+  private function h_page_footer() {
     // return generic page footer
     $out = '<p class="footer">';
     $out .= sprintf(dgettext($this->mod_textdomain, 'Statistics created with %s using a library created by %s.'),
@@ -1186,6 +1187,10 @@ class rrdstat {
   return $out;
   }
 
-  function text_quote($text) { return '"'.str_replace('"', '\"', str_replace(':', '\:', $text)).'"'; }
+  private function text_quote($text) {
+    $trans = array('"' => '\"', ':' => '\:');
+    $qtext = '"'.strtr($text, $trans).'"';
+  return $qtext;
+  }
 }
 ?>

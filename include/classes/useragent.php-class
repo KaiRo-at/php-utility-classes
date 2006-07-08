@@ -686,7 +686,7 @@ class userAgent {
         }
       }
       if ($this->uadata['os'] == 'Win 9x 4.90') { $this->uadata['os'] = 'Windows ME'; }
-      elseif ($this->uadata['os'] == 'WinNT4.0') { $this->uadata['os'] = 'Windows ME'; }
+      elseif ($this->uadata['os'] == 'WinNT4.0') { $this->uadata['os'] = 'Windows NT 4.0'; }
       elseif ($this->uadata['os'] == 'Windows NT 5.0') { $this->uadata['os'] = 'Windows 2000'; }
       elseif ($this->uadata['os'] == 'Windows NT 5.1') { $this->uadata['os'] = 'Windows XP'; }
       elseif ($this->uadata['os'] == 'Windows NT 5.2') { $this->uadata['os'] = 'Windows 2003'; }

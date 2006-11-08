@@ -102,9 +102,11 @@ class email {
   // public function send()
   //   really send the mail
   //
-  // private function mimeencode($fieldtext)
+  // private function mimeencode($fieldtext, [$stringescape])
   //   helper function:
-  //   encode given field text, ready to be placed into an e-mail MIME header
+  //     encode given field text, ready to be placed into an e-mail MIME header
+  //     if the boolean $stringescape is true, make sure this is sent as a single word in RFC2822 context (e.g. for names)
+  //     see http://www.ietf.org/rfc/rfc2822.txt for the RFC in question
 
   private $debug_toSingleAddress = '';
   private $subject;
@@ -159,19 +161,19 @@ class email {
     $hdrs = 'MIME-Version: 1.0'."\n";
     $subj = $this->mimeencode($this->subject);
     if (strlen($this->sender['name'])) {
-      $hdrs .= 'From: '.$this->mimeencode($this->sender['name']).' <'.$this->sender['mail'].'>'."\n";
+      $hdrs .= 'From: '.$this->mimeencode($this->sender['name'], true).' <'.$this->sender['mail'].'>'."\n";
     }
     else { $hdrs .= 'From: '.$this->sender['mail']."\n"; }
     if (count($this->replyto)) {
       if (strlen($this->replyto['name'])) {
-        $hdrs .= 'Reply-to: '.$this->mimeencode($this->replyto['name']).' <'.$this->replyto['mail'].'>'."\n";
+        $hdrs .= 'Reply-to: '.$this->mimeencode($this->replyto['name'], true).' <'.$this->replyto['mail'].'>'."\n";
       }
       else { $hdrs .= 'Reply-to: '.$this->replyto['mail']."\n"; }
     }
     if (count($this->recipients)) {
       $recpt = '';
       foreach ($this->recipients as $address) {
-        if (strlen($address['name'])) { $recpt .= $this->mimeencode($address['name']).' <'.$address['mail'].'>,'; }
+        if (strlen($address['name'])) { $recpt .= $this->mimeencode($address['name'], true).' <'.$address['mail'].'>,'; }
         else { $recpt .= $address['mail'].','; }
       }
       $recpt = preg_replace('/,$/', '', $recpt);
@@ -179,7 +181,7 @@ class email {
     if (count($this->cc)) {
       $adrs = '';
       foreach ($this->cc as $address) {
-        if (strlen($address['name'])) { $adrs .= $this->mimeencode($address['name']).' <'.$address['mail'].'>,'; }
+        if (strlen($address['name'])) { $adrs .= $this->mimeencode($address['name'], true).' <'.$address['mail'].'>,'; }
         else { $adrs .= $address['mail'].','; }
       }
       $adrs = preg_replace('/,$/', '', $adrs);
@@ -188,7 +190,7 @@ class email {
     if (count($this->bcc)) {
       $adrs = '';
       foreach ($this->bcc as $address) {
-        if (strlen($address['name'])) { $adrs .= $this->mimeencode($address['name']).' <'.$address['mail'].'>,'; }
+        if (strlen($address['name'])) { $adrs .= $this->mimeencode($address['name'], true).' <'.$address['mail'].'>,'; }
         else { $adrs .= $address['mail'].','; }
       }
       $adrs = preg_replace('/,$/', '', $adrs);
@@ -256,11 +258,15 @@ class email {
     return mail($recpt, $subj, $mtxt, $hdrs);
   }
 
-  private function mimeencode($fieldtext) {
+  private function mimeencode($fieldtext, $stringescape = false) {
     $mText = imap_8bit($fieldtext);
-    if ($mText != $fieldtext) {
-      $trans = array('_' => '=5F', ' ' => '_', '?' => '=3F');
-      $mText = strtr($mText, $trans);
+    $is_qpformat = ($mText != $fieldtext);
+    if ($stringescape && preg_match('/[^\w !#$%&\'*+\/=?^`{|}~-]/', $mText)) {
+      // if needed, make this a quoted-string instead of an atom (to speak in RFC2822 language)
+      $mText = '"'.strtr($mText, array('"' => '\"', '\\' => '\\\\')).'"';
+    }
+    if ($is_qpformat) {
+      $mText = strtr($mText, array('_' => '=5F', ' ' => '_', '?' => '=3F'));
       $mText = '=?'.strtoupper($this->charset).'?Q?'.$mText.'?=';
     }
   return $mText;

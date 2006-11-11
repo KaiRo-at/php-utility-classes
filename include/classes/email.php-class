@@ -93,6 +93,9 @@ class email {
   // public function addHeader($hname, [$hcontent])
   //   add a header to the mail
   //
+  // public function addHeaderAddress($hname, $email, [$name])
+  //   add an address header to the mail, possibly with both name and mail parts
+  //
   // public function addMailText($textpart)
   //   add some text to the mail
   //
@@ -146,6 +149,12 @@ class email {
   }
 
   public function addHeader($hname, $hcontent = '') {
+    $this->headers[] = array('name' => $hname, 'content' => $hcontent);
+  }
+
+  public function addHeaderAddress($hname, $email, $name = '') {
+    if (strlen($name)) { $hcontent = $this->mimeencode($name, true).' <'.$email.'>'; }
+    else { $hcontent = $email; }
     $this->headers[] = array('name' => $hname, 'content' => $hcontent);
   }
 

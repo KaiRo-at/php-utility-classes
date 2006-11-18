@@ -247,12 +247,20 @@ class email {
       foreach ($this->attachments as $attach) {
         $mtxt .= "\n".'--'.$boundary."\n";
         $mtxt .= 'Content-Type: '.$attach['type'].'; name="'.$attach['name'].'";'."\n";
-        $mtxt .= 'Content-Transfer-Encoding: base64'."\n";
-        $mtxt .= 'Content-Disposition: attachment'."\n\n";
-        $mtxt .= rtrim(chunk_split(base64_encode($attach['content']), 76)); ;
-        $mtxt .= "\n";
+        if (preg_match('/^(text|message)\//', $attach['type'])) {
+          $mtxt .= 'Content-Transfer-Encoding: 8bit'."\n";
+          $mtxt .= 'Content-Disposition: attachment'."\n\n";
+          $mtxt .= $attach['content'];
+          $mtxt .= "\n";
+        }
+        else {
+          $mtxt .= 'Content-Transfer-Encoding: base64'."\n";
+          $mtxt .= 'Content-Disposition: attachment'."\n\n";
+          $mtxt .= rtrim(chunk_split(base64_encode($attach['content']), 76)); ;
+          $mtxt .= "\n";
+        }
       }
-      $mtext .= '--'.$boundary.'--'."\n";
+      $mtxt .= '--'.$boundary.'--'."\n";
     }
 
     if (strlen($this->debug_toSingleAddress)) {

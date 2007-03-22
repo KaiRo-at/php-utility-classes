@@ -417,6 +417,11 @@ class userAgent {
       $this->version = $regs[1];
       $this->bot = true;
     }
+    elseif (preg_match('|Microsoft URL Control - ([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
+      $this->brand = 'Microsoft URL Control';
+      $this->version = $regs[1];
+      $this->bot = true;
+    }
     elseif (preg_match('|([0-9a-zA-Z\.+]+)_AC-Plug|', $this->uastring, $regs)) {
       $this->brand = 'AC-Plug';
       $this->version = $regs[1];
@@ -556,7 +561,7 @@ class userAgent {
                       'NetResearchServer','LinkWalker','Zeus','W3C_Validator','ZyBorg','Ask Jeeves','ia_archiver',
                       'PingALink Monitoring Services','IlTrovatore-Setaccio','Nutch','Mercator','search.ch',
                       'appie','larbin','NutchCVS','ObjectsSearch','Webchat','Mediapartners-Google','Schmozilla',
-                      'FavOrg','findlinks','DataCha0s','','','','','','','','','');
+                      'FavOrg','findlinks','DataCha0s','ichiro','Francis','','','','','','','');
 
     if (in_array($this->brand, $botArray)) {
       $this->bot = true;

@@ -402,6 +402,11 @@ class userAgent {
       $this->version = $regs[1];
       $this->bot = true;
     }
+    elseif (preg_match('|heritrix/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
+      $this->brand = 'Heritrix';
+      $this->version = $regs[1];
+      $this->bot = true;
+    }
     elseif (preg_match('|Slurp|', $this->uastring, $regs)) {
       $this->brand = 'Slurp';
       $this->version = null;

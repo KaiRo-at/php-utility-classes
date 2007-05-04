@@ -25,7 +25,7 @@ print("<br>The engine version is reported as &quot;<b>".$ua->getEngineVersion().
 print("<br>The operating system is reported as &quot;<b>".$ua->getOS()."</b>&quot;\n");
 print("<br>The system platform is reported as &quot;<b>".$ua->getPlatform()."</b>&quot;\n");
 print("<br>The browser language is reported as &quot;<b>".$ua->getLanguage()."</b>&quot;\n");
-if ($ua->geckobased()) { print("<br>The Gecko date is reported as &quot;<b>".$ua->getGeckoDate()."</b>&quot;\n"); }
+if ($ua->hasEngine('gecko')) { print("<br>The Gecko date is reported as &quot;<b>".$ua->getGeckoDate()."</b>&quot;\n"); }
 print("<br><br>I conclude this must be <b>".$ua->getBrand()." ".$ua->getVersion()."</b>\n");
 print("<br>This is <b>".($ua->isBot()?"an":"no")."</b> automated robot.\n");
 
@@ -36,7 +36,7 @@ print("\n");
 
 print("<br><br>Test the following UA string (leave empty to read it from your browser):\n");
 print("<form method=\"POST\" action=\"\"><p>\n");
-print("<input type=\"text\" name=\"ua\" value=\"".htmlentities($ua->uastring)."\" size=\"80\" maxlength=\"150\">\n");
+print("<input type=\"text\" name=\"ua\" value=\"".htmlentities($ua->getUAString())."\" size=\"80\" maxlength=\"150\">\n");
 print("<br><input type=\"submit\" value=\"Test\"></p></form>\n");
 $wrapper->pgbottom();
 ?>

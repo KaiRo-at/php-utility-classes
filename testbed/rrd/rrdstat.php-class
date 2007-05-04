@@ -1,0 +1,1196 @@
+<?php
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * The contents of this file are subject to Austrian copyright reegulations
+ * ("Urheberrecht"); you may not use this file except in compliance with
+ * those laws.
+ * This contents and any derived work, if it gets distributed in any way,
+ * is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND,
+ * either express or implied.
+ *
+ * The Original Code is KaiRo's RRD statistics class.
+ *
+ * The Initial Developer of the Original Code is
+ * KaiRo - Robert Kaiser.
+ * Portions created by the Initial Developer are Copyright (C) 2005-2006
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s): Robert Kaiser <kairo@kairo.at>
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+class rrdstat {
+  // rrdstat PHP class
+  // rrdtool statistics functions
+  //
+  // function __construct($rrdconfig, [$conf_id])
+  //   CONSTRUCTOR
+  //     if $conf_id is set, $rrdconfig is a total configuration set
+  //     else it's the configuration for this one RRD
+  //     currently only a config array is supported, XML config is planned
+  //
+  // private $rrd_file
+  // RRD file name
+  //
+  // private $basename
+  // base name for this RRD (usually file name without .rrd)
+  //
+  // private $basedir
+  // base directory for this RRD (with a trailing slash)
+  //   note that $rrd_file usually includes that path as well, but graph directory gets based on this value
+  //
+  // private $config_all
+  // complete, raw configuration array set
+  //
+  // private $config_raw
+  // configuration array set for current RRD
+  //
+  // private $config_graph
+  // configuration array set for default graph in this RRD
+  //
+  // private $config_page
+  // configuration array set for default page in this RRD
+  //
+  // private $rrd_fields
+  // definition of this RRD's fields
+  //
+  // private $rra_base
+  // definition of this RRD's base RRAs
+  //
+  // private $rrd_step
+  // basic stepping of this RRD in seconds (default: 300)
+  //
+  // private $rra_add_max
+  // should RRAs for MAX be added for every base RRA? (bool, default: true)
+  //
+  // private $status
+  // status of the RRD (unused/ok/readonly/graphonly)
+  //   note that most functions require certain status values
+  //   (e.g. update only works if status is ok, graph for ok/readonly/graphonly)
+  //
+  // private $mod_textdomain
+  //   GNU gettext domain for this module
+  //
+  // private function set_def($rrdconfig, [$conf_id])
+  //   set definitions based on given configuration
+  //   [intended for internal use, called by the constructor]
+  //
+  // public function rrd_version() {
+  //   get RRDtool version string
+  //
+  // public function create()
+  //   create RRD file according to set config
+  //
+  // public function update([$upArray])
+  //   feed new data into RRD (either use given array of values or use auto-update info from config)
+  //
+  // public function fetch([$cf] = 'AVERAGE', $resolution = null, $start = null, $end = null)
+  //   fetch data from the defined RRD
+  //     using given consolidation function [default is AVERAGE],
+  //     resolution (seconds, default is the RRD's stepping),
+  //     start and end times (unix epoch, defaults are the RRD's last update time)
+  //
+  // public function last_update()
+  //   fetch time of last update in this RRD file
+  //
+  // public function graph([$timeframe], [$sub], [$extra])
+  //   create a RRD graph (and return all meta info in a flat string)
+  //     for given timeframe (day [default]/week/month/year),
+  //     sub-graph ID (if given) and extra config options (if given)
+  //
+  // public function graph_plus([$timeframe], [$sub], [$extra])
+  //   create a RRD graph (see above) and return meta info as a ready-to-use array
+  //
+  // public function page([$sub], [$page_extras], [$graph_extras])
+  //   create a (HTML) page and return it in a string
+  //     for given sub-page ID (if given, default is a simple HTML page)
+  //     and extra page and graph config options (if given)
+  //
+  // public function simple_html([$sub], [$page_extras], [$graph_extras])
+  //   create a simple (MRTG-like) HTML page and return it in a string
+  //   XXX: this is here temporarily for compat only, it's preferred to use page()!
+  //
+  // private function page_index($pconf)
+  //   create a bare, very simple index list HTML page and return it in a string
+  //   using given page config options
+  //   [intended for internal use, called by page()]
+  //
+  // private function page_overview($pconf, [$graph_extras])
+  //   create an overview HTML page (including graphs) and return it in a string
+  //   using given page config options and extra graph options (if given)
+  //   [intended for internal use, called by page()]
+  //
+  // private function page_simple($pconf, [$graph_extras])
+  //   create a simple (MRTG-like) HTML page and return it in a string
+  //   using given page config options and extra graph options (if given)
+  //   [intended for internal use, called by page()]
+  //
+  // private function h_page_statsArray($pconf)
+  //   return array of stats to list on a page, using given page config options
+  //   [intended for internal use, called by page_*()]
+  //
+  // private function h_page_footer()
+  //   return generic page footer
+  //   [intended for internal use, called by page_*()]
+  //
+  // private function text_quote($text)
+  //   return a quoted/escaped text for use in rrdtool commandline text fields
+
+  private $rrd_file = null;
+  private $basename = null;
+  private $basedir = null;
+
+  private $config_all = null;
+  private $config_raw = null;
+  private $config_graph = null;
+  private $config_page = null;
+
+  private $rrd_fields = array();
+  private $rra_base = array();
+  private $rrd_step = 300;
+  private $rra_add_max = true;
+
+  private $status = 'unused';
+
+  private $mod_textdomain;
+
+  function __construct($rrdconfig, $conf_id = null) {
+    // ***** init RRD stat module *****
+    $this->mod_textdomain = 'class_rrdstat';
+    $mod_charset = 'iso-8859-15';
+
+    bindtextdomain($this->mod_textdomain, class_exists('baseutils')?baseutils::getDir('locale'):'locale/');
+    bind_textdomain_codeset($this->mod_textdomain, $mod_charset);
+
+    $this->set_def($rrdconfig, $conf_id);
+
+    if (($this->status == 'unused') && !is_null($this->rrd_file)) {
+      if (!is_writeable($this->rrd_file)) {
+        if (!file_exists($this->rrd_file)) {
+          if (@touch($this->rrd_file)) { $this->create(); }
+          else { trigger_error('RRD file can not be created', E_USER_WARNING); }
+        }
+        else {
+          if (is_readable($this->rrd_file)) { $this->status = 'readonly'; }
+          else { trigger_error('RRD file is not readable', E_USER_WARNING); }
+        }
+      }
+      else {
+        $this->status = 'ok';
+      }
+    }
+  }
+
+  private function set_def($rrdconfig, $conf_id = null) {
+    if (is_array($rrdconfig)) {
+      // we have an array in the format we like to have
+      $complete_conf =& $rrdconfig;
+    }
+    else {
+      // we have something else (XML data?), try to generate the iinfo aray from it
+      $complete_conf =& $rrdconfig;
+    }
+
+    if (!is_null($conf_id)) {
+      $iinfo = isset($complete_conf[$conf_id])?$complete_conf[$conf_id]:array();
+      if (isset($complete_conf['*'])) {
+        $iinfo = (array)$iinfo + (array)$complete_conf['*'];
+        if (isset($complete_conf['*']['graph'])) { $iinfo['graph'] = (array)$iinfo['graph'] + (array)$complete_conf['*']['graph']; }
+        if (isset($complete_conf['*']['page'])) { $iinfo['page'] = (array)$iinfo['page'] + (array)$complete_conf['*']['page']; }
+      }
+    }
+    else {
+      $iinfo = $complete_conf;
+    }
+
+    if (isset($iinfo['path']) && strlen($iinfo['path'])) {
+      $this->basedir = $iinfo['path'];
+      if (substr($this->basedir, -1) != '/') { $this->basedir .= '/'; }
+    }
+
+    if (isset($iinfo['graph-only']) && $iinfo['graph-only'] && !is_null($conf_id)) {
+      $this->basename = $conf_id;
+      $this->status = 'graphonly';
+    }
+    elseif (isset($iinfo['file'])) {
+      $this->rrd_file = (($iinfo['file']{0} != '/')?$this->basedir:'').$iinfo['file'];
+      $this->basename = basename((substr($this->rrd_file, -4) == '.rrd')?substr($this->rrd_file, 0, -4):$this->rrd_file);
+    }
+    elseif (!is_null($conf_id) && file_exists($conf_id.'.rrd')) {
+      $this->rrd_file = (($iinfo['file']{0} != '/')?$this->basedir:'').$conf_id.'.rrd';
+      $this->basename = $conf_id;
+    }
+    else {
+      $this->basename = !is_null($conf_id)?$conf_id:'xxx.unknown';
+    }
+
+    if (!is_null($this->rrd_file)) {
+      // fields (data sources, DS)
+      //  name - DS name
+      //  type - one of COUNTER, GAUGE, DERIVE, ABSOLUTE
+      //  heartbeat - if no sample recieved for that time, store UNKNOWN
+      //  min - U (unconstrained) or minimum value
+      //  max - U (unconstrained) or maximum value
+      //  update - this string will be fed into eval() for updating this field
+      if (isset($iinfo['fields']) && is_array($iinfo['fields'])) {
+        $this->rrd_fields = $iinfo['fields'];
+      }
+      else {
+        $this->rrd_fields[] = array('name' => 'ds0', 'type' => 'COUNTER', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
+        $this->rrd_fields[] = array('name' => 'ds1', 'type' => 'COUNTER', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
+      }
+
+
+      // MRTG-style RRD "database", see http://people.ee.ethz.ch/~oetiker/webtools/rrdtool/tut/rrdtutorial.en.html
+      //
+      // archives (RRAs):
+      // 600 samples of 5 minutes  (2 days and 2 hours)
+      // 700 samples of 30 minutes (2 days and 2 hours, plus 12.5 days)
+      // 775 samples of 2 hours    (above + 50 days)
+      // 797 samples of 1 day      (above + 732 days, rounded up to 797)
+
+      $this->rrd_step = isset($iinfo['rrd_step'])?$iinfo['rrd_step']:300;
+
+      if (isset($iinfo['rra_base']) && is_array($iinfo['rra_base'])) {
+        $this->rra_base = $iinfo['rra_base'];
+      }
+      else {
+        $this->rra_base[] = array('step' => 1, 'rows' => 600);
+        $this->rra_base[] = array('step' => 6, 'rows' => 700);
+        $this->rra_base[] = array('step' => 24, 'rows' => 775);
+        $this->rra_base[] = array('step' => 288, 'rows' => 797);
+      }
+
+      $this->rra_add_max = isset($iinfo['rra_add_max'])?$iinfo['rra_add_max']:true;
+    }
+
+    if (isset($iinfo['graph'])) { $this->config_graph = $iinfo['graph']; }
+    if (isset($iinfo['page'])) { $this->config_page = $iinfo['page']; }
+    $this->config_raw = $iinfo;
+    $this->config_all = $complete_conf;
+  }
+
+  public function rrd_version() {
+    // return RRDtool version
+    static $version;
+    if (!isset($version)) {
+      $create_cmd = 'rrdtool --version';
+      $return = `$create_cmd 2>&1`;
+      if (strpos($return, 'ERROR') !== false) {
+        trigger_error($this->rrd_file.' - rrd version error: '.$return, E_USER_WARNING);
+      }
+
+      if (preg_match('/^\s*RRDtool ([\d\.]+)\s+/', $return, $regs)) {
+        $version = $regs[1];
+      }
+      else {
+        $version = '0.0';
+      }
+    }
+  return $version;
+  }
+
+  public function create() {
+    // create RRD file
+
+    // compose create command
+    $create_cmd = 'rrdtool create '.$this->rrd_file.' --step '.$this->rrd_step;
+    foreach ($this->rrd_fields as $ds) {
+      if (!isset($ds['type'])) { $ds['type'] = 'COUNTER'; }
+      if (!isset($ds['heartbeat'])) { $ds['heartbeat'] = 2*$this->rrd_step; }
+      if (!isset($ds['min'])) { $ds['min'] = 'U'; }
+      if (!isset($ds['max'])) { $ds['max'] = 'U'; }
+      $create_cmd .= ' DS:'.$ds['name'].':'.$ds['type'].':'.$ds['heartbeat'].':'.$ds['min'].':'.$ds['max'];
+    }
+    foreach ($this->rra_base as $rra) {
+      if (!isset($rra['cf'])) { $rra['cf'] = 'AVERAGE'; }
+      if (!isset($rra['xff'])) { $rra['xff'] = 0.5; }
+      if (!isset($rra['step'])) { $rra['step'] = 1; }
+      if (!isset($rra['rows'])) { $rra['rows'] = 600; }
+      $create_cmd .= ' RRA:'.$rra['cf'].':'.$rra['xff'].':'.$rra['step'].':'.$rra['rows'];
+    }
+    if ($this->rra_add_max) {
+      foreach ($this->rra_base as $rra) {
+        if (!isset($rra['cf'])) {
+          // only rows that have no CF set will be looked at here
+          $rra['cf'] = 'MAX';
+          if (!isset($rra['xff'])) { $rra['xff'] = 0.5; }
+          if (!isset($rra['step'])) { $rra['step'] = 1; }
+          if (!isset($rra['rows'])) { $rra['rows'] = 600; }
+          $create_cmd .= ' RRA:'.$rra['cf'].':'.$rra['xff'].':'.$rra['step'].':'.$rra['rows'];
+        }
+      }
+    }
+    $return = `$create_cmd 2>&1`;
+    if (strpos($return, 'ERROR') !== false) {
+      trigger_error($this->rrd_file.' - rrd create error: '.$return, E_USER_WARNING);
+    }
+    else { $this->status = 'ok'; }
+  }
+
+  public function update($upArray = null) {
+    // feed new data into RRD
+    if ($this->status != 'ok') { trigger_error('Cannot update non-writeable file', E_USER_WARNING); return false; }
+    $upvals = array();
+    if (isset($this->config_raw['update'])) {
+      if (preg_match('/^\s*function\s+{(.*)}\s*$/is', $this->config_raw['update'], $regs)) {
+        $upfunc = create_function('', $regs[1]);
+        $upvals = $upfunc();
+      }
+      else {
+        $evalcode = $this->config_raw['update'];
+        if (!is_null($evalcode)) {
+          ob_start();
+          eval($evalcode);
+          $ret = ob_get_contents();
+          if (strlen($ret)) { $upvals = explode("\n", $ret); }
+          ob_end_clean();
+        }
+      }
+    }
+    else {
+      foreach ($this->rrd_fields as $ds) {
+        if (is_array($upArray) && isset($upArray[$ds['name']])) { $val = $upArray[$ds['name']]; }
+        elseif (isset($ds['update'])) {
+          $val = null; $evalcode = null;
+          if (substr($ds['update'], 0, 4) == 'val:') {
+            $evalcode = 'function { return trim('.substr($ds['update'], 4).')); }';
+          }
+          elseif (substr($ds['update'], 0, 8) == 'snmp-if:') {
+            $snmphost = 'localhost'; $snmpcomm = 'public';
+            list($nix, $ifname, $valtype) = explode(':', $ds['update'], 3);
+            $iflist = explode("\n", `snmpwalk -v2c -c $snmpcomm $snmphost interfaces.ifTable.ifEntry.ifDescr`);
+            $ifnr = null;
+            foreach ($iflist as $ifdesc) {
+              if (preg_match('/ifDescr\.(\d+) = STRING: '.$ifname.'/', $ifdesc, $regs)) { $ifnr = $regs[1]; }
+            }
+            $oid = null;
+            if ($valtype == 'in') { $oid = '1.3.6.1.2.1.2.2.1.10.'.$ifnr; }
+            elseif ($valtype == 'out') { $oid = '1.3.6.1.2.1.2.2.1.16.'.$ifnr; }
+            if (!is_null($ifnr) && !is_null($oid)) {
+              $evalcode = 'function { return trim(substr(strrchr(`snmpget -v2c -c '.$snmpcomm.' '.$snmphost.' '.$oid.'`,":"),1)); }';
+            }
+          }
+          else { $evalcode = $ds['update']; }
+          if (preg_match('/^\s*function\s+{(.*)}\s*$/is', $evalcode, $regs)) {
+            $upfunc = create_function('', $regs[1]);
+            $val = $upfunc();
+          }
+          elseif (!is_null($evalcode)) {
+            ob_start();
+            eval($evalcode);
+            $val = ob_get_contents();
+            ob_end_clean();
+          }
+        }
+        else { $val = null; }
+        $upvals[$ds['name']] = $val;
+      }
+    }
+    $key_names = (!is_numeric(array_shift(array_keys($upvals))));
+    if (in_array('L', $upvals, true)) {
+      // for at least one value, we need to set the same as the last recorded value
+      $fvals = $this->fetch();
+      $rowids = array_shift($fvals);
+      $lastvals = array_shift($fvals);
+      foreach (array_keys($upvals, 'L') as $akey) {
+        $upvals[$akey] = $key_names?$lastvals[$akey]:$lastvals[$rowids[$akey]];
+      }
+    }
+    $walkfunc = create_function('&$val,$key', '$val = is_numeric(trim($val))?trim($val):"U";');
+    array_walk($upvals, $walkfunc);
+    $return = null;
+    if (count($upvals)) {
+      $update_cmd = 'rrdtool update '.$this->rrd_file.($key_names?' --template '.implode(':', array_keys($upvals)):'').' N:'.implode(':', $upvals);
+      $return = `$update_cmd 2>&1`;
+    }
+
+    if (strpos($return, 'ERROR') !== false) {
+      trigger_error($this->rrd_file.' - rrd update error: '.$return, E_USER_WARNING);
+      $success = false;
+    }
+    else { $success = true; }
+  return $success;
+  }
+
+  public function fetch($cf = 'AVERAGE', $resolution = null, $start = null, $end = null) {
+    // fetch data from a RRD
+    if (!in_array($this->status, array('ok','readonly'))) { trigger_error('Error: rrd status is '.$this->status, E_USER_WARNING); return false; }
+
+    if (!in_array($cf, array('AVERAGE','MIN','MAX','LAST'))) { $cf = 'AVERAGE'; }
+    if (!is_numeric($resolution)) { $resolution = $this->rrd_step; }
+    if (!is_numeric($end)) { $end = $this->last_update(); }
+    elseif ($end < 0) { $end += $this->last_update(); }
+    $end = intval($end/$resolution)*$resolution;
+    if (!is_numeric($start)) { $start = $end; }
+    elseif ($start < 0) { $start += $end; }
+    $start = intval($start/$resolution)*$resolution;
+
+    $fetch_cmd = 'rrdtool fetch '.$this->rrd_file.' '.$cf.' --resolution '.$resolution.' --start '.$start.' --end '.$end;
+    $return = `$fetch_cmd 2>&1`;
+
+    if (strpos($return, 'ERROR') !== false) {
+      trigger_error($this->rrd_file.' - rrd fetch error: '.$return, E_USER_WARNING);
+      $fresult = false;
+    }
+    else {
+      $fresult = array();
+      $rows = explode("\n", $return);
+      $fields = preg_split('/\s+/', array_shift($rows));
+      if (array_shift($fields) == 'timestamp') {
+        $fresult[0] = $fields;
+        foreach ($rows as $row) {
+          if (strlen(trim($row))) {
+            $rvals = preg_split('/\s+/', $row);
+            $rtime = str_replace(':', '', array_shift($rvals));
+            $rv_array = array();
+            foreach ($rvals as $key=>$rval) {
+              $rv_array[$fields[$key]] = ($rval=='nan')?null:floatval($rval);
+            }
+            $fresult[$rtime] = $rv_array;
+          }
+        }
+      }
+    }
+  return $fresult;
+  }
+
+  public function last_update() {
+    // fetch time of last update in this RRD file
+    static $last_update;
+    if (!isset($last_update) && in_array($this->status, array('ok','readonly'))) {
+      $last_cmd = 'rrdtool last '.$this->rrd_file;
+      $return = trim(`$last_cmd 2>&1`);
+      $last_update = is_numeric($return)?$return:null;
+    }
+  return isset($last_update)?$last_update:null;
+  }
+
+  public function graph($timeframe = 'day', $sub = null, $extra = null) {
+    // create a RRD graph
+    static $gColors;
+    if (!isset($gColors)) {
+      $gColors = array('#00CC00','#0000FF','#000000','#FF0000','#00FF00','#FFFF00','#FF00FF','#00FFFF','#808080','#800000','#008000','#000080','#808000','#800080','#008080','#C0C0C0');
+    }
+
+    if (!in_array($this->status, array('ok','readonly','graphonly'))) { trigger_error('Error: rrd status is '.$this->status, E_USER_WARNING); return false; }
+
+    // assemble configuration
+    $gconf = (array)$extra;
+    if (!is_null($sub) && is_array($this->config_raw['graph.'.$sub])) {
+      $gconf = $gconf + $this->config_raw['graph.'.$sub];
+    }
+    $gconf = $gconf + (array)$this->config_graph;
+
+    if (isset($gconf['format']) && ($gconf['format'] == 'SVG')) {
+      $format = $gconf['format']; $fmt_ext = '.svg';
+    }
+    elseif (isset($gconf['format']) && ($gconf['format'] == 'EPS')) {
+      $format = $gconf['format']; $fmt_ext = '.eps';
+    }
+    elseif (isset($gconf['format']) && ($gconf['format'] == 'PDF')) {
+      $format = $gconf['format']; $fmt_ext = '.pdf';
+    }
+    else {
+      $format = 'PNG'; $fmt_ext = '.png';
+    }
+
+    if (isset($gconf['filename'])) { $fname = $gconf['filename']; }
+    else { $fname = $this->basename.(is_null($sub)?'':'-%s').'-%t%f'; }
+    $fname = str_replace('%s', strval($sub), $fname);
+    $fname = str_replace('%t', $timeframe, $fname);
+    $fname = str_replace('%f', $fmt_ext, $fname);
+    if (substr($fname, -strlen($fmt_ext)) != $fmt_ext) { $fname .= $fmt_ext; }
+    if (isset($gconf['path']) && ($fname{0} != '/')) { $fname = $gconf['path'].'/'.$fname; }
+    if ($fname{0} != '/') { $fname = $this->basedir.$fname; }
+    $fname = str_replace('//', '/', $fname);
+
+    $graphrows = array(); $specialrows = array(); $gC = 0;
+    $gDefs = ''; $gGraphs = ''; $addSpecial = '';
+
+    // the default size for the graph area has a width of 400px, so use 400 slices by default
+    if ($timeframe == 'day') {
+      $slice = isset($gconf['slice'])?$gconf['slice']:300; // 5 minutes
+      $duration = isset($gconf['duration'])?$gconf['duration']:400*$slice; // 33.33 hours
+      // vertical lines at day borders
+      $addSpecial .= ' VRULE:'.strtotime(date('Y-m-d')).'#FF0000';
+      $addSpecial .= ' VRULE:'.strtotime(date('Y-m-d').' -1 day').'#FF0000';
+      if (!isset($gconf['grid_x'])) { $gconf['grid_x'] = 'HOUR:1:HOUR:6:HOUR:2:0:%-H'; }
+    }
+    elseif ($timeframe == 'week') {
+      $slice = isset($gconf['slice'])?$gconf['slice']:1800; // 30 minutes
+      $duration = isset($gconf['duration'])?$gconf['duration']:400*$slice; // 8.33 days
+      // vertical lines at week borders
+      $addSpecial .= ' VRULE:'.strtotime(date('Y-m-d').' '.(-date('w')+1).' day').'#FF0000';
+      $addSpecial .= ' VRULE:'.strtotime(date('Y-m-d').' '.(-date('w')-6).' day').'#FF0000';
+    }
+    elseif ($timeframe == 'month') {
+      $slice = isset($gconf['slice'])?$gconf['slice']:7200; // 2 hours
+      $duration = isset($gconf['duration'])?$gconf['duration']:400*$slice; // 33.33 days
+      // vertical lines at month borders
+      $addSpecial .= ' VRULE:'.strtotime(date('Y-m-01')).'#FF0000';
+      $addSpecial .= ' VRULE:'.strtotime(date('Y-m-01').' -1 month').'#FF0000';
+    }
+    elseif ($timeframe == 'year') {
+      $slice = isset($gconf['slice'])?$gconf['slice']:86400; // 1 day
+      $duration = isset($gconf['duration'])?$gconf['duration']:400*$slice; // 400 days
+      // vertical lines at month borders
+      $addSpecial .= ' VRULE:'.strtotime(date('Y-01-01 12:00:00')).'#FF0000';
+      $addSpecial .= ' VRULE:'.strtotime(date('Y-01-01 12:00:00').' -1 year').'#FF0000';
+    }
+    else {
+      $duration = isset($gconf['duration'])?$gconf['duration']:$this->rrd_step*500; // 500 steps
+      $slice = isset($gconf['slice'])?$gconf['slice']:$this->rrd_step; // whatever our step is
+    }
+
+    $use_gcrows = (isset($gconf['rows']) && count($gconf['rows']));
+    if ($use_gcrows) { $grow_def =& $gconf['rows']; }
+    else { $grow_def =& $this->rrd_fields; }
+    foreach ($grow_def as $key=>$erow) {
+      if (isset($erow['name']) && strlen($erow['name'])) {
+        if (!isset($erow['scale']) && isset($gconf['scale'])) { $erow['scale'] = $gconf['scale']; }
+        if (!isset($erow['scale_time_src']) && isset($gconf['scale_time_src'])) { $erow['scale_time_src'] = $gconf['scale_time_src']; }
+        if (!isset($erow['scale_time_tgt']) && isset($gconf['scale_time_tgt'])) { $erow['scale_time_tgt'] = $gconf['scale_time_tgt']; }
+        foreach (array('scale_time_src','scale_time_tgt') as $st) {
+          if (!isset($erow[$st]) || !is_numeric($erow[$st])) {
+            switch (@$erow[$st]) {
+              case 'dyn':
+              case 'auto':
+                $erow[$st] = $slice;
+                break;
+              case 'day':
+                $erow[$st] = 24*3600;
+                break;
+              case '2hr':
+              case '2hours':
+                $erow[$st] = 7200;
+                break;
+              case 'hr':
+              case 'hour':
+                $erow[$st] = 3600;
+                break;
+              case '30min':
+                $erow[$st] = 1800;
+                break;
+              case '5min':
+                $erow[$st] = 300;
+                break;
+              case 'min':
+                $erow[$st] = 60;
+                break;
+              case 's':
+              case 'sec':
+              default:
+                $erow[$st] = 1;
+                break;
+            }
+          }
+        }
+        $scale_time_factor = $erow['scale_time_tgt']/$erow['scale_time_src'];
+        if ($scale_time_factor != 1) { $erow['scale'] = (isset($erow['scale'])?$erow['scale']:1)*$scale_time_factor; }
+        $grow = array();
+        $grow['dType'] = ($use_gcrows && isset($erow['dType']))?$erow['dType']:'DEF';
+        $grow['name'] = $erow['name'].(isset($erow['scale'])?'_tmp':'');
+        if ($grow['dType'] == 'DEF') {
+          $grow['dsname'] = ($use_gcrows && isset($erow['dsname']))?$erow['dsname']:$erow['name'];
+          if ($use_gcrows && isset($erow['dsfile'])) { $grow['dsfile'] = $erow['dsfile']; }
+          $grow['cf'] = ($use_gcrows && isset($erow['cf']))?$erow['cf']:'AVERAGE';
+        }
+        else {
+          $grow['rpn_expr'] = isset($erow['rpn_expr'])?$erow['rpn_expr']:'0';
+        }
+        if (isset($erow['scale'])) {
+          $graphrows[] = $grow;
+          $grow = array();
+          $grow['dType'] = 'CDEF';
+          $grow['name'] = $erow['name'];
+          $grow['rpn_expr'] = $erow['name'].'_tmp,'.$erow['scale'].',*';
+        }
+        if ($use_gcrows) { $grow['gType'] = isset($erow['gType'])?$erow['gType']:'LINE1'; }
+        else { $grow['gType'] = ((count($grow_def)==2) && ($key==0))?'AREA':'LINE1'; }
+        $grow['color'] = isset($erow['color'])?$erow['color']:$gColors[$gC++];
+        $grow['color_bg'] = isset($erow['color_bg'])?$erow['color_bg']:'';
+        if ($gC >= count($gColors)) { $gC = 0; }
+        if (isset($erow['legend'])) {
+          $grow['legend'] = $erow['legend'];
+          if (!isset($gconf['show_legend'])) { $gconf['show_legend'] = true; }
+        }
+        if (isset($erow['stack'])) { $grow['stack'] = ($erow['stack'] == true); }
+        if (isset($erow['desc'])) { $grow['desc'] = $erow['desc']; }
+        if (isset($erow['legend_long'])) { $grow['legend_long'] = $erow['legend_long']; }
+        $graphrows[] = $grow;
+      }
+    }
+
+    if (isset($gconf['special']) && count($gconf['special'])) {
+      foreach ($gconf['special'] as $crow) {
+        $srow = array();
+        $srow['sType'] = isset($crow['sType'])?$crow['sType']:'COMMENT';
+        if ($grow['sType'] != 'COMMENT') {
+          // XXX: use line below and remove cf var once we have rrdtol 1.2
+          if ($this->rrd_version() >= '1.2') {
+            $srow['name'] = $crow['name'].(isset($crow['cf'])?'_'.$crow['cf']:'');
+          }
+          else {
+            $srow['name'] = $crow['name'];
+            $srow['cf'] = isset($crow['cf'])?$crow['cf']:'AVERAGE';
+          }
+          if (isset($crow['cf'])) {
+            if ($this->rrd_version() >= '1.2') {
+              $graphrows[] = array('dType'=>'VDEF', 'name'=>$srow['name'].'_'.$crow['cf'], 'rpn_expr'=>$srow['name'].','.$crow['cf']);
+            }
+          }
+          elseif (isset($crow['rpn_expr'])) {
+            if ($this->rrd_version() >= '1.2') {
+              $graphrows[] = array('dType'=>'VDEF', 'name'=>$srow['name'], 'rpn_expr'=>$crow['rpn_expr']);
+            }
+          }
+        }
+        $srow['text'] = isset($crow['text'])?$crow['text']:'';
+        $specialrows[] = $srow;
+      }
+    }
+    else {
+      $td = $this->mod_textdomain;
+      foreach ($graphrows as $grow) {
+        if (isset($grow['gType']) && strlen($grow['gType'])) {
+          $textprefix = isset($grow['desc'])?$grow['desc']:(isset($grow['legend'])?$grow['legend']:$grow['name']);
+          if ($this->rrd_version() >= '1.2') {
+            $graphrows[] = array('dType'=>'VDEF', 'name'=>'_'.$grow['name'].'__max', 'rpn_expr'=>$grow['name'].',MAXIMUM');
+            $specialrows[] = array('sType'=>'PRINT', 'name'=>'_'.$grow['name'].'__max', 'text'=>$textprefix.'|'.dgettext($td, 'Maximum').'|%.2lf%s');
+            $graphrows[] = array('dType'=>'VDEF', 'name'=>'_'.$grow['name'].'__avg', 'rpn_expr'=>$grow['name'].',AVERAGE');
+            $specialrows[] = array('sType'=>'PRINT', 'name'=>'_'.$grow['name'].'__avg', 'text'=>$textprefix.'|'.dgettext($td, 'Average').'|%.2lf%s');
+            $graphrows[] = array('dType'=>'VDEF', 'name'=>'_'.$grow['name'].'__last', 'rpn_expr'=>$grow['name'].',LAST');
+            $specialrows[] = array('sType'=>'PRINT', 'name'=>'_'.$grow['name'].'__last', 'text'=>$textprefix.'|'.dgettext($td, 'Current').'|%.2lf%s');
+          }
+          else {
+            $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'], 'cf'=>'MAX', 'text'=>$textprefix.'|'.dgettext($td, 'Maximum').'|%.2lf%s');
+            $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'], 'cf'=>'AVERAGE', 'text'=>$textprefix.'|'.dgettext($td, 'Average').'|%.2lf%s');
+            $specialrows[] = array('sType'=>'PRINT', 'name'=>$grow['name'], 'cf'=>'LAST', 'text'=>$textprefix.'|'.dgettext($td, 'Current').'|%.2lf%s');
+          }
+        }
+      }
+    }
+
+    $endtime = isset($gconf['time_end'])?$gconf['time_end']:(is_numeric($this->last_update())?$this->last_update():time());
+    $gOpts = ' --start '.($endtime-$duration).' --end '.$endtime.' --step '.$slice;
+    if (isset($gconf['label_top'])) { $gOpts .= ' --title '.$this->text_quote($gconf['label_top']); }
+    if (isset($gconf['label_y'])) { $gOpts .= ' --vertical-label '.$this->text_quote($gconf['label_y']); }
+    if (isset($gconf['width'])) { $gOpts .= ' --width '.$gconf['width']; }
+    if (isset($gconf['height'])) { $gOpts .= ' --height '.$gconf['height'];
+      if (($gconf['height'] <= 32) && isset($gconf['thumb']) && ($gconf['thumb'])) { $gOpts .= ' --only-graph'; }
+    }
+    if (!isset($gconf['show_legend']) || (!$gconf['show_legend'])) { $gOpts .= ' --no-legend'; }
+    if (isset($gconf['logarithmic']) && $gconf['logarithmic']) { $gOpts .= ' --logarithmic'; }
+    if (isset($gconf['min_y'])) { $gOpts .= ' --lower-limit '.$gconf['min_y']; }
+    if (isset($gconf['max_y'])) { $gOpts .= ' --upper-limit '.$gconf['max_y']; }
+    if (isset($gconf['fix_scale_y']) && $gconf['fix_scale_y']) { $gOpts .= ' --rigid'; }
+    if (isset($gconf['grid_x'])) { $gOpts .= ' --x-grid '.$gconf['grid_x']; }
+    if (isset($gconf['grid_y'])) { $gOpts .= ' --y-grid '.$gconf['grid_y']; }
+    if (isset($gconf['gridfit']) && (!$gconf['gridfit'])) { $gOpts .= ' --no-gridfit'; }
+    if (isset($gconf['calc_scale_y']) && $gconf['calc_scale_y']) { $gOpts .= ' --alt-autoscale'; }
+    if (isset($gconf['calc_max_y']) && $gconf['calc_max_y']) { $gOpts .= ' --alt-autoscale-max'; }
+    if (isset($gconf['units_exponent'])) { $gOpts .= ' --units-exponent '.$gconf['units_exponent']; }
+    if (isset($gconf['units_length'])) { $gOpts .= ' --units-length '.$gconf['units_length']; }
+    if (($this->rrd_version() < '1.2') || !count($specialrows)) {
+      // lazy graphics omit all print reporting in RRDtool 1.2!
+      // --> so don't use them there when we want to print stuff
+      if (!isset($gconf['force_recreate']) || (!$gconf['force_recreate'])) { $gOpts .= ' --lazy'; }
+    }
+    if (isset($gconf['force_color']) && is_array($gconf['force_color'])) {
+      foreach ($gconf['force_color'] as $ctag=>$cval) { $gOpts .= ' --color '.$ctag.$cval; }
+    }
+    if (isset($gconf['force_font']) && is_array($gconf['force_font'])) {
+      foreach ($gconf['force_font'] as $ctag=>$cval) { $gOpts .= ' --font '.$ctag.$cval; }
+    }
+    if (isset($gconf['units_binary']) && $gconf['units_binary']) { $gOpts .= ' --base 1024'; }
+
+    foreach ($graphrows as $grow) {
+      if (isset($grow['dType']) && strlen($grow['dType'])) {
+        $gDefs .= ' '.$grow['dType'].':'.$grow['name'].'=';
+        if ($grow['dType'] == 'DEF') {
+          $gDefs .= isset($grow['dsfile'])?$grow['dsfile']:$this->rrd_file;
+          $gDefs .= ':'.$grow['dsname'].':'.$grow['cf'];
+        }
+        else { $gDefs .= $grow['rpn_expr']; }
+      }
+      if (isset($grow['gType']) && strlen($grow['gType'])) {
+        // XXX: change from STACK type to STACK flag once we have rrdtool 1.2
+        if ($this->rrd_version() < '1.2') {
+          // rrdtool 1.0 only know STACK type
+          if (isset($grow['stack']) && $grow['stack']) { $grow['gType'] = 'STACK'; }
+        }
+        $gGraphs .= ' '.$grow['gType'].':'.$grow['name'].$grow['color'];
+        if (isset($grow['legend'])) { $gGraphs .= ':'.$this->text_quote($grow['legend']); }
+        if ($this->rrd_version() >= '1.2') {
+          // rrdtool 1.2 and above have STACK flag
+          if (isset($grow['stack']) && $grow['stack']) { $gGraphs .= ':STACK'; }
+        }
+      }
+    }
+
+    foreach ($specialrows as $srow) {
+      $addSpecial .= ' '.$srow['sType'];
+      if ($this->rrd_version() >= '1.2') {
+        $addSpecial .= (($srow['sType']!='COMMENT')?':'.$srow['name']:'');
+      }
+      else {
+        $addSpecial .= (($srow['sType']!='COMMENT')?':'.$srow['name'].':'.$srow['cf']:'');
+      }
+      $addSpecial .= ':'.$this->text_quote($srow['text']);
+    }
+
+    $graph_cmd = 'rrdtool graph '.str_replace('*', '\*', $fname.$gOpts.$gDefs.$gGraphs.$addSpecial);
+    $return = `$graph_cmd 2>&1`;
+
+    if (strpos($return, 'ERROR') !== false) {
+      trigger_error($this->rrd_file.' - rrd graph error: '.$return, E_USER_WARNING);
+      $return = 'command:'.$graph_cmd."\n\n".$return;
+    }
+    if (0) {
+      // debug output
+      $return = 'command:'.$graph_cmd."\n\n".$return;
+    }
+    $legendlines = '';
+    foreach ($graphrows as $grow) {
+      $legendline = isset($grow['desc'])?$grow['desc']:(isset($grow['legend'])?$grow['legend']:$grow['name']);
+      $legendline .= '|'.@$grow['color'];
+      $legendline .= '|'.(isset($grow['color_bg'])?$grow['color_bg']:'');
+      $legendline .= '|'.(isset($grow['legend_long'])?$grow['legend_long']:'');
+      $legendlines .= 'legend:'.$legendline."\n";
+    }
+    $return = 'file:'.$fname."\n".$legendlines.$return;
+  return $return;
+  }
+
+  public function graph_plus($timeframe = 'day', $sub = null, $extra = null) {
+    // create a RRD graph and return meta info as a ready-to-use array
+    $gmeta = array('filename'=>null,'legends_long'=>false,'default_colorize'=>false);
+    $ret = $this->graph($timeframe, $sub, $extra);
+    if (0) {
+      // debug output
+      $gmeta['ret'] = $ret;
+    }
+    $grout = explode("\n", $ret);
+    foreach ($grout as $gline) {
+      if (preg_match('/^command:(.+)$/', $gline, $regs)) {
+        $gmeta['graph_cmd'] = $regs[1];
+      }
+      elseif (preg_match('/^file:(.+)$/', $gline, $regs)) {
+        $gmeta['filename'] = $regs[1];
+      }
+      elseif (preg_match('/^legend:([^\|]+)\|([^|]*)\|([^\|]*)\|(.*)$/', $gline, $regs)) {
+        $gmeta['legend'][$regs[1]] = array('color'=>$regs[2], 'color_bg'=>$regs[3], 'desc_long'=>$regs[4]);
+        if (strlen($regs[4])) { $gmeta['legends_long'] = true; }
+        if (strlen($regs[3]) || strlen($regs[4])) { $gmeta['default_colorize'] = true; }
+      }
+      elseif (preg_match('/^(\d+)x(\d+)$/', $gline, $regs)) {
+        $gmeta['width'] = $regs[1]; $gmeta['height'] = $regs[2];
+      }
+      elseif (preg_match('/^([^\|]+)\|([^|]+)\|([^\|]*)$/', $gline, $regs)) {
+        $gmeta['data'][$regs[1]][$regs[2]] = $regs[3];
+      }
+      elseif (preg_match('/^([^\|]+)\|([^\|]*)$/', $gline, $regs)) {
+        $gmeta['var'][$regs[1]] = $regs[2];
+      }
+      elseif (strlen(trim($gline))) {
+        $gmeta['info'][] = $gline;
+      }
+    }
+    if (is_null($gmeta['filename'])) {
+      $gmeta['filename'] = $this->basename.(!is_null($sub)?'-'.$sub:'').'-'.$timeframe.'.png';
+    }
+  return $gmeta;
+  }
+
+  public function page($sub = null, $page_extras = null, $graph_extras = null) {
+    // create a (HTML) page and return it in a string
+
+    // assemble configuration
+    $pconf = (array)$page_extras;
+    if (!is_null($sub) && is_array($this->config_raw['page.'.$sub])) {
+      $pconf = $pconf + $this->config_raw['page.'.$sub];
+    }
+    $pconf = $pconf + (array)$this->config_page;
+
+    $return = null;
+    switch (@$pconf['type']) {
+      case 'index':
+        $return = $this->page_index($pconf);
+        break;
+      case 'overview':
+        $return = $this->page_overview($pconf, $graph_extras);
+        break;
+      case 'simple':
+      default:
+        $return = $this->page_simple($pconf, $graph_extras);
+        break;
+    }
+  return $return;
+  }
+
+  public function simple_html($sub = null, $page_extras = null, $graph_extras = null) {
+    // create a simple (MRTG-like) HTML page and return it in a string
+    // XXX: this is here temporarily for compat only, it's preferred to use page()!
+    trigger_error(__CLASS__.'::'.__METHOD__.' is deprecated, use page() instead.', E_USER_NOTICE);
+
+    // assemble configuration
+    $pconf = (array)$page_extras;
+    if (!is_null($sub) && is_array($this->config_raw['page.'.$sub])) {
+      $pconf = $pconf + $this->config_raw['page.'.$sub];
+    }
+    $pconf = $pconf + (array)$this->config_page;
+
+  return $this->page_simple($pconf, $graph_extras);
+  }
+
+  private function page_index($pconf) {
+    // create a bare, very simple index list HTML page and return it in a string
+    $td = $this->mod_textdomain;
+    $ptitle = isset($pconf['title_page'])?$pconf['title_page']:dgettext($td, 'RRD statistics index');
+
+    $out = '<html><head>'."\n";
+    $out .= '<title>'.$ptitle.'</title>'."\n";
+    $out .= '<style type="text/css">'."\n";
+    if (isset($pconf['style_base'])) { $out .= $pconf['style_base']; }
+    else {
+      $out .= 'h1 { font-weight: bold; font-size: 1.5em; }'."\n";
+      $out .= '.footer { font-size: 0.75em; margin: 0.5em 0; }'."\n";
+      $out .= 'li.scanfile { font-style: italic; }'."\n";
+    }
+    if (isset($pconf['style'])) { $out .= $pconf['style']; }
+    $out .= '</style>'."\n";
+    $out .= '</head>'."\n";
+    $out .= '<body>'."\n";
+
+    $out .= '<h1>'.$ptitle.'</h1>'."\n";
+    if (isset($pconf['text_intro']) && strlen($pconf['text_intro'])) {
+      $out .= '<p class="intro">'.$pconf['text_intro'].'</p>'."\n";
+    }
+    elseif (!isset($pconf['text_intro'])) {
+      $out .= '<p class="intro">'.dgettext($td, 'The following RRD stats are available:').'</p>'."\n";
+    }
+
+    $stats = $this->h_page_statsArray($pconf);
+
+    if (isset($pconf['stats_url'])) { $sURL_base = $pconf['stats_url']; }
+    else { $sURL_base = '?stat=%i%a'; }
+
+    if (isset($pconf['stats_url_add'])) { $sURL_add = $pconf['stats_url_add']; }
+    else { $sURL_add = '&sub=%s'; }
+
+    $out .= '<ul class="indexlist">'."\n";
+    foreach ($stats as $stat) {
+      $out .= '<li'.(isset($stat['class'])?' class="'.$stat['class'].'"':'').'>';
+      $sURL = str_replace('%i', $stat['name'], $sURL_base);
+      $sURL = str_replace('%a', '', $sURL);
+      $sURL = str_replace('%s', '', $sURL);
+      $out .= '<a href="'.$sURL.'">'.$stat['name'].'</a>';
+      if (isset($stat['sub']) && count($stat['sub'])) {
+        $sprt = array();
+        foreach ($stat['sub'] as $ssub) {
+          $sURL = str_replace('%i', $stat['name'], $sURL_base);
+          $sURL = str_replace('%a', $sURL_add, $sURL);
+          $sURL = str_replace('%s', $ssub, $sURL);
+          $sprt[] = '<a href="'.$sURL.'">'.$ssub.'</a>';
+        }
+        $out .= ' <span="subs">('.implode(', ', $sprt).')</span>';
+      }
+      $out .= '</li>'."\n";
+    }
+    $out .= '</ul>'."\n";
+
+    $out .= $this->h_page_footer();
+    $out .= '</body></html>'."\n";
+  return $out;
+  }
+
+  private function page_overview($pconf, $graph_extras = null) {
+    // create an overview HTML page (including graphs) and return it in a string
+    $td = $this->mod_textdomain;
+    $ptitle = isset($pconf['title_page'])?$pconf['title_page']:dgettext($td, 'RRD statistics overview');
+
+    $out = '<html><head>'."\n";
+    $out .= '<title>'.$ptitle.'</title>'."\n";
+    $out .= '<style type="text/css">'."\n";
+    if (isset($pconf['style_base'])) { $out .= $pconf['style_base']; }
+    else {
+      $out .= 'h1 { font-weight: bold; font-size: 1.5em; }'."\n";
+      $out .= 'h2 { font-weight: bold; font-size: 1em; margin: 0.5em 0; }'."\n";
+      $out .= '.footer { font-size: 0.75em; margin: 0.5em 0; }'."\n";
+      $out .= 'img.rrdgraph { border: none; }'."\n";
+    }
+    if (isset($pconf['style'])) { $out .= $pconf['style']; }
+    $out .= '</style>'."\n";
+    $out .= '</head>'."\n";
+    $out .= '<body>'."\n";
+
+    $out .= '<h1>'.$ptitle.'</h1>'."\n";
+    if (isset($pconf['text_intro']) && strlen($pconf['text_intro'])) { $out .= '<p class="intro">'.$pconf['text_intro'].'</p>'; }
+
+    $stats = $this->h_page_statsArray($pconf);
+
+    if (isset($pconf['stats_url'])) { $sURL_base = $pconf['stats_url']; }
+    else { $sURL_base = '?stat=%i%a'; }
+
+    if (isset($pconf['stats_url_add'])) { $sURL_add = $pconf['stats_url_add']; }
+    else { $sURL_add = '&sub=%s'; }
+
+    $num_rows = is_numeric($pconf['num_rows'])?$pconf['num_rows']:2;
+    $num_cols = ceil(count($stats)/$num_rows);
+
+    $out .= '<table class="overview">'."\n";
+    for ($col = 0; $col < $num_cols; $col++) {
+      $out .= '<tr>'."\n";
+      for ($row = 0; $row < $num_rows; $row++) {
+        $idx = $col * $num_rows + $row;
+        $out .= '<td>'."\n";
+        if ($idx < count($stats)) {
+          @list($sname, $s_psub) = explode('|', $stats[$idx]['name'], 2);
+          $s_psname = 'page'.(isset($s_psub)?'.'.$s_psub:'');
+          $g_sub = @$this->config_all[$sname][$s_psname]['graph_sub'];
+
+          if (isset($this->config_all[$sname][$s_psname]['title_page'])) {
+            $s_ptitle = $this->config_all[$sname][$s_psname]['title_page'];
+          }
+          elseif (isset($this->config_all[$sname]['page']['title_page'])) {
+            $s_ptitle = $this->config_all[$sname]['page']['title_page'];
+          }
+          else {
+            $s_ptitle = isset($s_psub)?sprintf(dgettext($td, '%s (%s) statistics'), $sname, $s_psub):sprintf(dgettext($td, '%s statistics'), $sname);
+          }
+          if (!isset($pconf['hide_titles']) || !$pconf['hide_titles']) {
+            $out .= '<h2>'.$s_ptitle.'</h2>'."\n";
+          }
+
+          $s_rrd = new rrdstat($this->config_all, $sname);
+          if (in_array($s_rrd->status, array('ok','readonly','graphonly'))) {
+            $tframe = isset($pconf['graph_timeframe'])?$pconf['graph_timeframe']:'day';
+            $gmeta = $s_rrd->graph_plus($tframe, $g_sub);
+            if (isset($pconf['graph_url'])) {
+              $gURL = $pconf['graph_url'];
+              $gURL = str_replace('%f', basename($gmeta['filename']), $gURL);
+              $gURL = str_replace('%p', $gmeta['filename'], $gURL);
+              if (substr($gURL, -1) == '/') { $gURL .= $gmeta['filename']; }
+            }
+            else {
+              $gURL = $gmeta['filename'];
+            }
+            $sURL = str_replace('%i', $sname, $sURL_base);
+            $sURL = str_replace('%a', isset($s_psub)?$sURL_add:'', $sURL);
+            $sURL = str_replace('%s', isset($s_psub)?$s_psub:'', $sURL);
+            $out .= '<a href="'.$sURL.'">';
+            $out .= '<img src="'.$gURL.'"';
+            $out .= ' alt="'.$s_rrd->basename.(!is_null($g_sub)?' - '.$g_sub:'').' - '.$tframe.'" class="rrdgraph"';
+            if (isset($gmeta['width']) && isset($gmeta['height'])) { $out .= ' style="width:'.$gmeta['width'].'px;height:'.$gmeta['height'].'px;"'; }
+            $out .= '></a>'."\n";
+          }
+          else {
+            $out .= sprintf(dgettext($td, 'RRD error: status is "%s"'), $s_rrd->status)."\n";
+          }
+        }
+        else {
+          $out .= '&nbsp;';
+        }
+        $out .= '</td>'."\n";
+      }
+      $out .= '</tr>'."\n";
+    }
+    $out .= '</table>'."\n";
+
+    $out .= $this->h_page_footer();
+    $out .= '</body></html>'."\n";
+  return $out;
+  }
+
+  private function page_simple($pconf, $graph_extras = null) {
+    // create a simple (MRTG-like) HTML page and return it in a string
+    $td = $this->mod_textdomain;
+
+    $ptitle = isset($pconf['title_page'])?$pconf['title_page']:sprintf(dgettext($td, '%s - RRD statistics'),$this->basename);
+    $gtitle = array();
+    $gtitle['day'] = isset($pconf['title_day'])?$pconf['title_day']:dgettext($td, 'Day overview (scaling 5 minutes)');
+    $gtitle['week'] = isset($pconf['title_week'])?$pconf['title_week']:dgettext($td, 'Week overview (scaling 30 minutes)');
+    $gtitle['month'] = isset($pconf['title_month'])?$pconf['title_month']:dgettext($td, 'Month overview (scaling 2 hours)');
+    $gtitle['year'] = isset($pconf['title_year'])?$pconf['title_year']:dgettext($td, 'Year overview (scaling 1 day)');
+    $ltitle = isset($pconf['title_legend'])?$pconf['title_legend']:dgettext($td, 'Legend:');
+
+    $out = '<html><head>'."\n";
+    $out .= '<title>'.$ptitle.'</title>'."\n";
+    $out .= '<style type="text/css">'."\n";
+    if (isset($pconf['style_base'])) { $out .= $pconf['style_base']; }
+    else {
+      $out .= 'h1 { font-weight: bold; font-size: 1.5em; }'."\n";
+      $out .= 'h2 { font-weight: bold; font-size: 1em; }'."\n";
+      $out .= '.gdata, .gvar, .ginfo { font-size: 0.75em; margin: 0.5em 0; }'."\n";
+      $out .= 'table.gdata, table.legend  { border: 1px solid gray; border-collapse: collapse; }'."\n";
+      $out .= 'table.gdata td, table.gdata th, '."\n";
+      $out .= 'table.legend td, table.legend th { border: 1px solid gray; padding: 0.1em 0.2em; }'."\n";
+      $out .= 'div.legend { font-size: 0.75em; margin: 0.5em 0; }'."\n";
+      $out .= 'div.legend p { margin: 0; }'."\n";
+      $out .= '.footer { font-size: 0.75em; margin: 0.5em 0; }'."\n";
+    }
+    if (isset($pconf['style'])) { $out .= $pconf['style']; }
+    $out .= '</style>'."\n";
+    $out .= '</head>'."\n";
+    $out .= '<body>'."\n";
+
+    $out .= '<h1>'.$ptitle.'</h1>'."\n";
+    if (isset($pconf['text_intro']) && strlen($pconf['text_intro'])) { $out .= '<p class="intro">'.$pconf['text_intro'].'</p>'."\n"; }
+    if (!isset($pconf['show_update']) || $pconf['show_update']) {
+      $out .= '<p class="last_up">';
+      if (is_null($this->last_update())) { $up_time = dgettext($td, 'unknown'); }
+      elseif (class_exists('baseutils')) { $up_time = baseutils::dateFormat($this->last_update(), 'short'); }
+      else { $up_time = date('Y-m-d H:i:s', $this->last_update()); }
+      $out .= sprintf(dgettext($td, 'Last Update: %s'), $up_time);
+      $out .= '</p>'."\n";
+    }
+
+    $g_sub = isset($pconf['graph_sub'])?$pconf['graph_sub']:null;
+    if (in_array($this->status, array('ok','readonly','graphonly'))) {
+      foreach (array('day','week','month','year') as $tframe) {
+        $gmeta = $this->graph_plus($tframe, $g_sub, $graph_extras);
+        if (isset($pconf['graph_url'])) {
+          $gURL = $pconf['graph_url'];
+          $gURL = str_replace('%f', basename($gmeta['filename']), $gURL);
+          $gURL = str_replace('%p', $gmeta['filename'], $gURL);
+          if (substr($gURL, -1) == '/') { $gURL .= $gmeta['filename']; }
+        }
+        else {
+          $gURL = $gmeta['filename'];
+        }
+        $out .= '<div class="'.$tframe.'">'."\n";
+        if (0) {
+          // debug output
+          ob_start();
+          print_r($gmeta);
+          $buffer = ob_get_contents();
+          ob_end_clean();
+          $out .= '<p>'.nl2br($buffer).'</p>';
+        }
+        $out .= '<h2>'.$gtitle[$tframe].'</h2>'."\n";
+        $out .= '<img src="'.$gURL.'"';
+        $out .= ' alt="'.$this->basename.(!is_null($g_sub)?' - '.$g_sub:'').' - '.$tframe.'" class="rrdgraph"';
+        if (isset($gmeta['width']) && isset($gmeta['height'])) { $out .= ' style="width:'.$gmeta['width'].'px;height:'.$gmeta['height'].'px;"'; }
+        $out .= '>'."\n";
+        $colorize_data = (isset($pconf['data_colorize']) && $pconf['data_colorize']) || (!isset($pconf['data_colorize']) && $gmeta['default_colorize']);
+        if (isset($gmeta['data']) && count($gmeta['data'])) {
+          $out .= '<table class="gdata">'."\n";
+          foreach ($gmeta['data'] as $field=>$gdata) {
+            $out .= '<tr><th';
+            if ($colorize_data && isset($gmeta['legend'][$field])) {
+              $out .= ' style="color:'.$gmeta['legend'][$field]['color'].';';
+              if (strlen($gmeta['legend'][$field]['color_bg'])) {
+                $out .= 'background-color:'.$gmeta['legend'][$field]['color_bg'].';';
+              }
+              $out .= '"';
+            }
+            $out .= '>'.$field.'</th>';
+            foreach ($gdata as $gkey=>$gval) {
+              $out .= '<td><span class="gkey">'.$gkey.': </span>'.$gval.'</td>';
+            }
+            $out .= '</tr>'."\n";
+          }
+          $out .= '</table>'."\n";
+        }
+        if (isset($gmeta['var']) && count($gmeta['var'])) {
+          foreach ($gmeta['var'] as $gkey=>$gval) {
+            $out .= '<p class="gvar"><span class="gkey">'.$gkey.': </span>'.$gval.'</p>'."\n";
+          }
+        }
+        if (isset($gmeta['info']) && count($gmeta['info'])) {
+          foreach ($gmeta['info'] as $gval) {
+            $out .= '<p class="ginfo">'.$gval.'</p>'."\n";
+          }
+        }
+        $out .= '</div>'."\n";
+      }
+      if ($gmeta['legends_long'] && (!isset($pconf['show_legend']) || $pconf['show_legend'])) {
+        $out .= '<div class="legend">'."\n";
+        $out .= '<p>'.$ltitle.'</p>'."\n";
+        $out .= '<table class="legend">'."\n";
+        foreach ($gmeta['legend'] as $field=>$legend) {
+          if (strlen($legend['desc_long'])) {
+            $out .= '<tr><th';
+            if ($colorize_data && isset($gmeta['legend'][$field])) {
+              $out .= ' style="color:'.$gmeta['legend'][$field]['color'].';';
+              if (strlen($gmeta['legend'][$field]['color_bg'])) {
+                $out .= 'background-color:'.$gmeta['legend'][$field]['color_bg'].';';
+              }
+              $out .= '"';
+            }
+            $out .= '>'.$field.'</th>';
+            $out .= '<td>'.$legend['desc_long'].'</td>';
+            $out .= '</tr>'."\n";
+          }
+        }
+        $out .= '</table>'."\n";
+        $out .= '</div>'."\n";
+      }
+    }
+    else {
+      $out .= sprintf(dgettext($td, 'RRD error: status is "%s"'), $this->status)."\n";
+    }
+
+    $out .= $this->h_page_footer();
+    $out .= '</body></html>'."\n";
+  return $out;
+  }
+
+  private function h_page_statsArray($pconf) {
+    // return array of stats to list on a page
+    $stats = array();
+    $snames = array(); $s_exclude = array(); $sfiles = array();
+    if (isset($pconf['index_ids'])) {
+      foreach (explode(',', $pconf['index_ids']) as $iid) {
+        if ($iid{0} == '-') { $s_exclude[] = substr($iid, 1); }
+        else { $snames[] = $iid; }
+      }
+    }
+    if (!isset($pconf['scan_config']) || $pconf['scan_config']) {
+      foreach ($this->config_all as $iname=>$rinfo) {
+        if (($iname != '*') && !(isset($rinfo['hidden']) && $rinfo['hidden']) &&
+            !(in_array($iname, $snames)) && !(in_array($iname, $s_exclude))) {
+          $snames[] = $iname;
+        }
+      }
+    }
+    foreach ($snames as $iname) {
+      $newstat = array('name'=>$iname);
+      $sfiles[] = isset($this->config_all[$iname]['file'])?$this->config_all[$iname]['file']:$iname.'.rrd';
+      if (is_array($this->config_all[$iname])) {
+        foreach ($this->config_all[$iname] as $key=>$val) {
+          if (substr($key, 0, 5) == 'page.') { $newstat['sub'][] = substr($key, 5); }
+        }
+      }
+      $stats[] = $newstat;
+    }
+    if (isset($pconf['scan_files']) && $pconf['scan_files']) {
+      $rrdfiles = glob('*.rrd');
+      foreach ($rrdfiles as $rrdfile) {
+        $iname = (substr($rrdfile, -4) == '.rrd')?substr($rrdfile, 0, -4):$rrdfile;
+        if (!in_array($rrdfile, $sfiles) && !(in_array($iname, $s_exclude))) {
+          $stats[] = array('name'=>$iname, 'class'=>'scanfile');
+        }
+      }
+    }
+  return $stats;
+  }
+
+  private function h_page_footer() {
+    // return generic page footer
+    $out = '<p class="footer">';
+    $out .= sprintf(dgettext($this->mod_textdomain, 'Statistics created with %s using a library created by %s.'),
+                    '<a href="http://people.ee.ethz.ch/~oetiker/webtools/rrdtool/">RRDtool</a>',
+                    '<a href="http://www.kairo.at/">KaiRo.at</a>');
+    $out .= '</p>'."\n";
+  return $out;
+  }
+
+  private function text_quote($text) {
+    $trans = array('"' => '\"', ':' => '\:');
+    $qtext = '"'.strtr($text, $trans).'"';
+  return $qtext;
+  }
+}
+?>

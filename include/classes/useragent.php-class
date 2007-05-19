@@ -135,21 +135,23 @@ class userAgent {
     // get UA brand and version
     $this->brand = 'Unknown'; $this->version = null;
     // find reasonable defaults
-    if (preg_match('|([0-9a-zA-Z\.:()_ -]+)/([0-9a-zA-Z\._+-]+)|', $this->uastring, $regs)) {
+    if (preg_match('|([0-9a-zA-Z\.:()_ -]+)/(\d[0-9a-zA-Z\._+-]*)|', $this->uastring, $regs)) {
       $this->brand = trim($regs[1]);
       $this->version = $regs[2];
     }
-    elseif (preg_match('|^([a-zA-Z\._ -]+)[_ -][vV]?([0-9][0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
+    elseif (preg_match('|^([a-zA-Z\._ -]+)[_ -][vV]?(\d[0-9a-zA-Z\.+]*)|', $this->uastring, $regs)) {
       $this->brand = trim($regs[1]);
       $this->version = $regs[2];
     }
-    elseif (preg_match('|^([a-zA-Z\._ -]+)|', $this->uastring, $regs)) {
+    elseif (preg_match('|^([0-9a-zA-Z\._ -]+)|', $this->uastring, $regs)) {
       $this->brand = trim($regs[1]);
       $this->version = null;
     }
     $this->bot = (strpos(strtolower($this->brand), 'bot') !== false)
                  || (strpos(strtolower($this->brand), 'crawler') !== false)
-                 || (strpos(strtolower($this->brand), 'spider') !== false);
+                 || (strpos(strtolower($this->brand), 'spider') !== false)
+                 || (strpos(strtolower($this->brand), 'search') !== false)
+                 || (strpos(strtolower($this->brand), 'seek') !== false);
 
     // search for any real and/or special UAs
     if (preg_match('|Netscape6/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
@@ -389,11 +391,6 @@ class userAgent {
       $this->version = $regs[1];
       $this->bot = false;
     }
-    elseif (preg_match('|wget[/ ]([0-9a-zA-Z\.+]+)|i', $this->uastring, $regs)) {
-      $this->brand = 'wget';
-      $this->version = $regs[1];
-      $this->bot = false;
-    }
     elseif (preg_match('|WinHttp.WinHttpRequest.([0-9\.]+)|i', $this->uastring, $regs)) {
       $this->brand = 'WinHttpRequest';
       $this->version = $regs[1];
@@ -431,11 +428,6 @@ class userAgent {
     }
     elseif (preg_match('|ZyBorg/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'ZyBorg';
-      $this->version = $regs[1];
-      $this->bot = true;
-    }
-    elseif (preg_match('|Googlebot/?([0-9a-zA-Z\.+]+)?|', $this->uastring, $regs)) {
-      $this->brand = 'Googlebot';
       $this->version = $regs[1];
       $this->bot = true;
     }
@@ -540,11 +532,6 @@ class userAgent {
       $this->version = null;
       $this->bot = true;
     }
-    elseif (preg_match('|sitecheck.internetseer.com|', $this->uastring)) {
-      $this->brand = 'internetseer';
-      $this->version = null;
-      $this->bot = true;
-    }
     elseif (preg_match('|Really Gmane.org\'s favicon grabber|', $this->uastring)) {
       $this->brand = 'Really Gmane.org\'s favicon grabber';
       $this->version = null;
@@ -572,11 +559,6 @@ class userAgent {
     }
     elseif (preg_match('|efp@gmx.net|', $this->uastring)) {
       $this->brand = 'efp';
-      $this->version = null;
-      $this->bot = true;
-    }
-    elseif (preg_match('|42_HAL|', $this->uastring)) {
-      $this->brand = '42_HAL';
       $this->version = null;
       $this->bot = true;
     }
@@ -707,11 +689,11 @@ class userAgent {
       $this->bot = false;
     }
 
-    $botArray = array('Scooter','Spinne','Vagabondo','Firefly','Scrubby','NG','Pompos','Szukacz','ASPseek',
+    $botArray = array('Scooter','Spinne','Vagabondo','Firefly','Scrubby','NG','Pompos','Szukacz','Schmozilla','42_HAL',
                       'NetResearchServer','LinkWalker','Zeus','W3C_Validator','ZyBorg','Ask Jeeves','ia_archiver',
                       'PingALink Monitoring Services','IlTrovatore-Setaccio','Nutch','Mercator','search.ch',
-                      'appie','larbin','NutchCVS','ObjectsSearch','Webchat','Mediapartners-Google','Schmozilla',
-                      'FavOrg','findlinks','DataCha0s','ichiro','Francis','','','','','','','');
+                      'appie','larbin','NutchCVS','Webchat','Mediapartners-Google','sitecheck.internetseer.com',
+                      'FavOrg','findlinks','DataCha0s','ichiro','Francis','','','','','');
 
     if (in_array($this->brand, $botArray)) {
       $this->bot = true;

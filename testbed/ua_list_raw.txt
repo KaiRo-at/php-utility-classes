@@ -266,11 +266,15 @@ Mercator-2.0
 appie 1.1 (www.walhello.com)
 larbin_2.6.2 (larbin2.6.2@unspecified.mail)
 OWR_Crawler 0.1
+ISC Systems iRc Search 2.1
+NASA Search 1.0
 search.ch V1.4.2 (spiderman@search.ch;
 WebFilter Robot 1.0
 WWWeasel Robot v1.00 (http://wwweasel.de)
 2.0_AC-Plug - http://www.iOpus.com
 Openfind data gatherer, Openbot/3.0+(robot-response@openfind.com.tw;+
+MSRBOT (http://research.microsoft.com/research/sv/msrbot)
+ICCrawler - ICjobs (http://www.icjobs.de/bot.htm)
 Baiduspider+(+http://www.baidu.com/search/spider.htm)
 BaiDuSpider
 LinkWalker

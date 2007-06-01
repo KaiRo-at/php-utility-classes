@@ -663,7 +663,7 @@ $rrd_info['video.temp']['update'] =
     $sdata = explode("\n", `nvclock -T`);
     foreach ($sdata as $sline) {
       if (preg_match("/GPU temperature:\s+([+-]?[\d\.]+)C/", $sline, $regs)) {
-        $udata["gpu_temp"] = $regs[1];
+        $udata["gpu_temp"] = ($regs[1] > -20)?$regs[1]:($regs[1] + 137);
       }
     }
     return $udata;
@@ -874,57 +874,61 @@ $rrd_info['ping.hirsch']['update'] =
 $rrd_info['ping.hirsch']['page']['text_intro'] = 'Alternate graphs: <a href="?stat=ping.hirsch">totals</a>, <a href="?stat=ping.hirsch&sub=avg">averages</a>.';
 
 // mainboard sensors
-/*
 $rrd_info['sensors.power']['file'] = 'sensors.power.rrd';
 $rrd_info['sensors.power']['auto-update'] = true;
-$rrd_info['sensors.power']['fields'][] = array('name' => 'vid', 'type' => 'GAUGE', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
-$rrd_info['sensors.power']['fields'][] = array('name' => 'vcore1', 'type' => 'GAUGE', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
+$rrd_info['sensors.power']['fields'][] = array('name' => 'vcore', 'type' => 'GAUGE', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
 $rrd_info['sensors.power']['fields'][] = array('name' => 'p3x3v', 'type' => 'GAUGE', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
 $rrd_info['sensors.power']['fields'][] = array('name' => 'p5v', 'type' => 'GAUGE', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
 $rrd_info['sensors.power']['fields'][] = array('name' => 'p12v', 'type' => 'GAUGE', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
-$rrd_info['sensors.power']['fields'][] = array('name' => 'm12v', 'type' => 'GAUGE', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
-$rrd_info['sensors.power']['fields'][] = array('name' => 'm5v', 'type' => 'GAUGE', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
+$rrd_info['sensors.power']['fields'][] = array('name' => 'avcc', 'type' => 'GAUGE', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
+$rrd_info['sensors.power']['fields'][] = array('name' => 'vsb', 'type' => 'GAUGE', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
+$rrd_info['sensors.power']['fields'][] = array('name' => 'vbat', 'type' => 'GAUGE', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
+$rrd_info['sensors.power']['fields'][] = array('name' => 'v4', 'type' => 'GAUGE', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
+$rrd_info['sensors.power']['fields'][] = array('name' => 'v5', 'type' => 'GAUGE', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
 $rrd_info['sensors.power']['update'] =
  'function {
-    $sdata = explode("\n", `/usr/bin/sensors -A asb100-*`);
-    $udata = array("vid"=>null,"vcore1"=>null,"p3x3v"=>null,
-                  "p5v"=>null,"p12v"=>null,"m12v"=>null,"m5v"=>null);
+    $sdata = explode("\n", `/usr/bin/sensors -A w83627dhg-*`);
+    $udata = array("vcore"=>null,"p3x3v"=>null,"p5v"=>null,"p12v"=>null,
+                   "avcc"=>null,"vsb"=>null,"vbat"=>null,"v4"=>null,"v5"=>null);
     foreach ($sdata as $sline) {
-      if (preg_match("/^vid:\s+([+-]?[\d\.]+) V/", $sline, $regs)) { $udata["vid"] = $regs[1]; }
-      elseif (preg_match("/^VCore 1:\s+([+-]?[\d\.]+) V/", $sline, $regs)) { $udata["vcore1"] = $regs[1]; }
-      elseif (preg_match("/^\+3.3V:\s+([+-]?[\d\.]+) V/", $sline, $regs)) { $udata["p3x3v"] = $regs[1]; }
-      elseif (preg_match("/^\+5V:\s+([+-]?[\d\.]+) V/", $sline, $regs)) { $udata["p5v"] = $regs[1]; }
-      elseif (preg_match("/^\+12V:\s+([+-]?[\d\.]+) V/", $sline, $regs)) { $udata["p12v"] = $regs[1]; }
-      elseif (preg_match("/^-12V:\s+([+-]?[\d\.]+) V/", $sline, $regs)) { $udata["m12v"] = $regs[1]; }
-      elseif (preg_match("/^-5V:\s+([+-]?[\d\.]+) V/", $sline, $regs)) { $udata["m5v"] = $regs[1]; }
+      if (preg_match("/^VCore:\s+([+-]?[\d\.]+) V/", $sline, $regs)) { $udata["vcore"] = $regs[1]; }
+      elseif (preg_match("/^3VCC:\s+([+-]?[\d\.]+) V/", $sline, $regs)) { $udata["p3x3v"] = $regs[1]; }
+      elseif (preg_match("/^in6:\s+([+-]?[\d\.]+) V/", $sline, $regs)) { $udata["p5v"] = $regs[1]; }
+      elseif (preg_match("/^in1:\s+([+-]?[\d\.]+) V/", $sline, $regs)) { $udata["p12v"] = $regs[1]; }
+      elseif (preg_match("/^AVCC:\s+([+-]?[\d\.]+) V/", $sline, $regs)) { $udata["avcc"] = $regs[1]; }
+      elseif (preg_match("/^VSB:\s+([+-]?[\d\.]+) V/", $sline, $regs)) { $udata["vsb"] = $regs[1]; }
+      elseif (preg_match("/^VBAT:\s+([+-]?[\d\.]+) V/", $sline, $regs)) { $udata["vbat"] = $regs[1]; }
+      elseif (preg_match("/^in4:\s+([+-]?[\d\.]+) V/", $sline, $regs)) { $udata["v4"] = $regs[1]; }
+      elseif (preg_match("/^in5:\s+([+-]?[\d\.]+) V/", $sline, $regs)) { $udata["v5"] = $regs[1]; }
     }
     return $udata;
   }';
-$rrd_info['sensors.power']['graph']['rows'][] = array('name'=>'vid', 'gType'=>'LINE1', 'color'=>'#808080', 'legend'=>'VID');
-$rrd_info['sensors.power']['graph']['rows'][] = array('name'=>'vcore1', 'gType'=>'LINE1', 'color'=>'#FF0000', 'legend'=>'VCore 1');
+$rrd_info['sensors.power']['graph']['rows'][] = array('name'=>'vcore', 'gType'=>'LINE1', 'color'=>'#FF0000', 'legend'=>'VCore');
 $rrd_info['sensors.power']['graph']['rows'][] = array('name'=>'p12v', 'gType'=>'LINE1', 'color'=>'#0000FF', 'legend'=>'+12V');
 $rrd_info['sensors.power']['graph']['rows'][] = array('name'=>'p5v', 'gType'=>'LINE1', 'color'=>'#008000', 'legend'=>'+5V');
 $rrd_info['sensors.power']['graph']['rows'][] = array('name'=>'p3x3v', 'gType'=>'LINE1', 'color'=>'#000000', 'legend'=>'+3.3V');
-$rrd_info['sensors.power']['graph']['rows'][] = array('name'=>'m5v', 'gType'=>'LINE1', 'color'=>'#00CC00', 'legend'=>'-5V');
-$rrd_info['sensors.power']['graph']['rows'][] = array('name'=>'m12v', 'gType'=>'LINE1', 'color'=>'#8080FF', 'legend'=>'-12V');
+$rrd_info['sensors.power']['graph']['rows'][] = array('name'=>'avcc', 'gType'=>'LINE1', 'color'=>'#808080', 'legend'=>'AVCC');
+$rrd_info['sensors.power']['graph']['rows'][] = array('name'=>'vsb', 'gType'=>'LINE1', 'color'=>'#808080', 'legend'=>'VSB');
+$rrd_info['sensors.power']['graph']['rows'][] = array('name'=>'vbat', 'gType'=>'LINE1', 'color'=>'#00CC00', 'legend'=>'VBat');
+$rrd_info['sensors.power']['graph']['rows'][] = array('name'=>'v4', 'gType'=>'LINE1', 'color'=>'#8080FF', 'legend'=>'v4');
+$rrd_info['sensors.power']['graph']['rows'][] = array('name'=>'v5', 'gType'=>'LINE1', 'color'=>'#8080FF', 'legend'=>'v5');
 $rrd_info['sensors.power']['graph']['units_length'] = 4;
 $rrd_info['sensors.power']['graph']['label_y'] = 'Volt';
 $rrd_info['sensors.power']['graph']['max_y'] = 13;
-$rrd_info['sensors.power']['graph']['min_y'] = -13;
+$rrd_info['sensors.power']['graph']['min_y'] = 0;
 // $rrd_info['sensors.power']['graph']['force_recreate'] = true;
-$rrd_info['sensors.power']['graph.rel']['rows'][] = array('name'=>'vid', 'gType'=>'');
-$rrd_info['sensors.power']['graph.rel']['rows'][] = array('name'=>'vcore1_tmp', 'dsname'=>'vcore1', 'gType'=>'');
+$rrd_info['sensors.power']['graph.rel']['rows'][] = array('name'=>'vcore_tmp', 'dsname'=>'vcore', 'gType'=>'');
 $rrd_info['sensors.power']['graph.rel']['rows'][] = array('name'=>'p12v_tmp', 'dsname'=>'p12v', 'gType'=>'');
 $rrd_info['sensors.power']['graph.rel']['rows'][] = array('name'=>'p5v_tmp', 'dsname'=>'p5v', 'gType'=>'');
 $rrd_info['sensors.power']['graph.rel']['rows'][] = array('name'=>'p3x3v_tmp', 'dsname'=>'p3x3v', 'gType'=>'');
-$rrd_info['sensors.power']['graph.rel']['rows'][] = array('name'=>'m5v_tmp', 'dsname'=>'m5v', 'gType'=>'');
-$rrd_info['sensors.power']['graph.rel']['rows'][] = array('name'=>'m12v_tmp', 'dsname'=>'m12v', 'gType'=>'');
-$rrd_info['sensors.power']['graph.rel']['rows'][] = array('dType'=>'CDEF', 'name'=>'vcore1', 'rpn_expr'=>'vcore1_tmp,vid,-', 'gType'=>'LINE1', 'color'=>'#FF0000', 'legend'=>'VCore 1');
+$rrd_info['sensors.power']['graph.rel']['rows'][] = array('name'=>'vsb_tmp', 'dsname'=>'vsb', 'gType'=>'');
+$rrd_info['sensors.power']['graph.rel']['rows'][] = array('name'=>'vbat_tmp', 'dsname'=>'vbat', 'gType'=>'');
+$rrd_info['sensors.power']['graph.rel']['rows'][] = array('dType'=>'CDEF', 'name'=>'vcore', 'rpn_expr'=>'vcore_tmp,1.15,-', 'gType'=>'LINE1', 'color'=>'#FF0000', 'legend'=>'VCore');
 $rrd_info['sensors.power']['graph.rel']['rows'][] = array('dType'=>'CDEF', 'name'=>'p3x3v', 'rpn_expr'=>'p3x3v_tmp,3.3,-', 'gType'=>'LINE1', 'color'=>'#000000', 'legend'=>'+3.3V');
 $rrd_info['sensors.power']['graph.rel']['rows'][] = array('dType'=>'CDEF', 'name'=>'p5v', 'rpn_expr'=>'p5v_tmp,5,-', 'gType'=>'LINE1', 'color'=>'#008000', 'legend'=>'+5V');
 $rrd_info['sensors.power']['graph.rel']['rows'][] = array('dType'=>'CDEF', 'name'=>'p12v', 'rpn_expr'=>'p12v_tmp,12,-', 'gType'=>'LINE1', 'color'=>'#0000FF', 'legend'=>'+12V');
-$rrd_info['sensors.power']['graph.rel']['rows'][] = array('dType'=>'CDEF', 'name'=>'m12v', 'rpn_expr'=>'m12v_tmp,12,+', 'gType'=>'LINE1', 'color'=>'#8080FF', 'legend'=>'-12V');
-$rrd_info['sensors.power']['graph.rel']['rows'][] = array('dType'=>'CDEF', 'name'=>'m5v', 'rpn_expr'=>'m5v_tmp,5,+', 'gType'=>'LINE1', 'color'=>'#00CC00', 'legend'=>'-5V');
+$rrd_info['sensors.power']['graph.rel']['rows'][] = array('dType'=>'CDEF', 'name'=>'vsb', 'rpn_expr'=>'vsb_tmp,3.3,-', 'gType'=>'LINE1', 'color'=>'#8080FF', 'legend'=>'VSB');
+$rrd_info['sensors.power']['graph.rel']['rows'][] = array('dType'=>'CDEF', 'name'=>'vbat', 'rpn_expr'=>'vbat_tmp,.05,-', 'gType'=>'LINE1', 'color'=>'#00CC00', 'legend'=>'VBat');
 $rrd_info['sensors.power']['graph.rel']['units_length'] = 5;
 $rrd_info['sensors.power']['graph.rel']['units_exponent'] = 0;
 $rrd_info['sensors.power']['graph.rel']['label_y'] = 'Volts (diff)';
@@ -932,19 +936,18 @@ $rrd_info['sensors.power']['graph.rel']['max_y'] = +0.3;
 $rrd_info['sensors.power']['graph.rel']['min_y'] = -0.7;
 // $rrd_info['sensors.power']['graph.rel']['force_recreate'] = true;
 $rrd_info['sensors.power']['page.rel']['graph_sub'] = 'rel';
-$rrd_info['sensors.power']['graph.relpct']['rows'][] = array('name'=>'vid', 'gType'=>'');
-$rrd_info['sensors.power']['graph.relpct']['rows'][] = array('name'=>'vcore1_tmp', 'dsname'=>'vcore1', 'gType'=>'');
+$rrd_info['sensors.power']['graph.relpct']['rows'][] = array('name'=>'vcore_tmp', 'dsname'=>'vcore', 'gType'=>'');
 $rrd_info['sensors.power']['graph.relpct']['rows'][] = array('name'=>'p12v_tmp', 'dsname'=>'p12v', 'gType'=>'');
 $rrd_info['sensors.power']['graph.relpct']['rows'][] = array('name'=>'p5v_tmp', 'dsname'=>'p5v', 'gType'=>'');
 $rrd_info['sensors.power']['graph.relpct']['rows'][] = array('name'=>'p3x3v_tmp', 'dsname'=>'p3x3v', 'gType'=>'');
-$rrd_info['sensors.power']['graph.relpct']['rows'][] = array('name'=>'m5v_tmp', 'dsname'=>'m5v', 'gType'=>'');
-$rrd_info['sensors.power']['graph.relpct']['rows'][] = array('name'=>'m12v_tmp', 'dsname'=>'m12v', 'gType'=>'');
-$rrd_info['sensors.power']['graph.relpct']['rows'][] = array('dType'=>'CDEF', 'name'=>'vcore1', 'rpn_expr'=>'vcore1_tmp,vid,-,vid,/,100,*', 'gType'=>'LINE1', 'color'=>'#FF0000', 'legend'=>'VCore 1');
+$rrd_info['sensors.power']['graph.relpct']['rows'][] = array('name'=>'vsb_tmp', 'dsname'=>'vsb', 'gType'=>'');
+$rrd_info['sensors.power']['graph.relpct']['rows'][] = array('name'=>'vbat_tmp', 'dsname'=>'vbat', 'gType'=>'');
+$rrd_info['sensors.power']['graph.relpct']['rows'][] = array('dType'=>'CDEF', 'name'=>'vcore', 'rpn_expr'=>'vcore_tmp,1.15,-,1.15,/,100,*', 'gType'=>'LINE1', 'color'=>'#FF0000', 'legend'=>'VCore');
 $rrd_info['sensors.power']['graph.relpct']['rows'][] = array('dType'=>'CDEF', 'name'=>'p3x3v', 'rpn_expr'=>'p3x3v_tmp,3.3,-,3.3,/,100,*', 'gType'=>'LINE1', 'color'=>'#000000', 'legend'=>'+3.3V');
 $rrd_info['sensors.power']['graph.relpct']['rows'][] = array('dType'=>'CDEF', 'name'=>'p5v', 'rpn_expr'=>'p5v_tmp,5,-,5,/,100,*', 'gType'=>'LINE1', 'color'=>'#008000', 'legend'=>'+5V');
 $rrd_info['sensors.power']['graph.relpct']['rows'][] = array('dType'=>'CDEF', 'name'=>'p12v', 'rpn_expr'=>'p12v_tmp,12,-,12,/,100,*', 'gType'=>'LINE1', 'color'=>'#0000FF', 'legend'=>'+12V');
-$rrd_info['sensors.power']['graph.relpct']['rows'][] = array('dType'=>'CDEF', 'name'=>'m12v', 'rpn_expr'=>'m12v_tmp,12,+,12,/,100,*', 'gType'=>'LINE1', 'color'=>'#8080FF', 'legend'=>'-12V');
-$rrd_info['sensors.power']['graph.relpct']['rows'][] = array('dType'=>'CDEF', 'name'=>'m5v', 'rpn_expr'=>'m5v_tmp,5,+,5,/,100,*', 'gType'=>'LINE1', 'color'=>'#00CC00', 'legend'=>'-5V');
+$rrd_info['sensors.power']['graph.relpct']['rows'][] = array('dType'=>'CDEF', 'name'=>'vsb', 'rpn_expr'=>'vsb_tmp,3.3,-,3.3,/,100,*', 'gType'=>'LINE1', 'color'=>'#8080FF', 'legend'=>'VSB');
+$rrd_info['sensors.power']['graph.relpct']['rows'][] = array('dType'=>'CDEF', 'name'=>'vbat', 'rpn_expr'=>'vbat_tmp,.05,-,.05,/,100,*', 'gType'=>'LINE1', 'color'=>'#00CC00', 'legend'=>'VBat');
 $rrd_info['sensors.power']['graph.relpct']['units_length'] = 5;
 $rrd_info['sensors.power']['graph.relpct']['units_exponent'] = 0;
 $rrd_info['sensors.power']['graph.relpct']['label_y'] = 'diff%';
@@ -960,12 +963,12 @@ $rrd_info['sensors.fan']['fields'][] = array('name' => 'chassis_fan', 'type' => 
 $rrd_info['sensors.fan']['fields'][] = array('name' => 'power_fan', 'type' => 'GAUGE', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
 $rrd_info['sensors.fan']['update'] =
  'function {
-    $sdata = explode("\n", str_replace(":\n", ": ", `/usr/bin/sensors -A asb100-*`));
+    $sdata = explode("\n", str_replace(":\n", ": ", `/usr/bin/sensors -A w83627dhg-*`));
     $udata = array("cpu_fan"=>null,"chassis_fan"=>null,"power_fan"=>null);
     foreach ($sdata as $sline) {
       if (preg_match("/^CPU Fan:\s+([+-]?\d+) RPM/", $sline, $regs)) { $udata["cpu_fan"] = $regs[1]; }
-      elseif (preg_match("/^Chassis Fan:\s+([+-]?\d+) RPM/", $sline, $regs)) { $udata["chassis_fan"] = $regs[1]; }
-      elseif (preg_match("/^Power Fan:\s+([+-]?\d+) RPM/", $sline, $regs)) { $udata["power_fan"] = $regs[1]; }
+      elseif (preg_match("/^Case Fan:\s+([+-]?\d+) RPM/", $sline, $regs)) { $udata["chassis_fan"] = $regs[1]; }
+      elseif (preg_match("/^Aux Fan:\s+([+-]?\d+) RPM/", $sline, $regs)) { $udata["power_fan"] = $regs[1]; }
     }
     return $udata;
   }';
@@ -983,12 +986,12 @@ $rrd_info['sensors.temp']['fields'][] = array('name' => 'mb_temp', 'type' => 'GA
 $rrd_info['sensors.temp']['fields'][] = array('name' => 'power_temp', 'type' => 'GAUGE', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
 $rrd_info['sensors.temp']['update'] =
  'function {
-    $sdata = explode("\n", `/usr/bin/sensors -A asb100-*`);
+    $sdata = explode("\n", `/usr/bin/sensors -A w83627dhg-*`);
     $udata = array("cpu_temp"=>null,"mb_temp"=>null,"power_temp"=>null);
     foreach ($sdata as $sline) {
       if (preg_match("/^CPU Temp:\s+([+-]?[\d\.]+).+?C/i", $sline, $regs)) { $udata["cpu_temp"] = $regs[1]; }
-      elseif (preg_match("/^MB Temp:\s+([+-]?[\d\.]+).+?C/i", $sline, $regs)) { $udata["mb_temp"] = $regs[1]; }
-      elseif (preg_match("/^Power Temp:\s+([+-]?[\d\.]+).+?C/i", $sline, $regs)) { $udata["power_temp"] = $regs[1]; }
+      elseif (preg_match("/^Sys Temp:\s+([+-]?[\d\.]+).+?C/i", $sline, $regs)) { $udata["mb_temp"] = $regs[1]; }
+      elseif (preg_match("/^AUX Temp:\s+([+-]?[\d\.]+).+?C/i", $sline, $regs)) { $udata["power_temp"] = $regs[1]; }
     }
     return $udata;
   }';
@@ -998,7 +1001,6 @@ $rrd_info['sensors.temp']['graph']['label_y'] = '°C';
 $rrd_info['sensors.temp']['graph']['max_y'] = 55;
 $rrd_info['sensors.temp']['graph']['min_y'] = 30;
 // $rrd_info['sensors.temp']['graph']['force_recreate'] = true;
-*/
 
 /* !!! be sure to call this one _last_ of all auto-update rrd stats */
 $rrd_info['rrdup']['file'] = 'test.rrdup.rrd';

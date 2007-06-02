@@ -8,7 +8,10 @@ if (getcwd() != dirname($myfile)) {
 }
 
 include_once('rrdstat.php-class');
-include_once('rrd-config.inc.php');
+
+$rrd_config_file = 'rrd-config/'.php_uname('n').'.inc.php';
+if (!file_exists($rrd_config_file)) { $rrd_config_file = 'rrd-config.inc.php'; }
+include_once($rrd_config_file);
 
 // view stats
 $sname = isset($_GET['stat'])?$_GET['stat']:null;

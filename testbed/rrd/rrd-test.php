@@ -8,7 +8,10 @@ if (getcwd() != dirname($myfile)) {
 }
 
 include_once('rrdstat.php-class');
-include_once('rrd-config.inc.php');
+
+$rrd_config_file = 'rrd-config/'.php_uname('n').'.inc.php';
+if (!file_exists($rrd_config_file)) { $rrd_config_file = 'rrd-config.inc.php'; }
+include_once($rrd_config_file);
 
 if (php_sapi_name() == 'cli') {
   // automated updates

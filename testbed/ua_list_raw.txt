@@ -1,6 +1,6 @@
 # collection of some known User Agent Strings:
 # see also:
-# http://www.pgts.com.au/pgtsj/pgtsj0208c.html http://www.psychedelix.com/agents/index.shtml http://en.wikipedia.org/wiki/User_agent
+# http://www.pgts.com.au/pgtsj/pgtsj0208c.html http://www.psychedelix.com/agents/index.shtml http://en.wikipedia.org/wiki/User_agent http://useragentstring.com/pages/useragentstring.php
 Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.3b) Gecko/20030114
 Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.0rc3) Gecko/20020523
 Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.1) Gecko/20021005

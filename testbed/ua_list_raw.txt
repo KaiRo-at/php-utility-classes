@@ -90,6 +90,7 @@ Mozilla/5.0 (compatible; Konqueror/3.1; CYGWIN_NT-5.1)
 Mozilla/5.0 (compatible; Konqueror/3.2; OpenBSD) (KHTML, like Gecko)
 Mozilla/5.0 (compatible; Konqueror/3.4; Linux) KHTML/3.4.0 (like Gecko)
 Mozilla/5.0 (compatible; Konqueror/3.3; Linux; X11; i686; es, en_US) KHTML/3.3.2 (like Gecko)
+Mozilla/5.0 (Windows; U; Windows NT 5.1; de) AppleWebKit/522.13.1 (KHTML, like Gecko) Version/3.0.2 Safari/522.13.1
 Mozilla/5.0 (Macintosh; U; PPC Mac OS X; en) AppleWebKit/51 (like Gecko) Safari/51
 Mozilla/4.0 (compatible; MSIE 5.12; Mac_PowerPC) OmniWeb/4.1.1-v424.6
 Mozilla/4.5 (compatible; OmniWeb/4.1.1-v423; Mac_PowerPC)

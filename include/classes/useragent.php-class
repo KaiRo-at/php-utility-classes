@@ -273,7 +273,12 @@ class userAgent {
     }
     elseif (preg_match('|Safari/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'Safari';
-      $this->version = $regs[1];
+      if (preg_match('|Version/([0-9a-zA-Z\.+]+)|', $this->uastring, $vregs)) {
+        $this->version = $vregs[1];
+      }
+      else {
+        $this->version = '('.$regs[1].')';
+      }
       $this->bot = false;
     }
     elseif (preg_match('|AppleWebKit/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
@@ -1019,6 +1024,7 @@ class userAgent {
       elseif (strpos($this->uadata['os'], 'apple') !== false) { $this->uadata['os'] = 'MacOS'; }
       elseif (strpos($this->uadata['os'], 'Macintosh') !== false) { $this->uadata['os'] = 'MacOS'; }
       elseif (strpos($this->uadata['os'], 'linux') !== false) { $this->uadata['os'] = 'Linux'; }
+      elseif (preg_match('/Symbian ?OS/i',$this->uadata['os'])) { $this->uadata['os'] = 'SymbianOS'; }
 
       if (strpos($this->uadata['os'], 'Win') !== false) { $this->uadata['platform'] = 'Windows'; }
       elseif (strpos($this->uadata['os'], 'Mac') !== false) { $this->uadata['platform'] = 'Macintosh'; }

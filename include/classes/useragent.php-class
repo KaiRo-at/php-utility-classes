@@ -16,7 +16,7 @@
  *
  * The Initial Developer of the Original Code is
  * KaiRo - Robert Kaiser.
- * Portions created by the Initial Developer are Copyright (C) 2003
+ * Portions created by the Initial Developer are Copyright (C) 2003-2007
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s): Robert Kaiser <kairo@kairo.at>
@@ -746,7 +746,7 @@ class userAgent {
     if (!isset($this->uadata['engine'])) {
       $this->uadata['engine'] = 'unknown';
       $this->uadata['geckodate'] = null;
-      if (preg_match('|Gecko/([0-9]+)|', $this->uastring, $regs)) {
+      if (preg_match('|Gecko/([0-9]+)|', $this->uastring, $regs) && (strpos($this->brand, 'Opera') === false)) {
         $this->uadata['engine'] = 'gecko';
         $this->uadata['geckodate'] = $regs[1];
       }
@@ -952,6 +952,12 @@ class userAgent {
           $this->uadata['lang'] = $regs[2];
         }
         elseif (preg_match('/Mozilla\/[^\(]+ \((?:X11; )?([^;]+);.+; ([a-z_-]+)\) Opera [^ ]+/i', $this->uastring, $regs)) {
+          $this->uadata['eng_version'] = $this->getVersion();
+          $this->uadata['os'] = $regs[1];
+          $this->uadata['lang'] = $regs[2];
+        }
+        // Opera 9 Firefox-spoofing
+        elseif (preg_match('/Mozilla\/[^\(]+ \((?:X11; )?([^;]+);.+; ([a-z_-]+); rv:([^\);]+)\) Gecko\/\d+ Firefox\/[0-9a-zA-Z\.+]+ Opera [^ ]+/i', $this->uastring, $regs)) {
           $this->uadata['eng_version'] = $this->getVersion();
           $this->uadata['os'] = $regs[1];
           $this->uadata['lang'] = $regs[2];

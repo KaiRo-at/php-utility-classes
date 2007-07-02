@@ -164,6 +164,11 @@ class userAgent {
       $this->version = $regs[1];
       $this->bot = false;
     }
+    elseif (preg_match('|Navigator/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
+      $this->brand = 'Netscape';
+      $this->version = $regs[1];
+      $this->bot = false;
+    }
     elseif (preg_match('|Chimera/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'Chimera';
       $this->version = $regs[1];
@@ -189,11 +194,6 @@ class userAgent {
       $this->version = $regs[1];
       $this->bot = false;
     }
-    elseif (preg_match('|Firefox/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
-      $this->brand = 'Firefox';
-      $this->version = $regs[1];
-      $this->bot = false;
-    }
     elseif (preg_match('|SeaMonkey/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'SeaMonkey';
       $this->version = $regs[1];
@@ -206,6 +206,16 @@ class userAgent {
     }
     elseif (preg_match('|Iceweasel/([0-9a-zA-Z\.+]+)|i', $this->uastring, $regs)) {
       $this->brand = 'IceWeasel';
+      $this->version = $regs[1];
+      $this->bot = false;
+    }
+    elseif (preg_match('|Minefield/([0-9a-zA-Z\.+]+)|i', $this->uastring, $regs)) {
+      $this->brand = 'Minefield';
+      $this->version = $regs[1];
+      $this->bot = false;
+    }
+    elseif (preg_match('|Minimo/([0-9a-zA-Z\.+]+)|i', $this->uastring, $regs)) {
+      $this->brand = 'Minimo';
       $this->version = $regs[1];
       $this->bot = false;
     }
@@ -227,18 +237,6 @@ class userAgent {
     elseif (preg_match('|AOL[/ ]([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'AOL';
       $this->version = $regs[1];
-      $this->bot = false;
-    }
-    elseif (preg_match('|rv:([0-9a-zA-Z\.+]+)|', $this->uastring, $regs) &&
-            strstr($this->uastring, "Mozilla/") && strstr($this->uastring, "Gecko/")) {
-      $this->brand = 'Mozilla';
-      $this->version = $regs[1];
-      $this->bot = false;
-    }
-    elseif (preg_match('|m([0-9]+)\)|', $this->uastring, $regs) &&
-            strstr($this->uastring, "Mozilla/") && strstr($this->uastring, "Gecko/")) {
-      $this->brand = 'Mozilla';
-      $this->version = 'M'.$regs[1];
       $this->bot = false;
     }
     elseif (preg_match('|Opera\/([^\(]+) \(.*; Opera Mini; |', $this->uastring, $regs)) {
@@ -284,6 +282,23 @@ class userAgent {
     elseif (preg_match('|AppleWebKit/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'AppleWebKit';
       $this->version = $regs[1];
+      $this->bot = false;
+    }
+    elseif (preg_match('|Firefox/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
+      $this->brand = 'Firefox';
+      $this->version = $regs[1];
+      $this->bot = false;
+    }
+    elseif (preg_match('|rv:([0-9a-zA-Z\.+]+)|', $this->uastring, $regs) &&
+            strstr($this->uastring, "Mozilla/") && strstr($this->uastring, "Gecko/")) {
+      $this->brand = 'Mozilla';
+      $this->version = $regs[1];
+      $this->bot = false;
+    }
+    elseif (preg_match('|m([0-9]+)\)|', $this->uastring, $regs) &&
+            strstr($this->uastring, "Mozilla/") && strstr($this->uastring, "Gecko/")) {
+      $this->brand = 'Mozilla';
+      $this->version = 'M'.$regs[1];
       $this->bot = false;
     }
     elseif (preg_match('|MSFrontPage/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {

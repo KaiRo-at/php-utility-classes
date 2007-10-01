@@ -25,7 +25,10 @@ print("<br>The engine version is reported as &quot;<b>".$ua->getEngineVersion().
 print("<br>The operating system is reported as &quot;<b>".$ua->getOS()."</b>&quot;\n");
 print("<br>The system platform is reported as &quot;<b>".$ua->getPlatform()."</b>&quot;\n");
 print("<br>The browser language is reported as &quot;<b>".$ua->getLanguage()."</b>&quot;\n");
-if ($ua->hasEngine('gecko')) { print("<br>The Gecko date is reported as &quot;<b>".$ua->getGeckoDate()."</b>&quot;\n"); }
+if ($ua->hasEngine('gecko')) {
+  print("<br>The Gecko date is reported as &quot;<b>".$ua->getGeckoDate()."</b>&quot;\n");
+  print("<br>The full Gecko date/time is reported as &quot;<b>".date('r',$ua->getGeckoTime())."</b>&quot;\n");
+}
 print("<br><br>I conclude this must be <b>".$ua->getBrand()." ".$ua->getVersion()."</b>\n");
 print("<br>This is <b>".($ua->isBot()?"an":"no")."</b> automated robot.\n");
 

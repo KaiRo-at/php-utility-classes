@@ -97,6 +97,9 @@ class userAgent {
   // public function getGeckoDate()
   //   returns the Gecko date for Gecko-based browsers, null for others
   //
+  // public function getGeckoTime()
+  //   returns the Gecko build date/time as a unix epoch time number for Gecko-based browsers, null for others
+  //
   // *** functions for compat to older versions of this class ***
   //
   // public function isns()
@@ -1097,6 +1100,24 @@ class userAgent {
       $this->getEngine();
     }
   return $this->uadata['geckodate'];
+  }
+
+  public function getGeckoTime() {
+    if (!isset($this->uadata['geckotime'])) {
+      $this->uadata['geckotime'] = null;
+      if (!is_null($this->getGeckoDate())) {
+        $use_time = (strlen($this->getGeckoDate()) > 8);
+        $gd_str = substr($this->getGeckoDate(),0,4).'-'.substr($this->getGeckoDate(),4,2).'-'.substr($this->getGeckoDate(),6,2);
+        if ($use_time) {
+          $gd_str .= substr($this->getGeckoDate(),8,2).':00';
+          $old_tz = date_default_timezone_get();
+          date_default_timezone_set("America/Los_Angeles");
+        }
+        $this->uadata['geckotime'] = strtotime($gd_str);
+        if ($use_time) { date_default_timezone_set($old_tz); }
+      }
+    }
+  return $this->uadata['geckotime'];
   }
 
   public function isBot() { return $this->bot; }

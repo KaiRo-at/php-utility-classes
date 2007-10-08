@@ -182,10 +182,15 @@ class email {
     if (count($this->recipients)) {
       $recpt = '';
       foreach ($this->recipients as $address) {
-        if (strlen($address['name'])) { $recpt .= $this->mimeencode($address['name'], true).' <'.$address['mail'].'>,'; }
-        else { $recpt .= $address['mail'].','; }
+        if (strlen(@$address['mail'])) {
+          if (strlen($address['name'])) { $recpt .= $this->mimeencode($address['name'], true).' <'.$address['mail'].'>,'; }
+          else { $recpt .= $address['mail'].','; }
+        }
       }
       $recpt = preg_replace('/,$/', '', $recpt);
+    }
+    if (!strlen($recpt)) {
+      return null;
     }
     if (count($this->cc)) {
       $adrs = '';

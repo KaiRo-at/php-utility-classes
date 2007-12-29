@@ -45,6 +45,8 @@ Mozilla/5.0 (Macintosh; U; PPC Mac OS X; en-US; rv:1.0.1) Gecko/20020730 AOL/7.0
 Mozilla/5.0 (Windows; U; Windows CE 4.21; rv:1.8b4) Gecko/20050720 Minimo/0.007
 Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.7) Gecko/20061031 Firefox/1.5.0.7 Flock/0.7.7
 Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.1) Gecko/20061024 Iceweasel/2.0 (Debian-2.0+dfsg-1)
+Mozilla/5.0 (X11; U; Linux armv6l; en-GB; rv:1.9a6pre) Gecko/20071128 Firefox/3.0a1 Tablet browser 0.2.2 RX-34+RX-44_2008SE_2.2007.48-9
+Mozilla/5.0 (X11; U; Linux armv6l; en-US; rv:1.9a6pre) Gecko/20070926 Firefox/3.0a1 Tablet browser 0.1.22 RX-34+RX-44_OSSO1.1_0.2007.39-13
 Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031019 Epiphany/1.0.6
 Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.6) Gecko/20050317 Firefox/1.0.4 Epiphany/1.6.3
 Mozilla/5.0 (X11; U; Linux x86_64; en-GB; rv:1.8.0.4) Gecko/20060608 Ubuntu/dapper-security Epiphany/2.14

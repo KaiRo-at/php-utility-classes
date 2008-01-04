@@ -102,6 +102,12 @@ class email {
   // public function addAttachment($aname, $acontent, [$atype])
   //   add an attachment to the mail, use given file name, content and MIME type (defaults to application/octet-stream)
   //
+  // public function getAddresses([$addrtype])
+  //   returns an array of all addresses this mail gets sent to
+  //     fields: email, name, addrtype
+  //       addrtype is one of to/cc/bcc
+  //       the $addrtype parameter is a comma-separated list of such types, default: all of them
+  //
   // public function send()
   //   really send the mail
   //
@@ -162,6 +168,41 @@ class email {
 
   public function addAttachment($aname, $acontent, $atype = 'application/octet-stream') {
     $this->attachments[] = array('name' => $aname, 'content' => $acontent, 'type' => $atype);
+  }
+
+  public function getAddresses($addrtype = null) {
+    // returns all addresses this mail gets sent to
+    $addrtype = explode(',', strtolower($addrtype));
+    if (!is_array($addrtype)) { $addrtype = array('to','cc','bcc'); }
+    $mailaddresses = array();
+
+    if (in_array($addrtype, 'to')) {
+      foreach ($this->recipients as $address) {
+        if (strlen(@$address['mail'])) {
+          $mailaddresses[] = array('mail'=>$address['mail'],
+                                   'name'=>strlen($address['name'])?$address['name']:'',
+                                   'addrtype'=>'to');
+        }
+      }
+    }
+    if (in_array($addrtype, 'cc')) {
+      foreach ($this->cc as $address) {
+        if (strlen(@$address['mail'])) {
+          $mailaddresses[] = array('mail'=>$address['mail'],
+                                   'name'=>strlen($address['name'])?$address['name']:'',
+                                   'addrtype'=>'cc');
+        }
+      }
+    }
+    if (in_array($addrtype, 'bcc')) {
+      foreach ($this->bcc as $address) {
+        if (strlen(@$address['mail'])) {
+          $mailaddresses[] = array('mail'=>$address['mail'],
+                                   'name'=>strlen($address['name'])?$address['name']:'',
+                                   'addrtype'=>'bcc');
+        }
+      }
+    }
   }
 
   public function send() {

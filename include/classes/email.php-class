@@ -172,11 +172,13 @@ class email {
 
   public function getAddresses($addrtype = null) {
     // returns all addresses this mail gets sent to
-    $addrtype = explode(',', strtolower($addrtype));
-    if (!is_array($addrtype)) { $addrtype = array('to','cc','bcc'); }
+    if (!is_array($addrtype)) {
+      if (strlen($addrtype)) { $addrtype = explode(',', strtolower($addrtype)); }
+      else { $addrtype = array('to','cc','bcc'); }
+    }
     $mailaddresses = array();
 
-    if (in_array($addrtype, 'to')) {
+    if (in_array('to', $addrtype)) {
       foreach ($this->recipients as $address) {
         if (strlen(@$address['mail'])) {
           $mailaddresses[] = array('mail'=>$address['mail'],
@@ -185,7 +187,7 @@ class email {
         }
       }
     }
-    if (in_array($addrtype, 'cc')) {
+    if (in_array('cc', $addrtype)) {
       foreach ($this->cc as $address) {
         if (strlen(@$address['mail'])) {
           $mailaddresses[] = array('mail'=>$address['mail'],
@@ -194,7 +196,7 @@ class email {
         }
       }
     }
-    if (in_array($addrtype, 'bcc')) {
+    if (in_array('bcc', $addrtype)) {
       foreach ($this->bcc as $address) {
         if (strlen(@$address['mail'])) {
           $mailaddresses[] = array('mail'=>$address['mail'],
@@ -203,6 +205,8 @@ class email {
         }
       }
     }
+
+    return $mailaddresses;
   }
 
   public function send() {
@@ -334,7 +338,5 @@ class email {
     }
   return $mText;
   }
-
-
 }
 ?>

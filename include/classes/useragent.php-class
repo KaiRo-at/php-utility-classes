@@ -277,6 +277,11 @@ class userAgent {
       $this->version = $regs[1];
       $this->bot = false;
     }
+    elseif (preg_match('|Chrome/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
+      $this->brand = 'Chrome';
+      $this->version = $regs[1];
+      $this->bot = false;
+    }
     elseif (preg_match('|Safari/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'Safari';
       if (preg_match('|Version/([0-9a-zA-Z\.+]+)|', $this->uastring, $vregs)) {
@@ -767,7 +772,7 @@ class userAgent {
         }
       }
       elseif ((strpos($this->brand, 'Konqueror') !== false) || (strpos($this->brand, 'Safari') !== false) ||
-              (strpos($this->brand, 'Shiira') !== false) ||
+              (strpos($this->brand, 'Shiira') !== false) || (strpos($this->brand, 'Chrome') !== false) ||
               (strpos($this->brand, 'AppleWebKit') !== false) || (strpos($this->brand, 'OmniWeb') !== false)) {
         $this->uadata['engine'] = 'khtml';
       }

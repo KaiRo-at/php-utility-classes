@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set("Europe/Vienna");
 $myfile = $_SERVER['SCRIPT_FILENAME'];
 while (is_link($myfile)) { $myfile = readlink($myfile); }
 if (getcwd() != dirname($myfile)) {

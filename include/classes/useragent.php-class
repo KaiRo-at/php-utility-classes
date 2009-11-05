@@ -297,6 +297,11 @@ class userAgent {
       $this->version = $regs[1];
       $this->bot = false;
     }
+    elseif (preg_match('|Maemo Browser ([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
+      $this->brand = 'microB';
+      $this->version = $regs[1];
+      $this->bot = false;
+    }
     elseif (preg_match('|Opera\/([^\(]+) \(.*; Opera Mini; |', $this->uastring, $regs)) {
       $this->brand = 'Opera Mini';
       $this->version = $regs[1];

@@ -29,6 +29,9 @@ class rrdstat {
   //     else it's the configuration for this one RRD
   //     currently only a config array is supported, XML config is planned
   //
+  // private $rrdtool_bin
+  // RRDtool binary to use
+  //
   // private $rrd_file
   // RRD file name
   //
@@ -135,6 +138,8 @@ class rrdstat {
   //
   // private function text_quote($text)
   //   return a quoted/escaped text for use in rrdtool commandline text fields
+
+  private $rrdtool_bin = '/usr/bin/rrdtool';
 
   private $rrd_file = null;
   private $basename = null;
@@ -278,7 +283,7 @@ class rrdstat {
     // return RRDtool version
     static $version;
     if (!isset($version)) {
-      $create_cmd = 'rrdtool --version';
+      $create_cmd = $this->rrdtool_bin.' --version';
       $return = `$create_cmd 2>&1`;
       if (strpos($return, 'ERROR') !== false) {
         trigger_error($this->rrd_file.' - rrd version error: '.$return, E_USER_WARNING);
@@ -298,7 +303,7 @@ class rrdstat {
     // create RRD file
 
     // compose create command
-    $create_cmd = 'rrdtool create '.$this->rrd_file.' --step '.$this->rrd_step;
+    $create_cmd = $this->rrdtool_bin.' create '.$this->rrd_file.' --step '.$this->rrd_step;
     foreach ($this->rrd_fields as $ds) {
       if (!isset($ds['type'])) { $ds['type'] = 'COUNTER'; }
       if (!isset($ds['heartbeat'])) { $ds['heartbeat'] = 2*$this->rrd_step; }
@@ -405,7 +410,7 @@ class rrdstat {
     array_walk($upvals, $walkfunc);
     $return = null;
     if (count($upvals)) {
-      $update_cmd = 'rrdtool update '.$this->rrd_file
+      $update_cmd = $this->rrdtool_bin.' update '.$this->rrd_file
                     .($key_names?' --template '.implode(':', array_keys($upvals)):'').' N:'.implode(':', $upvals);
       $return = `$update_cmd 2>&1`;
     }
@@ -433,7 +438,8 @@ class rrdstat {
     elseif ($start < 0) { $start += $end; }
     $start = intval($start/$resolution)*$resolution;
 
-    $fetch_cmd = 'rrdtool fetch '.$this->rrd_file.' '.$cf.' --resolution '.$resolution.' --start '.$start.' --end '.$end;
+    $fetch_cmd = $this->rrdtool_bin.' fetch '.$this->rrd_file.' '.$cf.' --resolution '.$resolution
+                 .' --start '.$start.' --end '.$end;
     $return = `$fetch_cmd 2>&1`;
 
     if (strpos($return, 'ERROR') !== false) {
@@ -466,7 +472,7 @@ class rrdstat {
     // fetch time of last update in this RRD file
     static $last_update;
     if (!isset($last_update) && in_array($this->status, array('ok','readonly'))) {
-      $last_cmd = 'rrdtool last '.$this->rrd_file;
+      $last_cmd = $this->rrdtool_bin.' last '.$this->rrd_file;
       $return = trim(`$last_cmd 2>&1`);
       $last_update = is_numeric($return)?$return:null;
     }
@@ -761,7 +767,7 @@ class rrdstat {
       $addSpecial .= ':'.$this->text_quote($srow['text']);
     }
 
-    $graph_cmd = 'rrdtool graph '.str_replace('*', '\*', $fname.$gOpts.$gDefs.$gGraphs.$addSpecial);
+    $graph_cmd = $this->rrdtool_bin.' graph '.str_replace('*', '\*', $fname.$gOpts.$gDefs.$gGraphs.$addSpecial);
     $return = `$graph_cmd 2>&1`;
 
     if (strpos($return, 'ERROR') !== false) {

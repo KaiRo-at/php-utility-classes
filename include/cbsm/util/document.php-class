@@ -1,0 +1,169 @@
+<?php
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * The contents of this file are subject to Austrian copyright reegulations
+ * ("Urheberrecht"); you may not use this file except in compliance with
+ * those laws.
+ * This contents and any derived work, if it gets distributed in any way,
+ * is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND,
+ * either express or implied.
+ *
+ * The Original Code is KaiRo's extended DOM document classes.
+ *
+ * The Initial Developer of the Original Code is
+ * KaiRo - Robert Kaiser.
+ * Portions created by the Initial Developer are Copyright (C) 2010
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s): Robert Kaiser <kairo@kairo.at>
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+class ExtendedDocument extends DOMDocument {
+  // ExtendedDocument PHP class
+  // this extends the general PHP DOM Document class to simplify some usual constructs
+  //
+  // function __construct([$version], [$encoding])
+  //   CONSTRUCTOR
+  //   construct a new DOM Document that uses our element definitions
+  //
+  // function appendElement($name, [$value])
+  //   appends a DOMDocument::createElement() as a child of this document (see there for params)
+  //     returns the new child
+  //
+  // function appendElementXML($name, $xmldata)
+  //   appends a DOMDocument::createElement() with the given name as a child of this document,
+  //   with an ExtendedDocument::createXMLFragment() of the given XML data inside
+  //     returns the new child
+  //
+  // function appendLink($target, [$value])
+  //   appends an ExtendedDocument::createElementLink() as a child of this document (see there for params)
+  //     returns the new child
+  //
+  // function appendText($text)
+  //   appends a DOMDocument::createTextNode() as a child of this document (see there for params)
+  //     returns the new child
+  //
+  // function appendRawMarkup($markupdata)
+  //   appends an ExtendedDocument::createElementRawMarkup() as a child of this document (see there for params)
+  //     NO return value!
+  //
+  // function appendJSElement($jsdata)
+  //   appends an ExtendedDocument::createElementJS() as a child of this document (see there for params)
+  //     NO return value!
+  //
+  // function createXMLFragment($xmldata)
+  //   returns a DOMDocumentFragment containing the DOM of the given XML data
+  //
+  // function createElementLink($target, [$value])
+  //   returns an ExtendedElement that is an HTML <a> with the given target (href) and (optional) value
+  //
+  // function createElementRawMarkup($markupdata)
+  //   returns a DOMNode containing a representation of the given raw markup data
+  //
+  // function createElementJS($jsdata)
+  //   returns an ExtendedElement that is an HTML <script> of JavaScript type with the JS data inside
+
+  function __construct($version = '1.0', $encoding = 'utf-8') {
+    // make sure the default DOMDocument constructor runs
+    parent::__construct($version, $encoding);
+    $this->registerNodeClass('DOMElement', 'ExtendedElement');
+  }
+
+  function appendElement($name, $value = '') {
+    return $this->appendChild($this->createElement($name, $value));
+  }
+  function appendElementXML($name, $xmldata) {
+    $aelem = $this->appendChild($this->createElement($name));
+    $aelem->appendChild($this->createXMLFragment($xmldata));
+    return $aelem;
+  }
+  function appendLink($target, $value = '') {
+    return $this->appendChild($this->createElementLink($target, $value));
+  }
+  function appendText($text) {
+    return $this->appendChild($this->createTextNode($text));
+  }
+  function appendRawMarkup($markupdata) {
+    $this->appendChild($this->createElementRawMarkup($markupdata));
+  }
+  function appendJSElement($jsdata) {
+    $this->appendChild($this->createElementJS($jsdata));
+  }
+
+  function createXMLFragment($xmldata) {
+    $xmlfragment = $this->createDocumentFragment();
+    $xmlfragment->appendXML($xmldata);
+    return $xmlfragment;
+  }
+
+  function createElementLink($target, $value = '') {
+    $link = $this->createElement('a', $value);
+    $link->setAttribute('href', $target);
+    return $link;
+  }
+
+  function createElementRawMarkup($markupdata) {
+    // XXX: just a workaround for now!
+    return $this->createCDATASection($markupdata);
+  }
+
+  function createElementJS($jsdata) {
+    $jselem = $this->createElement('script');
+    $jselem->setAttribute('type', 'text/javascript');
+    $jselem->appendChild($this->createCDATASection($jsdata));
+    return $jselem;
+  }
+}
+
+class ExtendedElement extends DOMElement {
+  // ExtendedElement PHP class
+  // this extends the general PHP DOM Element class to simplify some usual constructs
+  //
+  // function appendElement($name, [$value])
+  //   appends a DOMDocument::createElement() as a child of this element (see there for params)
+  //     returns the new child
+  //
+  // function appendElementXML($name, $xmldata)
+  //   appends a DOMDocument::createElement() with the given name as a child of this element,
+  //   with an ExtendedDocument::createXMLFragment() of the given XML data inside
+  //     returns the new child
+  //
+  // function appendLink($target, [$value])
+  //   appends an ExtendedDocument::createElementLink() as a child of this element (see there for params)
+  //     returns the new child
+  //
+  // function appendText($text)
+  //   appends a DOMDocument::createTextNode() as a child of this element (see there for params)
+  //     returns the new child
+  //
+  // function appendRawMarkup($markupdata)
+  //   appends an ExtendedDocument::createElementRawMarkup() as a child of this element (see there for params)
+  //     NO return value!
+  //
+  // function appendJSElement($jsdata)
+  //   appends an ExtendedDocument::createElementJS() as a child of this element (see there for params)
+  //     NO return value!
+
+  function appendElement($name, $value = '') {
+    return $this->appendChild($this->ownerDocument->createElement($name, $value));
+  }
+  function appendElementXML($name, $xmldata) {
+    $aelem = $this->appendChild($this->ownerDocument->createElement($name));
+    $aelem->appendChild($this->ownerDocument->createXMLFragment($xmldata));
+    return $aelem;
+  }
+  function appendLink($target, $value = '') {
+    return $this->appendChild($this->ownerDocument->createElementLink($target, $value));
+  }
+  function appendText($text) {
+    return $this->appendChild($this->ownerDocument->createTextNode($text));
+  }
+  function appendRawMarkup($markupdata) {
+    $this->appendChild($this->ownerDocument->createElementRawMarkup($markupdata));
+  }
+  function appendJSElement($jsdata) {
+    $this->appendChild($this->ownerDocument->createElementJS($jsdata));
+  }
+}
+?>

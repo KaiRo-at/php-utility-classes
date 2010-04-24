@@ -162,7 +162,7 @@ class rrdstat {
   function __construct($rrdconfig, $conf_id = null) {
     // ***** init RRD stat module *****
     $this->mod_textdomain = 'class_rrdstat';
-    $mod_charset = 'iso-8859-15';
+    $mod_charset = 'utf-8';
 
     bindtextdomain($this->mod_textdomain, class_exists('baseutils')?baseutils::getDir('locale'):'locale/');
     bind_textdomain_codeset($this->mod_textdomain, $mod_charset);

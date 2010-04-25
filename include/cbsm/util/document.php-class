@@ -70,6 +70,18 @@ class ExtendedDocument extends DOMDocument {
   //   appends an ExtendedDocument::createElementInputSubmit() as a child of this document (see there for params)
   //     returns the new child
   //
+  // function appendTextArea($name, $columns, $rows, [$id], [$value])
+  //   appends an ExtendedDocument::createElementTextArea() as a child of this document (see there for params)
+  //     returns the new child
+  //
+  // function appendElementSelect($name, [$id], [$options], [$default])
+  //   appends an ExtendedDocument::createElementSelect() as a child of this document (see there for params)
+  //     returns the new child
+  //
+  // function appendElementOption($key, $desc, [$selected])
+  //   appends an ExtendedDocument::createElementOption() as a child of this document (see there for params)
+  //     returns the new child
+  //
   // function appendLabel($for_id, $value)
   //   appends an ExtendedDocument::createElementLabel() as a child of this document (see there for params)
   //     returns the new child
@@ -115,6 +127,18 @@ class ExtendedDocument extends DOMDocument {
   // function createElementInputSubmit($value)
   //   returns an ExtendedElement that is an HTML <input> of type 'submit' with the given name and value
   //
+  // function createElementTextArea($name, $columns, $rows, [$id], [$value])
+  //   returns an ExtendedElement that is an HTML <textarea> with the given name, columns, rows,
+  //   and optionally id and value
+  //
+  // function createElementSelect($name, [$id], [$options], [$default])
+  //   returns an ExtendedElement that is an HTML <select> with the given name, and optionally id,
+  //   array of options (key => description) and key of the by-default selected entry
+  //
+  // function createElementOption($key, $desc, [$selected])
+  //   returns an ExtendedElement that is an HTML <option> with the given key (value) and description (content)
+  //   and optionally bool that tells if the entry is selected
+  //
   // function createElementLabel($for_id, $value)
   //   returns an ExtendedElement that is an HTML <label> with the given 'for' and value
   //
@@ -125,6 +149,7 @@ class ExtendedDocument extends DOMDocument {
     // make sure the default DOMDocument constructor runs
     parent::__construct($version, $encoding);
     $this->registerNodeClass('DOMElement', 'ExtendedElement');
+    $this->registerNodeClass('DOMDocumentFragment', 'ExtendedDocumentFragment');
   }
 
   function appendElement($name, $value = '') {
@@ -158,6 +183,15 @@ class ExtendedDocument extends DOMDocument {
   function appendInputSubmit($value) {
     return $this->appendChild($this->createElementInputSubmit($value));
   }
+  function appendTextArea($name, $columns, $rows, $id = null, $value = null) {
+    return $this->appendChild($this->createElementTextArea($name, $columns, $rows, $id, $value));
+  }
+  function appendElementSelect($name, $id = null, $options = array(), $default = null) {
+    return $this->appendChild($this->createElementSelect($name, $id, $options, $default));
+  }
+  function appendElementOption($key, $desc, $selected = false) {
+    return $this->appendChild($this->createElementOption($key, $desc, $selected));
+  }
   function appendLabel($for_id, $value) {
     return $this->appendChild($this->createElementLabel($for_id, $value));
   }
@@ -188,7 +222,7 @@ class ExtendedDocument extends DOMDocument {
 
   function createElementLink($target, $value = '') {
     $link = $this->createElement('a', $value);
-    $link->setAttribute('href', $target);
+    $link->setAttribute('href', $target); // XXX: take care of & etc. in links
     return $link;
   }
 
@@ -246,6 +280,32 @@ class ExtendedDocument extends DOMDocument {
     return $submitbtn;
   }
 
+  function createElementTextArea($name, $columns, $rows, $id = null, $value = null) {
+    $txtarea = $this->createElement('textarea', $value);
+    $txtarea->setAttribute('name', $name);
+    $txtarea->setAttribute('cols', $columns);
+    $txtarea->setAttribute('rows', $rows);
+    if (!is_null($id)) { $txtarea->setAttribute('id', $id); }
+    return $txtarea;
+  }
+
+  function createElementSelect($name, $id = null, $options = array(), $default = null) {
+    $select = $this->createElement('select');
+    $select->setAttribute('name', $name);
+    if (!is_null($id)) { $select->setAttribute('id', $id); }
+    foreach ($options as $key => $desc) {
+      $select->appendElementOption($key, $desc, ($key == $default));
+    }
+    return $select;
+  }
+
+  function createElementOption($key, $desc, $selected = false) {
+    $option = $this->createElement('option', $desc);
+    $option->setAttribute('value', $key);
+    if ($selected) { $option->setAttribute('selected', ''); }
+    return $option;
+  }
+
   function createElementLabel($for_id, $value) {
     $label = $this->createElement('label', $value);
     $label->setAttribute('for', $for_id);
@@ -301,6 +361,18 @@ class ExtendedElement extends DOMElement {
   //   appends an ExtendedDocument::createElementInputSubmit() as a child of this element (see there for params)
   //     returns the new child
   //
+  // function appendTextArea($name, $columns, $rows, [$id], [$value])
+  //   appends an ExtendedDocument::createElementTextArea() as a child of this element (see there for params)
+  //     returns the new child
+  //
+  // function appendElementSelect($name, [$id], [$options], [$default])
+  //   appends an ExtendedDocument::createElementSelect() as a child of this element (see there for params)
+  //     returns the new child
+  //
+  // function appendElementOption($key, $desc, [$selected])
+  //   appends an ExtendedDocument::createElementOption() as a child of this element (see there for params)
+  //     returns the new child
+  //
   // function appendLabel($for_id, $value)
   //   appends an ExtendedDocument::createElementLabel() as a child of this element (see there for params)
   //     returns the new child
@@ -350,6 +422,144 @@ class ExtendedElement extends DOMElement {
   }
   function appendInputSubmit($value) {
     return $this->appendChild($this->ownerDocument->createElementInputSubmit($value));
+  }
+  function appendTextArea($name, $columns, $rows, $id = null, $value = null) {
+    return $this->appendChild($this->ownerDocument->createElementTextArea($name, $columns, $rows, $id, $value));
+  }
+  function appendElementSelect($name, $id = null, $options = array(), $default = null) {
+    return $this->appendChild($this->ownerDocument->createElementSelect($name, $id, $options, $default));
+  }
+  function appendElementOption($key, $desc, $selected = false) {
+    return $this->appendChild($this->ownerDocument->createElementOption($key, $desc, $selected));
+  }
+  function appendLabel($for_id, $value) {
+    return $this->appendChild($this->ownerDocument->createElementLabel($for_id, $value));
+  }
+  function appendText($text) {
+    return $this->appendChild($this->ownerDocument->createTextNode($text));
+  }
+  function appendHTMLMarkup($htmldata) {
+    $this->ownerDocument->appendHTMLMarkup($htmldata, $this);
+  }
+  function appendXMLMarkup($xmldata) {
+    $this->ownerDocument->appendXMLMarkup($xmldata, $this);
+  }
+  function appendJSElement($jsdata) {
+    $this->appendChild($this->ownerDocument->createElementJS($jsdata));
+  }
+}
+
+class ExtendedDocumentFragment extends DOMDocumentFragment {
+  // ExtendedDocumentFragment PHP class
+  // this extends the general PHP DOM Document Fragment class to simplify some usual constructs
+  //
+  // function appendElement($name, [$value])
+  //   appends a DOMDocument::createElement() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
+  // function appendElementXML($name, $xmldata)
+  //   appends a DOMDocument::createElement() with the given name as a child of this fragment,
+  //   with an ExtendedDocument::createXMLFragment() of the given XML data inside
+  //     returns the new child
+  //
+  // function appendLink($target, [$value])
+  //   appends an ExtendedDocument::createElementLink() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
+  // function appendFormDiv($action, $method, $name)
+  //   appends an ExtendedDocument::createElementForm() as a child of this fragment (see there for params)
+  //     returns an HTML <div> that is a child of the new child
+  //
+  // function appendInputHidden($name, $value)
+  //   appends an ExtendedDocument::createElementInputHidden() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
+  // function appendInputText($name, $maxlength, $size, [$id], [$value])
+  //   appends an ExtendedDocument::createElementInputText() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
+  // function appendInputRadio($name, $id, $value, $checked)
+  //   appends an ExtendedDocument::createElementInputRadio() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
+  // function appendInputCheckbox($name, $id, $value, $checked)
+  //   appends an ExtendedDocument::createElementInputCheckbox() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
+  // function appendInputSubmit($value)
+  //   appends an ExtendedDocument::createElementInputSubmit() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
+  // function appendTextArea($name, $columns, $rows, [$id], [$value])
+  //   appends an ExtendedDocument::createElementTextArea() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
+  // function appendElementSelect($name, [$id], [$options], [$default])
+  //   appends an ExtendedDocument::createElementSelect() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
+  // function appendElementOption($key, $desc, [$selected])
+  //   appends an ExtendedDocument::createElementOption() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
+  // function appendLabel($for_id, $value)
+  //   appends an ExtendedDocument::createElementLabel() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
+  // function appendText($text)
+  //   appends a DOMDocument::createTextNode() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
+  // function appendHTMLMarkup($htmldata)
+  //   appends a representation of the HTML data as children of this fragment
+  //     NO return value!
+  //
+  // function appendXMLMarkup($xmldata)
+  //   appends a representation of the XML data as children of this fragment
+  //     NO return value!
+  //
+  // function appendJSElement($jsdata)
+  //   appends an ExtendedDocument::createElementJS() as a child of this fragment (see there for params)
+  //     NO return value!
+
+  function appendElement($name, $value = '') {
+    return $this->appendChild($this->ownerDocument->createElement($name, $value));
+  }
+  function appendElementXML($name, $xmldata) {
+    $aelem = $this->appendChild($this->ownerDocument->createElement($name));
+    $aelem->appendXMLMarkup($xmldata);
+    return $aelem;
+  }
+  function appendLink($target, $value = '') {
+    return $this->appendChild($this->ownerDocument->createElementLink($target, $value));
+  }
+  function appendFormDiv($action, $method, $name) {
+    $formelem = $this->appendChild($this->ownerDocument->createElementForm($action, $method, $name));
+    return $formelem->appendElement('div');
+  }
+  function appendInputHidden($name, $value) {
+    return $this->appendChild($this->ownerDocument->createElementInputHidden($name, $value));
+  }
+  function appendInputText($name, $maxlength, $size, $id = null, $value = null) {
+    return $this->appendChild($this->ownerDocument->createElementInputText($name, $maxlength, $size, $id, $value));
+  }
+  function appendInputRadio($name, $id, $value, $checked) {
+    return $this->appendChild($this->ownerDocument->createElementInputRadio($name, $id, $value, $checked));
+  }
+  function appendInputCheckbox($name, $id, $value, $checked) {
+    return $this->appendChild($this->ownerDocument->createElementInputCheckbox($name, $id, $value, $checked));
+  }
+  function appendInputSubmit($value) {
+    return $this->appendChild($this->ownerDocument->createElementInputSubmit($value));
+  }
+  function appendTextArea($name, $columns, $rows, $id = null, $value = null) {
+    return $this->appendChild($this->ownerDocument->createElementTextArea($name, $columns, $rows, $id, $value));
+  }
+  function appendElementSelect($name, $id = null, $options = array(), $default = null) {
+    return $this->appendChild($this->ownerDocument->createElementSelect($name, $id, $options, $default));
+  }
+  function appendElementOption($key, $desc, $selected = false) {
+    return $this->appendChild($this->ownerDocument->createElementOption($key, $desc, $selected));
   }
   function appendLabel($for_id, $value) {
     return $this->appendChild($this->ownerDocument->createElementLabel($for_id, $value));

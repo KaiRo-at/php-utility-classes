@@ -5,6 +5,9 @@ include("inchandler.inc");
 
 $wrapper->pgtop("KaiRo's Browser-Test");
 
+// set default time zone - right now, always the one the server is in!
+date_default_timezone_set('Europe/Vienna');
+
 $httpvars = $util->getHTTPvars();
 if (strlen($httpvars["ua"])) {
   $ua = new userAgent($httpvars["ua"]);

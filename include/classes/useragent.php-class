@@ -203,37 +203,47 @@ class userAgent {
       $this->bot = false;
     }
     elseif (preg_match('|Iceape/([0-9a-zA-Z\.+]+)|i', $this->uastring, $regs)) {
-      $this->brand = 'IceApe';
+      $this->brand = 'IceApe'; // Debian-rebranded SeaMonkey
       $this->version = $regs[1];
       $this->bot = false;
     }
     elseif (preg_match('|Iceweasel/([0-9a-zA-Z\.+]+)|i', $this->uastring, $regs)) {
-      $this->brand = 'IceWeasel';
+      $this->brand = 'IceWeasel'; // Debian-rebranded Firefox
+      $this->version = $regs[1];
+      $this->bot = false;
+    }
+    elseif (preg_match('|Icedove/([0-9a-zA-Z\.+]+)|i', $this->uastring, $regs)) {
+      $this->brand = 'IceDove'; // Debian-rebranded Thunderbird
       $this->version = $regs[1];
       $this->bot = false;
     }
     elseif (preg_match('|BonEcho/([0-9a-zA-Z\.+]+)|i', $this->uastring, $regs)) {
-      $this->brand = 'Bon Echo';
+      $this->brand = 'Bon Echo'; // Firefox 2.0 code name
       $this->version = $regs[1];
       $this->bot = false;
     }
     elseif (preg_match('|GranParadiso/([0-9a-zA-Z\.+]+)|i', $this->uastring, $regs)) {
-      $this->brand = 'Gran Paradiso';
+      $this->brand = 'Gran Paradiso'; // Firefox 3.0 code name
       $this->version = $regs[1];
       $this->bot = false;
     }
     elseif (preg_match('|Shiretoko/([0-9a-zA-Z\.+]+)|i', $this->uastring, $regs)) {
-      $this->brand = 'Shiretoko';
+      $this->brand = 'Shiretoko'; // Firefox 3.5 code name
       $this->version = $regs[1];
       $this->bot = false;
     }
     elseif (preg_match('|Namoroka/([0-9a-zA-Z\.+]+)|i', $this->uastring, $regs)) {
-      $this->brand = 'Namoroka';
+      $this->brand = 'Namoroka'; // Firefox 3.6 code name
+      $this->version = $regs[1];
+      $this->bot = false;
+    }
+    elseif (preg_match('|Lorentz/([0-9a-zA-Z\.+]+)|i', $this->uastring, $regs)) {
+      $this->brand = 'Lorentz'; // Firefox 3.6 (with OOPP) code name
       $this->version = $regs[1];
       $this->bot = false;
     }
     elseif (preg_match('|Minefield/([0-9a-zA-Z\.+]+)|i', $this->uastring, $regs)) {
-      $this->brand = 'Minefield';
+      $this->brand = 'Minefield'; // Firefox development nightly code name
       $this->version = $regs[1];
       $this->bot = false;
     }
@@ -252,8 +262,13 @@ class userAgent {
       $this->version = $regs[1];
       $this->bot = false;
     }
+    elseif (preg_match('|Lanikai/([0-9a-zA-Z\.+]+)|i', $this->uastring, $regs)) {
+      $this->brand = 'Lanikai'; // Thunderbird 3.1 code name
+      $this->version = $regs[1];
+      $this->bot = false;
+    }
     elseif (preg_match('|Shredder/([0-9a-zA-Z\.+]+)|i', $this->uastring, $regs)) {
-      $this->brand = 'Shredder';
+      $this->brand = 'Shredder'; // Thunderbird development nightly code name
       $this->version = $regs[1];
       $this->bot = false;
     }
@@ -268,7 +283,7 @@ class userAgent {
       $this->bot = false;
     }
     elseif (preg_match('|Fennec/([0-9a-zA-Z\.+]+)|i', $this->uastring, $regs)) {
-      $this->brand = 'Fennec';
+      $this->brand = 'Fennec'; // Firefox mobile code name
       $this->version = $regs[1];
       $this->bot = false;
     }
@@ -1011,7 +1026,12 @@ class userAgent {
       $this->uadata['os'] = null;
       if (!$this->bot) {
         if ($this->hasEngine('gecko')) {
-          if (preg_match('|Mozilla/5.0 \(([^;]+); [^;]+; ([^;]+); ([^;]+); rv:([^\);]+)(; [^\)]+)?\)|', $this->uastring, $regs)) {
+          if (preg_match('|Mozilla/5.0 \(([^;]+); [^;]+; ([^;]+); ([^;]+); ([^;]+); rv:([^\);]+)(; [^\)]+)?\)|', $this->uastring, $regs)) {
+            $this->uadata['os'] = $regs[2].' ('.$regs[3].')';
+            $this->uadata['lang'] = (strpos($regs[4],'chrome://')===false)?$regs[4]:null;
+            $this->uadata['eng_version'] = $regs[5];
+          }
+          elseif (preg_match('|Mozilla/5.0 \(([^;]+); [^;]+; ([^;]+); ([^;]+); rv:([^\);]+)(; [^\)]+)?\)|', $this->uastring, $regs)) {
             $this->uadata['os'] = $regs[2];
             $this->uadata['lang'] = (strpos($regs[3],'chrome://')===false)?$regs[3]:null;
             $this->uadata['eng_version'] = $regs[4];
@@ -1058,7 +1078,12 @@ class userAgent {
           }
         }
         elseif ($this->hasEngine('trident') || $this->hasEngine('tasman')) {
-          if (preg_match('/Mozilla\/[^\(]+ \(compatible *; MSP?IE ([^;]+)[^\)]*; ?((?:Mac|Win)[^;]+)[^\)]*\)/i', $this->uastring, $regs)) {
+          if (preg_match('/Mozilla\/[^\(]+ \(compatible *; MSP?IE ([^;]+)[^\)]*; ?((?:Mac|Win)[^;]+); ?(Win64|WOW64)[^\)]*\)/i', $this->uastring, $regs)) {
+            $this->uadata['eng_version'] = (strpos($this->uastring,'MSPIE')!==false)?null:$regs[1];
+            $this->uadata['os'] = $regs[2].' ('.$regs[3].')';
+            $this->uadata['lang'] = null;
+          }
+          elseif (preg_match('/Mozilla\/[^\(]+ \(compatible *; MSP?IE ([^;]+)[^\)]*; ?((?:Mac|Win)[^;]+)[^\)]*\)/i', $this->uastring, $regs)) {
             $this->uadata['eng_version'] = (strpos($this->uastring,'MSPIE')!==false)?null:$regs[1];
             $this->uadata['os'] = $regs[2];
             $this->uadata['lang'] = null;
@@ -1240,10 +1265,18 @@ class userAgent {
         elseif ($this->uadata['os'] == 'WinNT4.0') { $this->uadata['os'] = 'Windows NT 4.0'; }
         elseif ($this->uadata['os'] == 'Windows NT 5.0') { $this->uadata['os'] = 'Windows 2000'; }
         elseif ($this->uadata['os'] == 'Windows NT 5.1') { $this->uadata['os'] = 'Windows XP'; }
+        elseif ($this->uadata['os'] == 'Windows NT 5.1 (Win64)') { $this->uadata['os'] = 'Windows XP (64bit)'; }
+        elseif ($this->uadata['os'] == 'Windows NT 5.1 (WOW64)') { $this->uadata['os'] = 'Windows XP (64bit)'; }
         elseif ($this->uadata['os'] == 'Windows NT 5.2') { $this->uadata['os'] = 'Windows 2003'; }
         elseif ($this->uadata['os'] == 'Windows NT 5.2 x64') { $this->uadata['os'] = 'Windows 2003 (64bit)'; }
+        elseif ($this->uadata['os'] == 'Windows NT 5.2 (Win64)') { $this->uadata['os'] = 'Windows 2003 (64bit)'; }
+        elseif ($this->uadata['os'] == 'Windows NT 5.2 (WOW64)') { $this->uadata['os'] = 'Windows 2003 (64bit)'; }
         elseif ($this->uadata['os'] == 'Windows NT 6.0') { $this->uadata['os'] = 'Windows Vista'; }
+        elseif ($this->uadata['os'] == 'Windows NT 6.0 (Win64)') { $this->uadata['os'] = 'Windows Vista (64bit)'; }
+        elseif ($this->uadata['os'] == 'Windows NT 6.0 (WOW64)') { $this->uadata['os'] = 'Windows Vista (64bit)'; }
         elseif ($this->uadata['os'] == 'Windows NT 6.1') { $this->uadata['os'] = 'Windows 7'; }
+        elseif ($this->uadata['os'] == 'Windows NT 6.1 (Win64)') { $this->uadata['os'] = 'Windows 7 (64bit)'; }
+        elseif ($this->uadata['os'] == 'Windows NT 6.1 (WOW64)') { $this->uadata['os'] = 'Windows 7 (64bit)'; }
         elseif ($this->uadata['os'] == 'Win95') { $this->uadata['os'] = 'Windows 95'; }
         elseif ($this->uadata['os'] == 'Win98') { $this->uadata['os'] = 'Windows 98'; }
         elseif ($this->uadata['os'] == 'WinNT') { $this->uadata['os'] = 'Windows NT'; }

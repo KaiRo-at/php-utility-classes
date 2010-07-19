@@ -1036,22 +1036,27 @@ class userAgent {
             $this->uadata['lang'] = (strpos($regs[3],'chrome://')===false)?$regs[3]:null;
             $this->uadata['eng_version'] = $regs[4];
           }
-          elseif (preg_match('|Mozilla/5.0 \(([^;]+); [^;]+; ([^;]+); rv:([^\);]+)(; [^\)]+)?\)|', $this->uastring, $regs)) {
+          elseif (preg_match('|Mozilla/5.0 \(([^;]+); [^;]; ([^;]+); rv:([^\);]+)(; [^\)]+)?\)|', $this->uastring, $regs)) {
             $this->uadata['os'] = $regs[2];
             $this->uadata['lang'] = null;
             $this->uadata['eng_version'] = $regs[3];
           }
-          elseif (preg_match('|Mozilla/5.0 \(([^;]+); [^;]+; ([^;]+); ([^;]+); m([^\);]+)\)|', $this->uastring, $regs)) {
+          elseif (preg_match('|Mozilla/5.0 \(([^;]+); ([^;]+); ([^;]+); rv:([^\);]+)(; [^\)]+)?\)|', $this->uastring, $regs)) {
+            $this->uadata['os'] = $regs[2];
+            $this->uadata['lang'] = (strpos($regs[3],'chrome://')===false)?$regs[3]:null;
+            $this->uadata['eng_version'] = $regs[4];
+          }
+          elseif (preg_match('|Mozilla/5.0 \(([^;]+); [^;]; ([^;]+); ([^;]+); m([^\);]+)\)|', $this->uastring, $regs)) {
             $this->uadata['os'] = $regs[2];
             $this->uadata['lang'] = $regs[3];
             $this->uadata['eng_version'] = 'M'.$regs[4];
           }
-          elseif (preg_match('|Mozilla/5.0 \(([^;]+); [^;]+; ([^;]+); m([^\);]+)\)|', $this->uastring, $regs)) {
+          elseif (preg_match('|Mozilla/5.0 \(([^;]+); [^;]; ([^;]+); m([^\);]+)\)|', $this->uastring, $regs)) {
             $this->uadata['os'] = $regs[1];
             $this->uadata['lang'] = $regs[2];
             $this->uadata['eng_version'] = 'M'.$regs[3];
           }
-          elseif (preg_match('|Mozilla/5.0 \(([^;]+); [^;]+; ([^;]+); ([^\);]+)\)|', $this->uastring, $regs)) {
+          elseif (preg_match('|Mozilla/5.0 \(([^;]+); [^;]; ([^;]+); ([^\);]+)\)|', $this->uastring, $regs)) {
             $this->uadata['os'] = $regs[2];
             $this->uadata['lang'] = $regs[3];
             $this->uadata['eng_version'] = null;

@@ -888,6 +888,16 @@ class userAgent {
       $this->version = '1.0';
       $this->bot = false;
     }
+    elseif (preg_match('|MSIE 7\.0.+Trident/4.0|', $this->uastring, $regs)) {
+      $this->brand = 'Microsoft Internet Explorer';
+      $this->version = "8.0";
+      $this->bot = false;
+    }
+    elseif (preg_match('|MSIE 7\.0.+Trident/5.0|', $this->uastring, $regs)) {
+      $this->brand = 'Microsoft Internet Explorer';
+      $this->version = "9.0";
+      $this->bot = false;
+    }
     elseif (preg_match('|MSIE ([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'Microsoft Internet Explorer';
       $this->version = $regs[1];
@@ -1071,6 +1081,11 @@ class userAgent {
             $this->uadata['lang'] = null;
             $this->uadata['eng_version'] = null;
           }
+          elseif (preg_match('|Mozilla/5.0 \(([^;]+); rv:([^\);]+)\)|', $this->uastring, $regs)) {
+            $this->uadata['os'] = $regs[1];
+            $this->uadata['lang'] = null;
+            $this->uadata['eng_version'] = $regs[2];
+          }
           elseif (preg_match('|Mozilla/5.0 Galeon/[^\(]+ \(([^;]+); ([^;]+);[^\)]+\)|', $this->uastring, $regs)) {
             $this->uadata['os'] = $regs[2];
             $this->uadata['lang'] = null;
@@ -1083,23 +1098,33 @@ class userAgent {
           }
         }
         elseif ($this->hasEngine('trident') || $this->hasEngine('tasman')) {
-          if (preg_match('/Mozilla\/[^\(]+ \(compatible *; MSP?IE ([^;]+)[^\)]*; ?((?:Mac|Win)[^;]+); ?(Win64|WOW64)[^\)]*\)/i', $this->uastring, $regs)) {
-            $this->uadata['eng_version'] = (strpos($this->uastring,'MSPIE')!==false)?null:$regs[1];
+          if (preg_match('/Mozilla\/[^\(]+ \(compatible *; MSIE [^;]+[^\)]*; ?((?:Mac|Win)[^;]+); ?(Win64|WOW64)[^\)]*Trident\/([^;\)]+)[^\)]*\)/i', $this->uastring, $regs)) {
+            $this->uadata['eng_version'] = $regs[3];
+            $this->uadata['os'] = $regs[1].' ('.$regs[2].')';
+            $this->uadata['lang'] = null;
+          }
+          elseif (preg_match('/Mozilla\/[^\(]+ \(compatible *; MSIE [^;]+[^\)]*; ?((?:Mac|Win)[^;]+); ?[^\)]*Trident\/([^;\)]+)[^\)]*\)/i', $this->uastring, $regs)) {
+            $this->uadata['eng_version'] = $regs[2];
+            $this->uadata['os'] = $regs[1];
+            $this->uadata['lang'] = null;
+          }
+          elseif (preg_match('/Mozilla\/[^\(]+ \(compatible *; MSP?IE ([^;]+)[^\)]*; ?((?:Mac|Win)[^;]+); ?(Win64|WOW64)[^\)]*\)/i', $this->uastring, $regs)) {
+            $this->uadata['eng_version'] = (strpos($this->uastring,'MSPIE')!==false)?null:"ie".$regs[1];
             $this->uadata['os'] = $regs[2].' ('.$regs[3].')';
             $this->uadata['lang'] = null;
           }
           elseif (preg_match('/Mozilla\/[^\(]+ \(compatible *; MSP?IE ([^;]+)[^\)]*; ?((?:Mac|Win)[^;]+)[^\)]*\)/i', $this->uastring, $regs)) {
-            $this->uadata['eng_version'] = (strpos($this->uastring,'MSPIE')!==false)?null:$regs[1];
+            $this->uadata['eng_version'] = (strpos($this->uastring,'MSPIE')!==false)?null:"ie".$regs[1];
             $this->uadata['os'] = $regs[2];
             $this->uadata['lang'] = null;
           }
           elseif (preg_match('/Mozilla\/[^\(]+ \(compatible *; MSIE ([^;]+)[^\)]*\)/i', $this->uastring, $regs)) {
-            $this->uadata['eng_version'] = $regs[1];
+            $this->uadata['eng_version'] = "ie".$regs[1];
             $this->uadata['os'] = null;
             $this->uadata['lang'] = null;
           }
           elseif (preg_match('/Microsoft Internet Explorer\/[^\s]+ \(((?:Mac|Win)[^;\)]+)\)/i', $this->uastring, $regs)) {
-            $this->uadata['eng_version'] = $this->getVersion();
+            $this->uadata['eng_version'] = "ie".$this->getVersion();
             $this->uadata['os'] = $regs[1];
             $this->uadata['lang'] = null;
           }

@@ -35,8 +35,30 @@ Mozilla/5.0 (X11; U; Linux i686; chrome://navigator/locale/navigator.properties;
 Mozilla/5.0 (Windows; Windows NT 5.1; en-US; rv:1.9.2a1pre) Gecko/20090402 Firefox/3.6a1pre
 Mozilla/5.0 (Windows; U; Windows NT 5.1; rv:1.7.5) Gecko/20041217 Firefox/1.0.4
 Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9a6pre) Gecko/20070702 Minefield/3.0a6pre
+Mozilla/5.0 (Windows NT 5.2; rv:2.0.1) Gecko/20100101 Firefox/4.0.1
+Mozilla/5.0 (Windows NT 6.1; rv:2.0.1) Gecko/20100101 Firefox/4.0.1
+Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:2.0.1) Gecko/20100101 Firefox/4.0.1
+Mozilla/5.0 (Windows NT 6.1; WOW64; rv:2.0.1) Gecko/20100101 Firefox/4.0.1
+Mozilla/5.0 (WindowsCE 6.0; rv:2.0.1) Gecko/20100101 Firefox/4.0.1
+Mozilla/5.0 (Windows NT 6.0; rv:2.0b6pre) Gecko/20100907 Firefox/4.0b6pre
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10.5; rv:2.0.1) Gecko/20100101 Firefox/4.0.1
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:2.0.1) Gecko/20100101 Firefox/4.0.1
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:2.0b6pre) Gecko/20100907 Firefox/4.0b6pre
+Mozilla/5.0 (X11; Linux i686; rv:2.0.1) Gecko/20100101 Firefox/4.0.1
+Mozilla/5.0 (X11; Linux x86_64; rv:2.0.1) Gecko/20100101 Firefox/4.0.1
+Mozilla/5.0 (X11; Linux i686 on x86_64; rv:2.0.1) Gecko/20100101 Firefox/4.0.1
+Mozilla/5.0 (X11; Linux i686; rv:2.0b6pre) Gecko/20100907 Firefox/4.0b6pre
+Mozilla/5.0 (Android; Linux armv7l; rv:2.0.1) Gecko/20100101 Firefox/4.0.1 Fennec/2.0.1
+Mozilla/5.0 (Android; Linux armv7l; rv:2.0b6pre) Gecko/20100907 Firefox/4.0b6pre Fennec/2.0b1pre
+Mozilla/5.0 (Maemo; Linux armv7l; rv:2.0.1) Gecko/20100101 Firefox/4.0.1 Fennec/2.0.1
+Mozilla/5.0 (X11; Linux armv7l; rv:2.0.1) Gecko/20100101 Firefox/4.0.1 Fennec/2.0.1
+Mozilla/5.0 (X11; Linux i686; rv:2.0.1) Gecko/20100101 Firefox/4.0.1 Fennec/2.0.1
+Mozilla/5.0 (X11; Linux i686 on x86_64; rv:2.0.1) Gecko/20100101 Firefox/4.0.1 Fennec/2.0.1
+Mozilla/5.0 (X11; Linux i686; rv:2.0b6pre) Gecko/20100907 Firefox/4.0b6pre Fennec/2.0b1pre
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:2.0.1) Gecko/20100101 Firefox/4.0.1 Camino/2.1.1
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:2.0b6pre) Gecko/20100907 Firefox/4.0b6pre Camino/2.1a1pre
 Mozilla/5.0 (Windows; Windows NT 6.0; rv:2.0b3pre) Gecko/20100707 Minefield/4.0b3pre
-Mozilla/5.0 (Windows NT 6.1; rv:2.0b4pre) Gecko/20100806 Minefield/4.0b4pre
+Mozilla/5.0 (Windows NT 6.1; rv:2.0b4pre) Gecko/20100806 Firefox/4.0b4pre
 Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.22pre) Gecko/20090415 BonEcho/2.0.0.22pre (.NET CLR 3.5.30729)
 Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.15pre) Gecko/2009090911 GranParadiso/3.0.15pre (.NET CLR 3.5.30729)
 Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.1.4pre) Gecko/20090923 Shiretoko/3.5.4pre
@@ -50,6 +72,8 @@ Mozilla/5.0 (Windows; U; Windows NT 5.1; es-ES; rv:1.9.1.7) Gecko/20100111 Icedo
 Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.8b2) Gecko/20050324 SeaMonkey/1.0a
 Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9a6pre) Gecko/20070628 Firefox/2.0.0.4 SeaMonkey/2.0a1pre PrivatelyFakedUA/0.0
 Mozilla/5.0 (X11; Linux i686; de; rv:2.0b2pre) Gecko/20100719 NOT Firefox/4.0b2pre SeaMonkey/2.1a3pre
+Mozilla/5.0 (Windows NT 6.1; WOW64; rv:2.0b4pre) Gecko/20100807 Lightning/1.1a1pre SeaMonkey/2.1a3pre
+Mozilla/5.0 (X11; Linux i686 on x86_64; rv:2.0b5pre) Gecko/20100831 Firefox/4.0b5pre SeaMonkey/2.1b1pre
 Mozilla/5.0 (Macintosh; U; PPC Mac OS X; en-US; rv:1.0.1) Gecko/20021109 Chimera/0.6+
 Mozilla/5.0 (Macintosh; U; PPC Mac OS X Mach-O; en-US; rv:1.7b) Gecko/20040302 Camino/0.7+
 Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en; rv:1.8.1.5) Gecko/20070614 Camino/1.6 (like Firefox/2.0.0.4)

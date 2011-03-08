@@ -1,2 +1,4 @@
 *.rrd
 graphs
+rrd-backup
+weather.wien.zamg.rrd.xml

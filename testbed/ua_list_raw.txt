@@ -161,6 +161,7 @@ Mozilla/5.0 (SymbianOS/9.1; U; en-us) AppleWebKit/413 (KHTML, like Gecko) Safari
 Mozilla/5.0 (webOS/1.1; U; en-US) AppleWebKit/525.27.1 (KHTML, like Gecko) Version/1.0 Safari/525.27.1 Pre/1.0
 Midori/0.1.9 (X11; Linux i686; U; en-us) WebKit/532+
 Mozilla/5.0 (X11; U; Linux x86_64; cs-cz) AppleWebKit/531.2+ (KHTML, like Gecko) Safari/531.2+ Epiphany/2.27.91 SUSE/2.27.91-1.2
+Mozilla/5.0 (MeeGo; NokiaN9) AppleWebKit/534.13 (KHTML, like Gecko) NokiaBrowser/8.5.0 Mobile Safari/534.13
 Opera/5.12 (Windows 2000; U)  [de]
 Mozilla/4.0 (compatible; MSIE 5.0; Windows XP) Opera 6.05 [ja]
 Mozilla/4.0 (compatible; MSIE 6.0; X11; Linux i586) Opera 7.23 [en]

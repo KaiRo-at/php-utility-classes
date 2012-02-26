@@ -933,6 +933,11 @@ class userAgent {
       $this->version = "9.0";
       $this->bot = false;
     }
+    elseif (preg_match('|MSIE 7\.0.+Trident/6.0|', $this->uastring, $regs)) {
+      $this->brand = 'Microsoft Internet Explorer';
+      $this->version = "10.0";
+      $this->bot = false;
+    }
     elseif (preg_match('|MSIE ([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'Microsoft Internet Explorer';
       $this->version = $regs[1];
@@ -1395,6 +1400,9 @@ class userAgent {
         elseif ($this->uadata['os'] == 'Windows NT 6.1') { $this->uadata['os'] = 'Windows 7'; }
         elseif ($this->uadata['os'] == 'Windows NT 6.1 (Win64)') { $this->uadata['os'] = 'Windows 7 (64bit)'; }
         elseif ($this->uadata['os'] == 'Windows NT 6.1 (WOW64)') { $this->uadata['os'] = 'Windows 7 (64bit)'; }
+        elseif ($this->uadata['os'] == 'Windows NT 6.2') { $this->uadata['os'] = 'Windows 8'; }
+        elseif ($this->uadata['os'] == 'Windows NT 6.2 (Win64)') { $this->uadata['os'] = 'Windows 8 (64bit)'; }
+        elseif ($this->uadata['os'] == 'Windows NT 6.2 (WOW64)') { $this->uadata['os'] = 'Windows 8 (64bit)'; }
         elseif ($this->uadata['os'] == 'Win95') { $this->uadata['os'] = 'Windows 95'; }
         elseif ($this->uadata['os'] == 'Win98') { $this->uadata['os'] = 'Windows 98'; }
         elseif ($this->uadata['os'] == 'WinNT') { $this->uadata['os'] = 'Windows NT'; }

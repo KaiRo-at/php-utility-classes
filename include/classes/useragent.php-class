@@ -1240,6 +1240,11 @@ class userAgent {
             $this->uadata['os'] = $regs[1];
             $this->uadata['lang'] = $regs[2];
           }
+          elseif (preg_match('|Mozilla/5.0 \(Linux; ([^;]+); ([^\);]+)\)|', $this->uastring, $regs)) {
+            // (Chrome for) Android - $regs[2] is device
+            $this->uadata['os'] = $regs[1];
+            $this->uadata['lang'] = null;
+          }
           elseif (preg_match('|Mozilla/5.0 \(([^\);]+); ([^\);]+)\)|', $this->uastring, $regs)) {
             if (($regs[1] == 'X11') || ($regs[1] == 'Macintosh') || ($regs[1] == 'iPhone')) {
               $this->uadata['os'] = $regs[2];

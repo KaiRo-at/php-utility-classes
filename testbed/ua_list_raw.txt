@@ -493,3 +493,5 @@ Mozilla
 HeinrichderMiragoRobot
 dumbBot
 42_HAL
+#proposed (B2G / Firefox OS)
+Mozilla/5.0 (Mobile; rv:12.0) Gecko/12.0 Firefox/12.0

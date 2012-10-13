@@ -50,6 +50,8 @@ class userAgent {
   //   the User Agent version
   // private $bot
   //   bool: true if this agent is a bot
+  // private $mobile
+  //   bool: true if this agent is a mobile phone
   // private $uadata
   //   array of static user agent data (static vars in functions are set for all objects of this class!)
   //
@@ -92,6 +94,9 @@ class userAgent {
   // public function isBot()
   //   returns true if User Agent seems to be a bot
   //
+  // public function isMobile()
+  //   returns true if User Agent seems to be a mobile phone
+  //
   // *** functions that only return useable info for some agents ***
   //
   // public function getGeckoDate()
@@ -123,6 +128,7 @@ class userAgent {
   private $brand;
   private $version;
   private $bot = false;
+  private $mobile = false;
   private $uadata = array();
 
   function __construct($ua_string = '') {
@@ -281,11 +287,13 @@ class userAgent {
       $this->brand = 'Minimo';
       $this->version = $regs[1];
       $this->bot = false;
+      $this->mobile = true;
     }
     elseif (preg_match('|Fennec/([0-9a-zA-Z\.+]+)|i', $this->uastring, $regs)) {
       $this->brand = 'Fennec'; // Firefox mobile code name
       $this->version = $regs[1];
       $this->bot = false;
+      $this->mobile = true;
     }
     elseif (preg_match('|Galeon/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'Galeon';
@@ -311,21 +319,25 @@ class userAgent {
       $this->brand = 'microB';
       $this->version = $regs[1];
       $this->bot = false;
+      $this->mobile = true;
     }
     elseif (preg_match('|Maemo Browser ([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'microB';
       $this->version = $regs[1];
       $this->bot = false;
+      $this->mobile = true;
     }
     elseif (preg_match('|Opera\/([^\(]+) \(.*; Opera Mini; |', $this->uastring, $regs)) {
       $this->brand = 'Opera Mini';
       $this->version = $regs[1];
       $this->bot = false;
+      $this->mobile = true;
     }
     elseif (preg_match('/Opera\/[^\(]+ \(.*; Opera Mini\/([^;]+); /i', $this->uastring, $regs)) {
       $this->brand = 'Opera Mini';
       $this->version = $regs[1];
       $this->bot = false;
+      $this->mobile = true;
     }
     elseif (preg_match('|Opera[ /]([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'Opera';
@@ -383,8 +395,9 @@ class userAgent {
       $this->bot = false;
     }
     elseif (preg_match('|Safari/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
-      if (preg_match('| Mobile(/[0-9a-zA-Z\.+]+)? Safari/|', $this->uastring)) {
+      if (preg_match('| Mobile(/[0-9a-zA-Z\.+]+)? ?Safari/|', $this->uastring)) {
         $this->brand = 'Mobile Safari';
+        $this->mobile = true;
       }
       else {
         $this->brand = 'Safari';
@@ -448,16 +461,19 @@ class userAgent {
       $this->brand = 'YodaoBot-Mobile';
       $this->version = $regs[1];
       $this->bot = true;
+      $this->mobile = true;
     }
     elseif (preg_match('|Googlebot-Mobile/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) { /* looks like Gecko! */
       $this->brand = 'Googlebot-Mobile';
       $this->version = $regs[1];
       $this->bot = true;
+      $this->mobile = true;
     }
     elseif (preg_match('|FASTMobileCrawl/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) { /* looks like Gecko! */
       $this->brand = 'FASTMobileCrawl';
       $this->version = $regs[1];
       $this->bot = true;
+      $this->mobile = true;
     }
     elseif (preg_match('|MSFrontPage/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'Microsoft FrontPage';
@@ -503,6 +519,7 @@ class userAgent {
       $this->brand = 'PlayStation Portable';
       $this->version = $regs[1];
       $this->bot = false;
+      $this->mobile = true;
     }
     elseif (preg_match('|PLAYSTATION 3; ([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'PlayStation 3';
@@ -513,51 +530,61 @@ class userAgent {
       $this->brand = 'NetFront';
       $this->version = $regs[1];
       $this->bot = false;
+      $this->mobile = true;
     }
     elseif (preg_match('|UP.Browser/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'UP.Browser';
       $this->version = $regs[1];
       $this->bot = false;
+      $this->mobile = true;
     }
     elseif (preg_match('|UP.Link/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'UP.Link';
       $this->version = $regs[1];
       $this->bot = false;
+      $this->mobile = true;
     }
     elseif (preg_match('|AU-MIC-([0-9A-Z]+/[0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'Obigo';
       $this->version = $regs[1];
       $this->bot = false;
+      $this->mobile = true;
     }
     elseif (preg_match('|Browser/Obigo-([0-9A-Z]+/[0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'Obigo';
       $this->version = $regs[1];
       $this->bot = false;
+      $this->mobile = true;
     }
     elseif (preg_match('|Nokia([0-9a-zA-Z]+/[0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'Nokia';
       $this->version = $regs[1];
       $this->bot = false;
+      $this->mobile = true;
     }
     elseif (preg_match('|SonyEricsson([0-9a-zA-Z]+/[0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'SonyEricsson';
       $this->version = $regs[1];
       $this->bot = false;
+      $this->mobile = true;
     }
     elseif (preg_match('|SIE-([0-9a-zA-Z]+/[0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'Siemens';
       $this->version = $regs[1];
       $this->bot = false;
+      $this->mobile = true;
     }
     elseif (preg_match('|MOT-([0-9a-zA-Z]+/[0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'Motorola';
       $this->version = $regs[1];
       $this->bot = false;
+      $this->mobile = true;
     }
     elseif (preg_match('|IXI/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'IXI';
       $this->version = $regs[1];
       $this->bot = false;
+      $this->mobile = true;
     }
     elseif (preg_match('|NewsFox/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'NewsFox';
@@ -947,6 +974,7 @@ class userAgent {
       $this->brand = 'Microsoft Pocket Internet Explorer';
       $this->version = $regs[1];
       $this->bot = false;
+      $this->mobile = true;
     }
     elseif (preg_match('|Mozilla/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs) &&
             (strpos($this->uastring, 'compatible') === false) && (strpos($this->uastring, 'Gecko/') === false) &&
@@ -971,6 +999,11 @@ class userAgent {
 
     if (in_array($this->brand, $botArray)) {
       $this->bot = true;
+    }
+
+    if (($this->brand == 'Microsoft Pocket Internet Explorer') ||
+        (strpos($this->brand, 'BlackBerry') !== false)) {
+      $this->mobile = true;
     }
   }
 
@@ -1001,7 +1034,7 @@ class userAgent {
       $this->uadata['engine'] = 'unknown';
       $this->uadata['geckodate'] = null;
       if (!$this->bot) {
-        if (preg_match('|Gecko/([0-9]+)|', $this->uastring, $regs) && (strpos($this->brand, 'Opera') === false)) {
+        if (preg_match('|Gecko/([0-9\.]+)|', $this->uastring, $regs) && (strpos($this->brand, 'Opera') === false)) {
           $this->uadata['engine'] = 'gecko';
           // If it looks like a version number, i.e. shorter than 4 chars or has a . in it, it's no date.
           $this->uadata['geckodate'] = ((strlen($regs[1]) > 4) && (strpos($regs[1], '.') === false))?$regs[1]:null;
@@ -1131,6 +1164,7 @@ class userAgent {
             $this->uadata['os'] = $regs[1].' ('.$regs[2].')';
             $this->uadata['lang'] = null;
             $this->uadata['eng_version'] = $regs[3];
+            $this->mobile = ($regs[2] == 'Mobile');
           }
           elseif (preg_match('|Mozilla/5.0 \(([^;]+); ([^;]+); rv:([^\);]+)\)|', $this->uastring, $regs)) {
             if ((strpos($regs[2], 'Linux') !== false) && ($regs[1] != 'X11')) {
@@ -1151,6 +1185,7 @@ class userAgent {
             $this->uadata['os'] = 'Firefox OS';
             $this->uadata['lang'] = null;
             $this->uadata['eng_version'] = $regs[1];
+            $this->mobile = true;
           }
           elseif (preg_match('|Mozilla/5.0 \(([^;]+); rv:([^\);]+)\)|', $this->uastring, $regs)) {
             $this->uadata['os'] = $regs[1];
@@ -1183,11 +1218,13 @@ class userAgent {
             $this->uadata['eng_version'] = (strpos($this->uastring,'MSPIE')!==false)?null:"ie".$regs[1];
             $this->uadata['os'] = $regs[2].' ('.$regs[3].')';
             $this->uadata['lang'] = null;
+            $this->mobile = (strpos($this->uastring,'MSPIE') !== false);
           }
           elseif (preg_match('/Mozilla\/[^\(]+ \(compatible *; MSP?IE ([^;]+)[^\)]*; ?((?:Mac|Win)[^;]+)[^\)]*\)/i', $this->uastring, $regs)) {
             $this->uadata['eng_version'] = (strpos($this->uastring,'MSPIE')!==false)?null:"ie".$regs[1];
             $this->uadata['os'] = $regs[2];
             $this->uadata['lang'] = null;
+            $this->mobile = (strpos($this->uastring,'MSPIE') !== false);
           }
           elseif (preg_match('/Mozilla\/[^\(]+ \(compatible *; MSIE ([^;]+)[^\)]*\)/i', $this->uastring, $regs)) {
             $this->uadata['eng_version'] = "ie".$regs[1];
@@ -1274,6 +1311,9 @@ class userAgent {
             // For some reason, Amazon spoofs us and tells us it's on MacOS X!
             $this->uadata['os'] = 'Android';
           }
+          if (preg_match('| Mobile |', $this->uastring)) {
+            $this->mobile = true;
+          }
         }
         elseif ($this->hasEngine('presto')) {
           // Opera < 8
@@ -1324,6 +1364,9 @@ class userAgent {
             $this->uadata['eng_version'] = $this->getVersion();
             $this->uadata['os'] = $regs[1];
             $this->uadata['lang'] = $regs[2];
+          }
+          if (preg_match('| Mobi|', $this->uastring)) {
+            $this->mobile = true;
           }
         }
         elseif ($this->hasEngine('nscp')) {
@@ -1464,6 +1507,9 @@ class userAgent {
         elseif (strpos($this->uadata['os'], 'mingw') !== false) { $this->uadata['platform'] = 'Windows'; }
         else { $this->uadata['platform'] = $this->uadata['os']; }
 
+        if (strpos($this->uadata['os'], 'Windows Phone OS') !== false) { $this->mobile = true; }
+        elseif (strpos($this->uadata['os'], 'Gameboy') !== false) { $this->mobile = true; }
+
         $this->uadata['lang'] = str_replace('_', '-', $this->uadata['lang']);
       }
     }
@@ -1516,6 +1562,14 @@ class userAgent {
   }
 
   public function isBot() { return $this->bot; }
+
+  public function isMobile() {
+    if (!isset($this->uadata['os'])) {
+      // getOS() makes sure that also the mobile tag is set correctly
+      $this->getOS();
+    }
+    return $this->mobile;
+  }
 
   public function isns() {
     trigger_error(__CLASS__.'::'.__FUNCTION__.' is a deprecated function', E_USER_NOTICE);

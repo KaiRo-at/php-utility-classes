@@ -23,6 +23,7 @@ if (count($ualist)) {
   print('  <th>Brand</th>'."\n");
   print('  <th>Version</th>'."\n");
   print('  <th>Bot</th>'."\n");
+  print('  <th>Mob</th>'."\n");
   print('  <th>Engine</th>'."\n");
   print('  <th>eVer</th>'."\n");
   print('  <th>OS</th>'."\n");
@@ -45,6 +46,7 @@ if (count($ualist)) {
       print('  <td>'.$ua->getBrand().'</td>'."\n");
       print('  <td>'.$ua->getVersion().'</td>'."\n");
       print('  <td>'.($ua->isBot()?'x':'-').'</td>'."\n");
+      print('  <td>'.($ua->isMobile()?'x':'-').'</td>'."\n");
       print('  <td>'.$ua->getEngine().'</td>'."\n");
       print('  <td>'.$ua->getEngineVersion().'</td>'."\n");
       print('  <td>'.$ua->getOS().'</td>'."\n");

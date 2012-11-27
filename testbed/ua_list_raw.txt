@@ -52,6 +52,7 @@ Mozilla/5.0 (X11; Linux i686; rv:2.0.1) Gecko/20100101 Firefox/4.0.1
 Mozilla/5.0 (X11; Linux x86_64; rv:2.0.1) Gecko/20100101 Firefox/4.0.1
 Mozilla/5.0 (X11; Linux i686 on x86_64; rv:2.0.1) Gecko/20100101 Firefox/4.0.1
 Mozilla/5.0 (X11; Linux i686; rv:2.0b6pre) Gecko/20100907 Firefox/4.0b6pre
+Mozilla/5.0 (X11; Linux x86_64; rv:20.0) Gecko/20.0 Firefox/20.0
 Mozilla/5.0 (Android; Mobile; rv:12.0) Gecko/12.0 Firefox/12.0
 Mozilla/5.0 (Android; Tablet; rv:14.0a1) Gecko/14 Firefox/14.0a1
 Mozilla/5.0 (Android; Linux armv7l; rv:2.0.1) Gecko/20100101 Firefox/4.0.1 Fennec/2.0.1
@@ -73,7 +74,7 @@ Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.1.4pre) Gecko/20090923 Sh
 Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2a2pre) Gecko/20090917 Namoroka/3.6a2pre
 Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.3pre) Gecko/20100403 Lorentz/3.6.3plugin2pre (.NET CLR 4.0.20506)
 Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9a9pre) Gecko/2007110108 prism/0.8
-Mozilla/5.0 (Mobile; rv:17.0) Gecko/17.0 Firefox/17.0
+Mozilla/5.0 (Mobile; rv:18.0) Gecko/18.0 Firefox/18.0
 Mozilla/5.0 (Windows; U; Windows NT 6.1; de; rv:1.9.1.4pre) Gecko/20090928 Lightning/1.0pre Shredder/3.0pre
 Mozilla/5.0 (Windows; U; Windows NT 6.1; WOW64; en-US; rv:1.9.3a5pre) Gecko/20100514 Lanikai/3.1b1
 Mozilla/5.0 (Windows; U; Windows NT 5.1; de; rv:1.8.1.19) Gecko/20081209 Thunderbird/2.0.0.19 Mnenhy/0.7.5.0

@@ -1037,7 +1037,13 @@ class userAgent {
         if (preg_match('|Gecko/([0-9\.]+)|', $this->uastring, $regs) && (strpos($this->brand, 'Opera') === false)) {
           $this->uadata['engine'] = 'gecko';
           // If it looks like a version number, i.e. shorter than 4 chars or has a . in it, it's no date.
-          $this->uadata['geckodate'] = ((strlen($regs[1]) > 4) && (strpos($regs[1], '.') === false))?$regs[1]:null;
+          if ((strlen($regs[1]) > 4) && (strpos($regs[1], '.') === false)) {
+            $this->uadata['geckodate'] = $regs[1];
+          }
+          else {
+            $this->uadata['geckodate'] = null;
+            $this->uadata['eng_version'] = $regs[1];
+          }
         }
         elseif ((strpos($this->brand, 'Internet Explorer') !== false) ||  (strpos($this->brand, 'FrontPage') !== false)) {
           if ((strpos(strtolower($this->uastring), 'mac') !== false) && (intval($this->getVersion()) >= 5)) {

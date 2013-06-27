@@ -965,6 +965,11 @@ class userAgent {
       $this->version = "10.0";
       $this->bot = false;
     }
+    elseif (preg_match('|Trident\/[0-9a-zA-Z\.+]+; ([^\)]+; )?rv:([0-9\.+]+)|', $this->uastring, $regs)) {
+      $this->brand = 'Microsoft Internet Explorer';
+      $this->version = $regs[2];
+      $this->bot = false;
+    }
     elseif (preg_match('|MSIE ([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'Microsoft Internet Explorer';
       $this->version = $regs[1];
@@ -1210,7 +1215,17 @@ class userAgent {
           }
         }
         elseif ($this->hasEngine('trident') || $this->hasEngine('tasman')) {
-          if (preg_match('/Mozilla\/[^\(]+ \(compatible *; MSIE [^;]+[^\)]*; ?((?:Mac|Win)[^;]+); ?(Win64|WOW64)[^\)]*Trident\/([^;\)]+)[^\)]*\)/i', $this->uastring, $regs)) {
+          if (preg_match('/Mozilla\/[^\(]+ \((IE [^;]+[^\)]*; )?((?:Mac|Win)[^;]+); ?(Win64|WOW64); ?Trident\/([^;\)]+);/i', $this->uastring, $regs)) {
+            $this->uadata['eng_version'] = $regs[4];
+            $this->uadata['os'] = $regs[2].' ('.$regs[3].')';
+            $this->uadata['lang'] = null;
+          }
+          elseif (preg_match('/Mozilla\/[^\(]+ \((IE [^;]+[^\)]*; )?((?:Mac|Win)[^;]+); ?Trident\/([^;\)]+);/i', $this->uastring, $regs)) {
+            $this->uadata['eng_version'] = $regs[3];
+            $this->uadata['os'] = $regs[2];
+            $this->uadata['lang'] = null;
+          }
+          elseif (preg_match('/Mozilla\/[^\(]+ \(compatible *; MSIE [^;]+[^\)]*; ?((?:Mac|Win)[^;]+); ?(Win64|WOW64)[^\)]*Trident\/([^;\)]+)[^\)]*\)/i', $this->uastring, $regs)) {
             $this->uadata['eng_version'] = $regs[3];
             $this->uadata['os'] = $regs[1].' ('.$regs[2].')';
             $this->uadata['lang'] = null;
@@ -1462,6 +1477,9 @@ class userAgent {
         elseif ($this->uadata['os'] == 'Windows NT 6.2') { $this->uadata['os'] = 'Windows 8'; }
         elseif ($this->uadata['os'] == 'Windows NT 6.2 (Win64)') { $this->uadata['os'] = 'Windows 8 (64bit)'; }
         elseif ($this->uadata['os'] == 'Windows NT 6.2 (WOW64)') { $this->uadata['os'] = 'Windows 8 (64bit)'; }
+        elseif ($this->uadata['os'] == 'Windows NT 6.3') { $this->uadata['os'] = 'Windows 8.1'; }
+        elseif ($this->uadata['os'] == 'Windows NT 6.3 (Win64)') { $this->uadata['os'] = 'Windows 8.1 (64bit)'; }
+        elseif ($this->uadata['os'] == 'Windows NT 6.3 (WOW64)') { $this->uadata['os'] = 'Windows 8.1 (64bit)'; }
         elseif ($this->uadata['os'] == 'Win95') { $this->uadata['os'] = 'Windows 95'; }
         elseif ($this->uadata['os'] == 'Win98') { $this->uadata['os'] = 'Windows 98'; }
         elseif ($this->uadata['os'] == 'WinNT') { $this->uadata['os'] = 'Windows NT'; }
@@ -1516,7 +1534,7 @@ class userAgent {
         if (strpos($this->uadata['os'], 'Windows Phone OS') !== false) { $this->mobile = true; }
         elseif (strpos($this->uadata['os'], 'Gameboy') !== false) { $this->mobile = true; }
 
-        $this->uadata['lang'] = str_replace('_', '-', $this->uadata['lang']);
+        $this->uadata['lang'] = str_replace('_', '-', @$this->uadata['lang']);
       }
     }
   return $this->uadata['os'];

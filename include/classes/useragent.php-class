@@ -1177,6 +1177,12 @@ class userAgent {
             $this->uadata['eng_version'] = $regs[3];
             $this->mobile = ($regs[2] == 'Mobile');
           }
+          elseif (preg_match('|Mozilla/5.0 \(Mobile; [^;]+; rv:([^\);]+)\)|', $this->uastring, $regs)) {
+            $this->uadata['os'] = 'Firefox OS';
+            $this->uadata['lang'] = null;
+            $this->uadata['eng_version'] = $regs[1];
+            $this->mobile = true;
+          }
           elseif (preg_match('|Mozilla/5.0 \(([^;]+); ([^;]+); rv:([^\);]+)\)|', $this->uastring, $regs)) {
             if ((strpos($regs[2], 'Linux') !== false) && ($regs[1] != 'X11')) {
               $this->uadata['os'] = $regs[1].' ('.$regs[2].')';

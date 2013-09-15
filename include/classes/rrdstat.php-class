@@ -396,14 +396,15 @@ class rrdstat {
         $upvals[$ds['name']] = $val;
       }
     }
-    $key_names = (!is_numeric(array_shift(array_keys($upvals))));
+    $upval_keys = array_keys($upvals);
+    $keys_have_names = !is_numeric(array_shift($upval_keys));
     if (in_array('L', $upvals, true)) {
       // for at least one value, we need to set the same as the last recorded value
       $fvals = $this->fetch();
       $rowids = array_shift($fvals);
       $lastvals = array_shift($fvals);
       foreach (array_keys($upvals, 'L') as $akey) {
-        $upvals[$akey] = $key_names?$lastvals[$akey]:$lastvals[$rowids[$akey]];
+        $upvals[$akey] = $keys_have_names?$lastvals[$akey]:$lastvals[$rowids[$akey]];
       }
     }
     $walkfunc = create_function('&$val,$key', '$val = is_numeric(trim($val))?trim($val):"U";');
@@ -411,7 +412,7 @@ class rrdstat {
     $return = null;
     if (count($upvals)) {
       $update_cmd = $this->rrdtool_bin.' update '.$this->rrd_file
-                    .($key_names?' --template '.implode(':', array_keys($upvals)):'').' N:'.implode(':', $upvals);
+                    .($keys_have_names?' --template '.implode(':', array_keys($upvals)):'').' N:'.implode(':', $upvals);
       $return = `$update_cmd 2>&1`;
     }
 

@@ -77,6 +77,8 @@ Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.3pre) Gecko/20100403 Lo
 Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9a9pre) Gecko/2007110108 prism/0.8
 Mozilla/5.0 (Mobile; rv:18.0) Gecko/18.0 Firefox/18.0
 Mozilla/5.0 (Mobile; LG-D300; rv:18.1) Gecko/18.1 Firefox/18.1
+Mozilla/5.0 (Tablet; rv:26.0) Gecko/26.0 Firefox/26.0
+Mozilla/5.0 (Tablet; Saga G1; rv:26.0) Gecko/26.0 Firefox/26.0
 Mozilla/5.0 (Windows; U; Windows NT 6.1; de; rv:1.9.1.4pre) Gecko/20090928 Lightning/1.0pre Shredder/3.0pre
 Mozilla/5.0 (Windows; U; Windows NT 6.1; WOW64; en-US; rv:1.9.3a5pre) Gecko/20100514 Lanikai/3.1b1
 Mozilla/5.0 (Windows; U; Windows NT 5.1; de; rv:1.8.1.19) Gecko/20081209 Thunderbird/2.0.0.19 Mnenhy/0.7.5.0

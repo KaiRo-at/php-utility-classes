@@ -359,6 +359,11 @@ class userAgent {
       $this->version = $regs[1];
       $this->bot = false;
     }
+    elseif (preg_match('|Chromium/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
+      $this->brand = 'Chromium';
+      $this->version = $regs[1];
+      $this->bot = false;
+    }
     elseif (preg_match('|Chrome/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'Chrome';
       $this->version = $regs[1];
@@ -393,6 +398,12 @@ class userAgent {
       $this->brand = 'BOLT';
       $this->version = $regs[1];
       $this->bot = false;
+    }
+    elseif (preg_match('|Googlebot-Mobile/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) { /* looks like Webkit! */
+      $this->brand = 'Googlebot-Mobile';
+      $this->version = $regs[1];
+      $this->bot = true;
+      $this->mobile = true;
     }
     elseif (preg_match('|Safari/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       if (preg_match('| Mobile(/[0-9a-zA-Z\.+]+)? ?Safari/|', $this->uastring)) {
@@ -459,12 +470,6 @@ class userAgent {
     }
     elseif (preg_match('|YodaoBot-Mobile/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) { /* looks like Gecko! */
       $this->brand = 'YodaoBot-Mobile';
-      $this->version = $regs[1];
-      $this->bot = true;
-      $this->mobile = true;
-    }
-    elseif (preg_match('|Googlebot-Mobile/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) { /* looks like Gecko! */
-      $this->brand = 'Googlebot-Mobile';
       $this->version = $regs[1];
       $this->bot = true;
       $this->mobile = true;
@@ -1178,7 +1183,7 @@ class userAgent {
             $this->mobile = ($regs[2] == 'Mobile');
           }
           elseif (preg_match('#Mozilla/5.0 \((Mobile|Tablet); [^;]+; rv:([^\);]+)\)#', $this->uastring, $regs)) {
-            $this->uadata['os'] = 'Firefox OS';
+            $this->uadata['os'] = 'Firefox OS ('.$regs[1].')';
             $this->uadata['lang'] = null;
             $this->uadata['eng_version'] = $regs[2];
             $this->mobile = ($regs[1] == 'Mobile');
@@ -1199,7 +1204,7 @@ class userAgent {
             $this->uadata['eng_version'] = null;
           }
           elseif (preg_match('#Mozilla/5.0 \((Mobile|Tablet); rv:([^\);]+)\)#', $this->uastring, $regs)) {
-            $this->uadata['os'] = 'Firefox OS';
+            $this->uadata['os'] = 'Firefox OS ('.$regs[1].')';
             $this->uadata['lang'] = null;
             $this->uadata['eng_version'] = $regs[2];
             $this->mobile = ($regs[1] == 'Mobile');
@@ -1511,6 +1516,7 @@ class userAgent {
         elseif (strpos($this->uadata['os'], 'MeeGo') !== false) { $this->uadata['platform'] = 'Linux'; }
         elseif (strpos($this->uadata['os'], 'webOS') !== false) { $this->uadata['platform'] = 'Linux'; }
         elseif (strpos($this->uadata['os'], 'Android') !== false) { $this->uadata['platform'] = 'Android'; }
+        elseif (strpos($this->uadata['os'], 'Firefox OS') !== false) { $this->uadata['platform'] = 'Firefox OS'; }
         elseif (strpos($this->uadata['os'], 'Solaris') !== false) { $this->uadata['platform'] = 'Solaris'; }
         elseif (strpos($this->uadata['os'], 'SunOS') !== false) { $this->uadata['platform'] = 'Solaris'; }
         elseif (strpos($this->uadata['os'], 'BeOS') !== false) { $this->uadata['platform'] = 'BeOS'; }

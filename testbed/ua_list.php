@@ -36,7 +36,7 @@ if (count($ualist)) {
     if (substr($uastring, 0, 1) == '#') {
       // comment
       print(' <tr>'."\n");
-      print('  <td colspan="9" class="comment">'.substr($uastring, 1).'</td>'."\n");
+      print('  <td colspan="10" class="comment">'.substr($uastring, 1).'</td>'."\n");
       print(' </tr>'."\n");
     }
     else {

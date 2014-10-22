@@ -349,7 +349,7 @@ class userAgent {
       $this->version = $regs[1];
       $this->bot = false;
     }
-    elseif (preg_match('|Konqueror/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
+    elseif (preg_match('|Konqueror/([0-9a-zA-Z\.+]+)|i', $this->uastring, $regs)) {
       $this->brand = 'Konqueror';
       $this->version = $regs[1];
       $this->bot = false;

@@ -1491,6 +1491,9 @@ class userAgent {
         elseif ($this->uadata['os'] == 'Windows NT 6.3') { $this->uadata['os'] = 'Windows 8.1'; }
         elseif ($this->uadata['os'] == 'Windows NT 6.3 (Win64)') { $this->uadata['os'] = 'Windows 8.1 (64bit)'; }
         elseif ($this->uadata['os'] == 'Windows NT 6.3 (WOW64)') { $this->uadata['os'] = 'Windows 8.1 (64bit)'; }
+        elseif ($this->uadata['os'] == 'Windows NT 6.4') { $this->uadata['os'] = 'Windows 10'; }
+        elseif ($this->uadata['os'] == 'Windows NT 6.4 (Win64)') { $this->uadata['os'] = 'Windows 10 (64bit)'; }
+        elseif ($this->uadata['os'] == 'Windows NT 6.4 (WOW64)') { $this->uadata['os'] = 'Windows 10 (64bit)'; }
         elseif ($this->uadata['os'] == 'Win95') { $this->uadata['os'] = 'Windows 95'; }
         elseif ($this->uadata['os'] == 'Win98') { $this->uadata['os'] = 'Windows 98'; }
         elseif ($this->uadata['os'] == 'WinNT') { $this->uadata['os'] = 'Windows NT'; }

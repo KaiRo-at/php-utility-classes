@@ -1,4 +1,5 @@
 *.rrd
+weather.te838.json
 graphs
 rrd-backup
 weather.wien.zamg.rrd.xml

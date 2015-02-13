@@ -46,6 +46,7 @@ Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0a1) Gecko/20120117 Firefox/12.0a1
 Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:12.0a1) Gecko/20100101 Firefox/12.0a1
 Mozilla/5.0 (Windows NT 6.2; WOW64; rv:13.0) Gecko/13.0 Firefox/13.0
 Mozilla/5.0 (Windows NT 6.4; WOW64; rv:37.0) Gecko/20100101 Firefox/37.0
+Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:38.0) Gecko/20100101 Firefox/38.0
 Mozilla/5.0 (Macintosh; Intel Mac OS X 10.5; rv:2.0.1) Gecko/20100101 Firefox/4.0.1
 Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:2.0.1) Gecko/20100101 Firefox/4.0.1
 Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:2.0b6pre) Gecko/20100907 Firefox/4.0b6pre

@@ -46,6 +46,10 @@ class ExtendedDocument extends DOMDocument {
   //   appends an ExtendedDocument::createElementLink() as a child of this document (see there for params)
   //     returns the new child
   //
+  // function appendImage($src, [$alt_text])
+  //   appends an ExtendedDocument::createElementImage() as a child of this document (see there for params)
+  //     returns the new child
+  //
   // function appendFormDiv($action, $method, $name)
   //   appends an ExtendedDocument::createElementForm() as a child of this document (see there for params)
   //     returns an HTML <div> that is a child of the new child
@@ -108,6 +112,9 @@ class ExtendedDocument extends DOMDocument {
   //
   // function createElementLink($target, [$value])
   //   returns an ExtendedElement that is an HTML <a> with the given target (href) and (optional) value
+  //
+  // function createElementImage($src, [$alt_text])
+  //   returns an ExtendedElement that is an HTML <img> with the given (src) and alt attributes (set to '' by default)
   //
   // function createElementForm($action, $method, $name)
   //   returns an ExtendedElement that is an HTML <div> that is a child of an HTML <form>
@@ -368,6 +375,10 @@ class ExtendedElement extends DOMElement {
   //   appends an ExtendedDocument::createElementLink() as a child of this element (see there for params)
   //     returns the new child
   //
+  // function appendImage($src, [$alt_text])
+  //   appends an ExtendedDocument::createElementImage() as a child of this document (see there for params)
+  //     returns the new child
+  //
   // function appendFormDiv($action, $method, $name)
   //   appends an ExtendedDocument::createElementForm() as a child of this element (see there for params)
   //     returns an HTML <div> that is a child of the new child
@@ -439,6 +450,9 @@ class ExtendedElement extends DOMElement {
   function appendLink($target, $value = '') {
     return $this->appendChild($this->ownerDocument->createElementLink($target, $value));
   }
+  function appendImage($src, $alt_text = '') {
+    return $this->appendChild($this->ownerDocument->createElementImage($src, $alt_text));
+  }
   function appendFormDiv($action, $method, $name) {
     $formelem = $this->appendChild($this->ownerDocument->createElementForm($action, $method, $name));
     return $formelem->appendElement('div');
@@ -502,6 +516,10 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   //
   // function appendLink($target, [$value])
   //   appends an ExtendedDocument::createElementLink() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
+  // function appendImage($src, [$alt_text])
+  //   appends an ExtendedDocument::createElementImage() as a child of this document (see there for params)
   //     returns the new child
   //
   // function appendFormDiv($action, $method, $name)
@@ -574,6 +592,9 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   }
   function appendLink($target, $value = '') {
     return $this->appendChild($this->ownerDocument->createElementLink($target, $value));
+  }
+  function appendImage($src, $alt_text = '') {
+    return $this->appendChild($this->ownerDocument->createElementImage($src, $alt_text));
   }
   function appendFormDiv($action, $method, $name) {
     $formelem = $this->appendChild($this->ownerDocument->createElementForm($action, $method, $name));

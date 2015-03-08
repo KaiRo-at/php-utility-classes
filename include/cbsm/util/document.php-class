@@ -94,6 +94,10 @@ class ExtendedDocument extends DOMDocument {
   //   appends a DOMDocument::createTextNode() as a child of this document (see there for params)
   //     returns the new child
   //
+  // function appendComment($comment_data)
+  //   appends a DOMDocument::createComment() as a child of this document (see there for params)
+  //     returns the new child
+  //
   // function appendHTMLMarkup($htmldata, [$parentNode])
   //   appends a representation of the HTML data as children of the given parent node, by default this document
   //     NO return value!
@@ -215,6 +219,9 @@ class ExtendedDocument extends DOMDocument {
   }
   function appendText($text) {
     return $this->appendChild($this->createTextNode($text));
+  }
+  function appendComment($comment_data) {
+    return $this->appendChild($this->createComment($comment_data));
   }
   function appendJSElement($jsdata) {
     $this->appendChild($this->createElementJS($jsdata));
@@ -423,6 +430,10 @@ class ExtendedElement extends DOMElement {
   //   appends a DOMDocument::createTextNode() as a child of this element (see there for params)
   //     returns the new child
   //
+  // function appendComment($comment_data)
+  //   appends a DOMDocument::createComment() as a child of this element (see there for params)
+  //     returns the new child
+  //
   // function appendHTMLMarkup($htmldata)
   //   appends a representation of the HTML data as children of this element
   //     NO return value!
@@ -486,6 +497,9 @@ class ExtendedElement extends DOMElement {
   }
   function appendText($text) {
     return $this->appendChild($this->ownerDocument->createTextNode($text));
+  }
+  function appendComment($comment_data) {
+    return $this->appendChild($this->ownerDocument->createComment($comment_data));
   }
   function appendHTMLMarkup($htmldata) {
     $this->ownerDocument->appendHTMLMarkup($htmldata, $this);
@@ -566,6 +580,10 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   //   appends a DOMDocument::createTextNode() as a child of this fragment (see there for params)
   //     returns the new child
   //
+  // function appendComment($comment_data)
+  //   appends a DOMDocument::createComment() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
   // function appendHTMLMarkup($htmldata)
   //   appends a representation of the HTML data as children of this fragment
   //     NO return value!
@@ -629,6 +647,9 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   }
   function appendText($text) {
     return $this->appendChild($this->ownerDocument->createTextNode($text));
+  }
+  function appendComment($comment_data) {
+    return $this->appendChild($this->ownerDocument->createComment($comment_data));
   }
   function appendHTMLMarkup($htmldata) {
     $this->ownerDocument->appendHTMLMarkup($htmldata, $this);

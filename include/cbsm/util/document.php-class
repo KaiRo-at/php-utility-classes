@@ -172,6 +172,9 @@ class ExtendedDocument extends DOMDocument {
   function appendLink($target, $value = '') {
     return $this->appendChild($this->createElementLink($target, $value));
   }
+  function appendImage($src, $alt_text = '') {
+    return $this->appendChild($this->createElementImage($src, $alt_text));
+  }
   function appendFormDiv($action, $method, $name) {
     $formelem = $this->appendChild($this->createElementForm($action, $method, $name));
     return $formelem->appendElement('div');
@@ -234,6 +237,13 @@ class ExtendedDocument extends DOMDocument {
   function createElementLink($target, $value = '') {
     $link = $this->createElement('a', $value);
     $link->setAttribute('href', $target); // XXX: take care of & etc. in links
+    return $link;
+  }
+
+  function createElementImage($src, $alt_text = '') {
+    $link = $this->createElement('img');
+    $link->setAttribute('src', $src);
+    $link->setAttribute('alt', $alt_text);
     return $link;
   }
 

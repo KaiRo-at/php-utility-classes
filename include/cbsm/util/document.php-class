@@ -74,6 +74,10 @@ class ExtendedDocument extends DOMDocument {
   //   appends an ExtendedDocument::createElementInputSubmit() as a child of this document (see there for params)
   //     returns the new child
   //
+  // function appendButton($value, $onclick = null)
+  //   appends an ExtendedDocument::createElementButton() as a child of this document (see there for params)
+  //     returns the new child
+  //
   // function appendTextArea($name, $columns, $rows, [$id], [$value])
   //   appends an ExtendedDocument::createElementTextArea() as a child of this document (see there for params)
   //     returns the new child
@@ -140,7 +144,10 @@ class ExtendedDocument extends DOMDocument {
   //   checked state
   //
   // function createElementInputSubmit($value)
-  //   returns an ExtendedElement that is an HTML <input> of type 'submit' with the given name and value
+  //   returns an ExtendedElement that is an HTML <input> of type 'submit' with the given value as label
+  //
+  // function createElementButton($value, $onclick = null)
+  //   returns an ExtendedElement that is an HTML button with the given value as label and optionally onclick attribute
   //
   // function createElementTextArea($name, $columns, $rows, [$id], [$value])
   //   returns an ExtendedElement that is an HTML <textarea> with the given name, columns, rows,
@@ -204,6 +211,9 @@ class ExtendedDocument extends DOMDocument {
   }
   function appendInputSubmit($value) {
     return $this->appendChild($this->createElementInputSubmit($value));
+  }
+  function appendButton($value, $onclick = null) {
+    return $this->appendChild($this->createElementButton($value, $onclick));
   }
   function appendTextArea($name, $columns, $rows, $id = null, $value = null) {
     return $this->appendChild($this->createElementTextArea($name, $columns, $rows, $id, $value));
@@ -315,6 +325,14 @@ class ExtendedDocument extends DOMDocument {
     return $submitbtn;
   }
 
+  function createElementButton($value, $onclick = null) {
+    $btn = $this->createElement('input');
+    $btn->setAttribute('type', 'button');
+    $btn->setAttribute('value', $value);
+    if (!is_null($onclick)) { $btn->setAttribute('onclick', $onclick); }
+    return $btn;
+  }
+
   function createElementTextArea($name, $columns, $rows, $id = null, $value = null) {
     $txtarea = $this->createElement('textarea', $value);
     $txtarea->setAttribute('name', $name);
@@ -410,6 +428,10 @@ class ExtendedElement extends DOMElement {
   //   appends an ExtendedDocument::createElementInputSubmit() as a child of this element (see there for params)
   //     returns the new child
   //
+  // function appendButton($value, $onclick = null)
+  //   appends an ExtendedDocument::createElementButton() as a child of this element (see there for params)
+  //     returns the new child
+  //
   // function appendTextArea($name, $columns, $rows, [$id], [$value])
   //   appends an ExtendedDocument::createElementTextArea() as a child of this element (see there for params)
   //     returns the new child
@@ -482,6 +504,9 @@ class ExtendedElement extends DOMElement {
   }
   function appendInputSubmit($value) {
     return $this->appendChild($this->ownerDocument->createElementInputSubmit($value));
+  }
+  function appendButton($value, $onclick = null) {
+    return $this->appendChild($this->ownerDocument->createElementButton($value, $onclick));
   }
   function appendTextArea($name, $columns, $rows, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementTextArea($name, $columns, $rows, $id, $value));
@@ -560,6 +585,10 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   //   appends an ExtendedDocument::createElementInputSubmit() as a child of this fragment (see there for params)
   //     returns the new child
   //
+  // function appendButton($value, $onclick = null)
+  //   appends an ExtendedDocument::createElementButton() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
   // function appendTextArea($name, $columns, $rows, [$id], [$value])
   //   appends an ExtendedDocument::createElementTextArea() as a child of this fragment (see there for params)
   //     returns the new child
@@ -632,6 +661,9 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   }
   function appendInputSubmit($value) {
     return $this->appendChild($this->ownerDocument->createElementInputSubmit($value));
+  }
+  function appendButton($value, $onclick = null) {
+    return $this->appendChild($this->ownerDocument->createElementButton($value, $onclick));
   }
   function appendTextArea($name, $columns, $rows, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementTextArea($name, $columns, $rows, $id, $value));

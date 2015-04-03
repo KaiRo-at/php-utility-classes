@@ -359,6 +359,11 @@ class userAgent {
       $this->version = $regs[1];
       $this->bot = false;
     }
+    elseif (preg_match('|Edge/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
+      $this->brand = 'Project Spartan';
+      $this->version = null;
+      $this->bot = false;
+    }
     elseif (preg_match('|Chromium/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'Chromium';
       $this->version = $regs[1];
@@ -1055,6 +1060,10 @@ class userAgent {
             $this->uadata['eng_version'] = $regs[1];
           }
         }
+        elseif (preg_match('|Edge/([0-9\.]+)|', $this->uastring, $regs)) {
+          $this->uadata['engine'] = 'edge';
+          $this->uadata['eng_version'] = $regs[1];
+        }
         elseif ((strpos($this->brand, 'Internet Explorer') !== false) ||  (strpos($this->brand, 'FrontPage') !== false)) {
           if ((strpos(strtolower($this->uastring), 'mac') !== false) && (intval($this->getVersion()) >= 5)) {
             $this->uadata['engine'] = 'tasman';
@@ -1223,6 +1232,11 @@ class userAgent {
             $this->uadata['os'] = 'Debian Linux';
             $this->uadata['lang'] = null;
             $this->uadata['eng_version'] = null;
+          }
+        }
+        elseif ($this->hasEngine('edge')) {
+          if (preg_match('#Mozilla/5.0 \(([^;]+); (WOW64|Win64); ([^\);]+)\)#', $this->uastring, $regs)) {
+            $this->uadata['os'] = $regs[1].' ('.$regs[2].')';
           }
         }
         elseif ($this->hasEngine('trident') || $this->hasEngine('tasman')) {

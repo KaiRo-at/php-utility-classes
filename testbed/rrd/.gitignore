@@ -2,5 +2,13 @@
 weather.te838.json
 graphs
 rrd-backup
+router.atm-mcast.xml
+router.atm-mgmt.xml
+router.atm.xml
+router.if1.xml
+router.if2.xml
+router.if3.xml
+router.if4.xml
+router.wlan.xml
 weather.wien.zamg.rrd.xml
 weather.wien-hw.zamg.rrd.xml

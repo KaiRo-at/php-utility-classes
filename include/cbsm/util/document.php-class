@@ -62,6 +62,10 @@ class ExtendedDocument extends DOMDocument {
   //   appends an ExtendedDocument::createElementInputText() as a child of this document (see there for params)
   //     returns the new child
   //
+  // function appendInputPassword($name, $maxlength, $size, [$id], [$value])
+  //   appends an ExtendedDocument::createElementInputPassword() as a child of this document (see there for params)
+  //     returns the new child
+  //
   // function appendInputRadio($name, $id, $value, $checked)
   //   appends an ExtendedDocument::createElementInputRadio() as a child of this document (see there for params)
   //     returns the new child
@@ -135,6 +139,10 @@ class ExtendedDocument extends DOMDocument {
   //   returns an ExtendedElement that is an HTML <input> of type 'text' with the given name, maxlength, size,
   //   and optionally id and value
   //
+  // function createElementInputPassword($name, $maxlength, $size, [$id], [$value])
+  //   returns an ExtendedElement that is an HTML <input> of type 'password' with the given name, maxlength, size,
+  //   and optionally id and value
+  //
   // function createElementInputRadio($name, $id, $value, $checked)
   //   returns an ExtendedElement that is an HTML <input> of type 'radio' with the given name, id, value and
   //   checked state
@@ -202,6 +210,9 @@ class ExtendedDocument extends DOMDocument {
   }
   function appendInputText($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->createElementInputText($name, $maxlength, $size, $id, $value));
+  }
+  function appendInputPassword($name, $maxlength, $size, $id = null, $value = null) {
+    return $this->appendChild($this->createElementInputPassword($name, $maxlength, $size, $id, $value));
   }
   function appendInputRadio($name, $id, $value, $checked) {
     return $this->appendChild($this->createElementInputRadio($name, $id, $value, $checked));
@@ -290,6 +301,17 @@ class ExtendedDocument extends DOMDocument {
   function createElementInputText($name, $maxlength, $size, $id = null, $value = null) {
     $txfield = $this->createElement('input');
     $txfield->setAttribute('type', 'text');
+    if (!is_null($id)) { $txfield->setAttribute('id', $id); }
+    $txfield->setAttribute('name', $name);
+    $txfield->setAttribute('maxlength', $maxlength);
+    $txfield->setAttribute('size', $size);
+    if (!is_null($value)) { $txfield->setAttribute('value', $value); }
+    return $txfield;
+  }
+
+  function createElementInputPassword($name, $maxlength, $size, $id = null, $value = null) {
+    $txfield = $this->createElement('input');
+    $txfield->setAttribute('type', 'password');
     if (!is_null($id)) { $txfield->setAttribute('id', $id); }
     $txfield->setAttribute('name', $name);
     $txfield->setAttribute('maxlength', $maxlength);
@@ -416,6 +438,10 @@ class ExtendedElement extends DOMElement {
   //   appends an ExtendedDocument::createElementInputText() as a child of this element (see there for params)
   //     returns the new child
   //
+  // function appendInputPassword($name, $maxlength, $size, [$id], [$value])
+  //   appends an ExtendedDocument::createElementInputPassword() as a child of this element (see there for params)
+  //     returns the new child
+  //
   // function appendInputRadio($name, $id, $value, $checked)
   //   appends an ExtendedDocument::createElementInputRadio() as a child of this element (see there for params)
   //     returns the new child
@@ -496,6 +522,9 @@ class ExtendedElement extends DOMElement {
   function appendInputText($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementInputText($name, $maxlength, $size, $id, $value));
   }
+  function appendInputPassword($name, $maxlength, $size, $id = null, $value = null) {
+    return $this->appendChild($this->ownerDocument->createElementInputPassword($name, $maxlength, $size, $id, $value));
+  }
   function appendInputRadio($name, $id, $value, $checked) {
     return $this->appendChild($this->ownerDocument->createElementInputRadio($name, $id, $value, $checked));
   }
@@ -571,6 +600,10 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   //
   // function appendInputText($name, $maxlength, $size, [$id], [$value])
   //   appends an ExtendedDocument::createElementInputText() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
+  // function appendInputPassword($name, $maxlength, $size, [$id], [$value])
+  //   appends an ExtendedDocument::createElementInputPassword() as a child of this fragment (see there for params)
   //     returns the new child
   //
   // function appendInputRadio($name, $id, $value, $checked)
@@ -652,6 +685,9 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   }
   function appendInputText($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementInputText($name, $maxlength, $size, $id, $value));
+  }
+  function appendInputPassword($name, $maxlength, $size, $id = null, $value = null) {
+    return $this->appendChild($this->ownerDocument->createElementInputPassword($name, $maxlength, $size, $id, $value));
   }
   function appendInputRadio($name, $id, $value, $checked) {
     return $this->appendChild($this->ownerDocument->createElementInputRadio($name, $id, $value, $checked));

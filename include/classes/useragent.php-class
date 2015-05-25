@@ -1234,7 +1234,7 @@ class userAgent {
             $this->uadata['eng_version'] = null;
           }
         }
-        elseif ($this->hasEngine('edge')) {
+        elseif ($this->hasEngine('edgehtml')) {
           if (preg_match('#Mozilla/5.0 \(([^;]+); (WOW64|Win64); ([^\);]+)\)#', $this->uastring, $regs)) {
             $this->uadata['os'] = $regs[1].' ('.$regs[2].')';
           }

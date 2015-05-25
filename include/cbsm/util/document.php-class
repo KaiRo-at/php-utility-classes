@@ -276,10 +276,10 @@ class ExtendedDocument extends DOMDocument {
   }
 
   function createElementImage($src, $alt_text = '') {
-    $link = $this->createElement('img');
-    $link->setAttribute('src', $src);
-    $link->setAttribute('alt', $alt_text);
-    return $link;
+    $img = $this->createElement('img');
+    $img->setAttribute('src', $src);
+    $img->setAttribute('alt', $alt_text);
+    return $img;
   }
 
   function createElementForm($action, $method, $name) {
@@ -310,14 +310,14 @@ class ExtendedDocument extends DOMDocument {
   }
 
   function createElementInputPassword($name, $maxlength, $size, $id = null, $value = null) {
-    $txfield = $this->createElement('input');
-    $txfield->setAttribute('type', 'password');
-    if (!is_null($id)) { $txfield->setAttribute('id', $id); }
-    $txfield->setAttribute('name', $name);
-    $txfield->setAttribute('maxlength', $maxlength);
-    $txfield->setAttribute('size', $size);
-    if (!is_null($value)) { $txfield->setAttribute('value', $value); }
-    return $txfield;
+    $pwfield = $this->createElement('input');
+    $pwfield->setAttribute('type', 'password');
+    if (!is_null($id)) { $pwfield->setAttribute('id', $id); }
+    $pwfield->setAttribute('name', $name);
+    $pwfield->setAttribute('maxlength', $maxlength);
+    $pwfield->setAttribute('size', $size);
+    if (!is_null($value)) { $pwfield->setAttribute('value', $value); }
+    return $pwfield;
   }
 
   function createElementInputRadio($name, $id, $value, $checked) {

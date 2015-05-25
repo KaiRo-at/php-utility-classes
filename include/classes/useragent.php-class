@@ -360,8 +360,8 @@ class userAgent {
       $this->bot = false;
     }
     elseif (preg_match('|Edge/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
-      $this->brand = 'Project Spartan';
-      $this->version = null;
+      $this->brand = 'Edge';
+      $this->version = $regs[1];
       $this->bot = false;
     }
     elseif (preg_match('|Chromium/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
@@ -1061,7 +1061,7 @@ class userAgent {
           }
         }
         elseif (preg_match('|Edge/([0-9\.]+)|', $this->uastring, $regs)) {
-          $this->uadata['engine'] = 'edge';
+          $this->uadata['engine'] = 'edgehtml';
           $this->uadata['eng_version'] = $regs[1];
         }
         elseif ((strpos($this->brand, 'Internet Explorer') !== false) ||  (strpos($this->brand, 'FrontPage') !== false)) {

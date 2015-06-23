@@ -363,6 +363,7 @@ class userAgent {
       $this->brand = 'Edge';
       $this->version = $regs[1];
       $this->bot = false;
+      $this->mobile = preg_match('| Mobile |', $this->uastring);
     }
     elseif (preg_match('|Chromium/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       $this->brand = 'Chromium';
@@ -1243,6 +1244,9 @@ class userAgent {
         elseif ($this->hasEngine('edgehtml')) {
           if (preg_match('#Mozilla/5.0 \(([^;]+); (WOW64|Win64); ([^\);]+)\)#', $this->uastring, $regs)) {
             $this->uadata['os'] = $regs[1].' ('.$regs[2].')';
+          }
+          elseif (preg_match('#Mozilla/5.0 \(([^;]+Phone[^;]+); [^\)]+\)#i', $this->uastring, $regs)) {
+            $this->uadata['os'] = $regs[1];
           }
         }
         elseif ($this->hasEngine('trident') || $this->hasEngine('tasman')) {

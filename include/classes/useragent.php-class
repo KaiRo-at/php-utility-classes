@@ -410,6 +410,12 @@ class userAgent {
       $this->bot = true;
       $this->mobile = true;
     }
+    elseif (preg_match('|FxiOS/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
+      $this->brand = 'Firefox for iOS';
+      $this->version = $regs[1];
+      $this->bot = false;
+      $this->mobile = true;
+    }
     elseif (preg_match('|Safari/([0-9a-zA-Z\.+]+)|', $this->uastring, $regs)) {
       if (preg_match('| Mobile(/[0-9a-zA-Z\.+]+)? ?Safari/|', $this->uastring)) {
         $this->brand = 'Mobile Safari';

@@ -966,15 +966,15 @@ class rrdstat {
     if (isset($pconf['stats_url_add'])) { $sURL_add = $pconf['stats_url_add']; }
     else { $sURL_add = '&sub=%s'; }
 
-    $default_num_rows = $GLOBALS['ua']->isMobile()?1:2;
-    $num_rows = is_numeric($pconf['num_rows'])?$pconf['num_rows']:$default_num_rows;
-    $num_cols = ceil(count($stats)/$num_rows);
+    $default_num_cols = $GLOBALS['ua']->isMobile()?1:2;
+    $num_cols = is_numeric($pconf['num_rows'])?$pconf['num_rows']:$default_num_cols;
+    $num_rows = ceil(count($stats)/$num_cols);
 
     $out .= '<table class="overview">'."\n";
-    for ($col = 0; $col < $num_cols; $col++) {
+    for ($row = 0; $row < $num_rows; $row++) {
       $out .= '<tr>'."\n";
-      for ($row = 0; $row < $num_rows; $row++) {
-        $idx = $col * $num_rows + $row;
+      for ($col = 0; $col < $num_cols; $col++) {
+        $idx = $row * $num_cols + $col;
         $out .= '<td>'."\n";
         if ($idx < count($stats)) {
           @list($sname, $s_psub) = explode('|', $stats[$idx]['name'], 2);

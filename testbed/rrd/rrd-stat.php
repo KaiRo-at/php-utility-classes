@@ -10,6 +10,10 @@ if (getcwd() != dirname($myfile)) {
 
 include_once('rrdstat.php-class');
 
+// $GLOBALS['ua'] is required by some page generation routines
+include_once('useragent.php-class');
+$ua = new userAgent();
+
 $rrd_config_file = 'rrd-config/'.php_uname('n').'.inc.php';
 if (!file_exists($rrd_config_file)) { $rrd_config_file = 'rrd-config.inc.php'; }
 include_once($rrd_config_file);

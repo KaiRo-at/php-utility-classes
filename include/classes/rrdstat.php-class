@@ -966,7 +966,8 @@ class rrdstat {
     if (isset($pconf['stats_url_add'])) { $sURL_add = $pconf['stats_url_add']; }
     else { $sURL_add = '&sub=%s'; }
 
-    $num_rows = is_numeric($pconf['num_rows'])?$pconf['num_rows']:2;
+    $default_num_rows = $GLOBALS['ua']->isMobile()?1:2;
+    $num_rows = is_numeric($pconf['num_rows'])?$pconf['num_rows']:$default_num_rows;
     $num_cols = ceil(count($stats)/$num_rows);
 
     $out .= '<table class="overview">'."\n";

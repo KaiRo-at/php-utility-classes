@@ -366,8 +366,13 @@ class rrdstat {
             $evalcode = 'function { return trim('.substr($ds['update'], 4).')); }';
           }
           elseif (substr($ds['update'], 0, 8) == 'snmp-if:') {
-            $snmphost = 'localhost'; $snmpcomm = 'public';
-            list($nix, $ifname, $valtype) = explode(':', $ds['update'], 3);
+            if (substr_count($ds['update'], ':') >= 4) {
+              list($nix, $snmphost, $snmpcomm, $ifname, $valtype) = explode(':', $ds['update'], 5);
+            }
+            else {
+              $snmphost = 'localhost'; $snmpcomm = 'public';
+              list($nix, $ifname, $valtype) = explode(':', $ds['update'], 3);
+            }
             $iflist = explode("\n", `snmpwalk -v2c -c $snmpcomm $snmphost interfaces.ifTable.ifEntry.ifDescr`);
             $ifnr = null;
             foreach ($iflist as $ifdesc) {

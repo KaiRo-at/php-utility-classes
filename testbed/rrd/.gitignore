@@ -1,5 +1,5 @@
 *.rrd
-weather.te838.json
+coap.merkur2.xml
 graphs
 rrd-backup
 router.atm-mcast.xml
@@ -10,5 +10,10 @@ router.if2.xml
 router.if3.xml
 router.if4.xml
 router.wlan.xml
+weather.te838.json
+weather.te838.week.json
+weather.te838.sqlite
+weather.te838.xml
+weather.te838.extra.xml
 weather.wien.zamg.rrd.xml
 weather.wien-hw.zamg.rrd.xml

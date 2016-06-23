@@ -456,8 +456,8 @@ class rrdstat {
       $fresult = array();
       $rows = explode("\n", $return);
       $fields = preg_split('/\s+/', array_shift($rows));
-      if (array_shift($fields) == 'timestamp') {
-        $fresult[0] = $fields;
+      if (in_array(array_shift($fields), array('timestamp', ''))) {
+        //$fresult[0] = $fields;
         foreach ($rows as $row) {
           if (strlen(trim($row))) {
             $rvals = preg_split('/\s+/', $row);

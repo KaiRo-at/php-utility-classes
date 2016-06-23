@@ -630,7 +630,7 @@ class rrdstat {
           $grow = array();
           $grow['dType'] = 'CDEF';
           $grow['name'] = $erow['name'];
-          $grow['rpn_expr'] = $erow['name'].'_tmp,'.$erow['scale'].',*';
+          $grow['rpn_expr'] = $erow['name'].'_tmp,'.sprintf('%F', $erow['scale']).',*';
         }
         if ($use_gcrows) { $grow['gType'] = isset($erow['gType'])?$erow['gType']:'LINE1'; }
         else { $grow['gType'] = ((count($grow_def)==2) && ($key==0))?'AREA':'LINE1'; }

@@ -440,11 +440,11 @@ class rrdstat {
     if (!is_numeric($end)) { $end = $this->last_update(); }
     elseif ($end < 0) { $end += $this->last_update(); }
     $end = intval($end/$resolution)*$resolution;
-    if (!is_numeric($start)) { $start = $end; }
+    if (!is_numeric($start)) { $start = $end-$resolution; }
     elseif ($start < 0) { $start += $end; }
     $start = intval($start/$resolution)*$resolution;
 
-    $fetch_cmd = $this->rrdtool_bin.' fetch '.$this->rrd_file.' '.$cf.' --resolution '.$resolution
+    $fetch_cmd = 'LANG=C '.$this->rrdtool_bin.' fetch '.$this->rrd_file.' '.$cf.' --resolution '.$resolution
                  .' --start '.$start.' --end '.$end;
     $return = `$fetch_cmd 2>&1`;
 

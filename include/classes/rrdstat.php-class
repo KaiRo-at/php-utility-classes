@@ -974,7 +974,7 @@ class rrdstat {
     else { $sURL_add = '&sub=%s'; }
 
     $default_num_cols = $GLOBALS['ua']->isMobile()?1:2;
-    $num_cols = is_numeric($pconf['num_rows'])?$pconf['num_rows']:$default_num_cols;
+    $num_cols = is_numeric(@$pconf['num_rows'])?$pconf['num_rows']:$default_num_cols;
     $num_rows = ceil(count($stats)/$num_cols);
 
     $out .= '<table class="overview">'."\n";
@@ -1205,7 +1205,7 @@ class rrdstat {
     foreach ($snames as $iname) {
       $newstat = array('name'=>$iname);
       $sfiles[] = isset($this->config_all[$iname]['file'])?$this->config_all[$iname]['file']:$iname.'.rrd';
-      if (is_array($this->config_all[$iname])) {
+      if (is_array(@$this->config_all[$iname])) {
         foreach ($this->config_all[$iname] as $key=>$val) {
           if (substr($key, 0, 5) == 'page.') { $newstat['sub'][] = substr($key, 5); }
         }

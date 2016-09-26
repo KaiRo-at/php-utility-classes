@@ -50,7 +50,11 @@ class ExtendedDocument extends DOMDocument {
   //   appends an ExtendedDocument::createElementImage() as a child of this document (see there for params)
   //     returns the new child
   //
-  // function appendFormDiv($action, $method, $name)
+  // function appendForm($action, $method, $name, [$id])
+  //   appends an ExtendedDocument::createElementForm() as a child of this document (see there for params)
+  //     returns the new child
+  //
+  // function appendFormDiv($action, $method, $name, [$id])
   //   appends an ExtendedDocument::createElementForm() as a child of this document (see there for params)
   //     returns an HTML <div> that is a child of the new child
   //
@@ -204,8 +208,11 @@ class ExtendedDocument extends DOMDocument {
   function appendImage($src, $alt_text = '') {
     return $this->appendChild($this->createElementImage($src, $alt_text));
   }
-  function appendFormDiv($action, $method, $name) {
-    $formelem = $this->appendChild($this->createElementForm($action, $method, $name));
+  function appendForm($action, $method, $name, $id = null) {
+    return $this->appendChild($this->createElementForm($action, $method, $name, $id));
+  }
+  function appendFormDiv($action, $method, $name, $id = null) {
+    $formelem = $this->appendChild($this->createElementForm($action, $method, $name, $id));
     return $formelem->appendElement('div');
   }
   function appendInputHidden($name, $value) {
@@ -286,11 +293,12 @@ class ExtendedDocument extends DOMDocument {
     return $img;
   }
 
-  function createElementForm($action, $method, $name) {
+  function createElementForm($action, $method, $name, $id = null) {
     $formelem = $this->createElement('form');
     $formelem->setAttribute('action', $action);
     $formelem->setAttribute('method', $method);
     $formelem->setAttribute('name', $name);
+    $formelem->setAttribute('id', $id);
     return $formelem;
   }
 
@@ -430,7 +438,11 @@ class ExtendedElement extends DOMElement {
   //   appends an ExtendedDocument::createElementImage() as a child of this document (see there for params)
   //     returns the new child
   //
-  // function appendFormDiv($action, $method, $name)
+  // function appendForm($action, $method, $name, [$id])
+  //   appends an ExtendedDocument::createElementForm() as a child of this element (see there for params)
+  //     returns the new child
+  //
+  // function appendFormDiv($action, $method, $name, [$id])
   //   appends an ExtendedDocument::createElementForm() as a child of this element (see there for params)
   //     returns an HTML <div> that is a child of the new child
   //
@@ -519,8 +531,11 @@ class ExtendedElement extends DOMElement {
   function appendImage($src, $alt_text = '') {
     return $this->appendChild($this->ownerDocument->createElementImage($src, $alt_text));
   }
-  function appendFormDiv($action, $method, $name) {
-    $formelem = $this->appendChild($this->ownerDocument->createElementForm($action, $method, $name));
+  function appendForm($action, $method, $name, $id = null) {
+    return $this->appendChild($this->ownerDocument->createElementForm($action, $method, $name, $id));
+  }
+  function appendFormDiv($action, $method, $name, $id = null) {
+    $formelem = $this->appendChild($this->ownerDocument->createElementForm($action, $method, $name, $id));
     return $formelem->appendElement('div');
   }
   function appendInputHidden($name, $value) {
@@ -597,7 +612,11 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   //   appends an ExtendedDocument::createElementImage() as a child of this document (see there for params)
   //     returns the new child
   //
-  // function appendFormDiv($action, $method, $name)
+  // function appendForm($action, $method, $name, [$id])
+  //   appends an ExtendedDocument::createElementForm() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
+  // function appendFormDiv($action, $method, $name, [$id])
   //   appends an ExtendedDocument::createElementForm() as a child of this fragment (see there for params)
   //     returns an HTML <div> that is a child of the new child
   //
@@ -686,8 +705,11 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   function appendImage($src, $alt_text = '') {
     return $this->appendChild($this->ownerDocument->createElementImage($src, $alt_text));
   }
-  function appendFormDiv($action, $method, $name) {
-    $formelem = $this->appendChild($this->ownerDocument->createElementForm($action, $method, $name));
+  function appendForm($action, $method, $name, $id = null) {
+    return $this->appendChild($this->ownerDocument->createElementForm($action, $method, $name, $id));
+  }
+  function appendFormDiv($action, $method, $name, $id = null) {
+    $formelem = $this->appendChild($this->ownerDocument->createElementForm($action, $method, $name, $id));
     return $formelem->appendElement('div');
   }
   function appendInputHidden($name, $value) {

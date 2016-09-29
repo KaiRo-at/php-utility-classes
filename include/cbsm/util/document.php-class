@@ -66,6 +66,10 @@ class ExtendedDocument extends DOMDocument {
   //   appends an ExtendedDocument::createElementInputText() as a child of this document (see there for params)
   //     returns the new child
   //
+  // function appendInputNumber($name, $maxlength, $size, [$id], [$value])
+  //   appends an ExtendedDocument::createElementInputNumber() as a child of this document (see there for params)
+  //     returns the new child
+  //
   // function appendInputPassword($name, $maxlength, $size, [$id], [$value])
   //   appends an ExtendedDocument::createElementInputPassword() as a child of this document (see there for params)
   //     returns the new child
@@ -141,6 +145,10 @@ class ExtendedDocument extends DOMDocument {
   //
   // function createElementInputText($name, $maxlength, $size, [$id], [$value])
   //   returns an ExtendedElement that is an HTML <input> of type 'text' with the given name, maxlength, size,
+  //   and optionally id and value
+  //
+  // function createElementInputNumber($name, $maxlength, $size, [$id], [$value])
+  //   returns an ExtendedElement that is an HTML <input> of type 'number' with the given name, maxlength, size,
   //   and optionally id and value
   //
   // function createElementInputPassword($name, $maxlength, $size, [$id], [$value])
@@ -220,6 +228,9 @@ class ExtendedDocument extends DOMDocument {
   }
   function appendInputText($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->createElementInputText($name, $maxlength, $size, $id, $value));
+  }
+  function appendInputNumber($name, $maxlength, $size, $id = null, $value = null) {
+    return $this->appendChild($this->createElementInputNumber($name, $maxlength, $size, $id, $value));
   }
   function appendInputPassword($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->createElementInputPassword($name, $maxlength, $size, $id, $value));
@@ -313,6 +324,17 @@ class ExtendedDocument extends DOMDocument {
   function createElementInputText($name, $maxlength, $size, $id = null, $value = null) {
     $txfield = $this->createElement('input');
     $txfield->setAttribute('type', 'text');
+    if (!is_null($id)) { $txfield->setAttribute('id', $id); }
+    $txfield->setAttribute('name', $name);
+    $txfield->setAttribute('maxlength', $maxlength);
+    $txfield->setAttribute('size', $size);
+    if (!is_null($value)) { $txfield->setAttribute('value', $value); }
+    return $txfield;
+  }
+
+  function createElementInputNumber($name, $maxlength, $size, $id = null, $value = null) {
+    $txfield = $this->createElement('input');
+    $txfield->setAttribute('type', 'number');
     if (!is_null($id)) { $txfield->setAttribute('id', $id); }
     $txfield->setAttribute('name', $name);
     $txfield->setAttribute('maxlength', $maxlength);
@@ -454,6 +476,10 @@ class ExtendedElement extends DOMElement {
   //   appends an ExtendedDocument::createElementInputText() as a child of this element (see there for params)
   //     returns the new child
   //
+  // function appendInputNumber($name, $maxlength, $size, [$id], [$value])
+  //   appends an ExtendedDocument::createElementInputNumber() as a child of this element (see there for params)
+  //     returns the new child
+  //
   // function appendInputPassword($name, $maxlength, $size, [$id], [$value])
   //   appends an ExtendedDocument::createElementInputPassword() as a child of this element (see there for params)
   //     returns the new child
@@ -544,6 +570,9 @@ class ExtendedElement extends DOMElement {
   function appendInputText($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementInputText($name, $maxlength, $size, $id, $value));
   }
+  function appendInputNumber($name, $maxlength, $size, $id = null, $value = null) {
+    return $this->appendChild($this->ownerDocument->createElementInputNumber($name, $maxlength, $size, $id, $value));
+  }
   function appendInputPassword($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementInputPassword($name, $maxlength, $size, $id, $value));
   }
@@ -626,6 +655,10 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   //
   // function appendInputText($name, $maxlength, $size, [$id], [$value])
   //   appends an ExtendedDocument::createElementInputText() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
+  // function appendInputNumber($name, $maxlength, $size, [$id], [$value])
+  //   appends an ExtendedDocument::createElementInputNumber() as a child of this fragment (see there for params)
   //     returns the new child
   //
   // function appendInputPassword($name, $maxlength, $size, [$id], [$value])
@@ -717,6 +750,9 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   }
   function appendInputText($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementInputText($name, $maxlength, $size, $id, $value));
+  }
+  function appendInputNumber($name, $maxlength, $size, $id = null, $value = null) {
+    return $this->appendChild($this->ownerDocument->createElementInputNumber($name, $maxlength, $size, $id, $value));
   }
   function appendInputPassword($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementInputPassword($name, $maxlength, $size, $id, $value));

@@ -199,10 +199,7 @@ class ExtendedDocument extends DOMDocument {
   }
 
   function appendElement($name, $value = '') {
-    // Adding the $value in createElement does NOT escape it, so use appendText to support that.
-    $aelem = $this->appendChild($this->createElement($name));
-    $aelem->appendText($value);
-    return $aelem;
+    return $this->appendChild($this->createElement($name, $value));
   }
   function appendElementXML($name, $xmldata) {
     $aelem = $this->appendChild($this->createElement($name));
@@ -290,9 +287,15 @@ class ExtendedDocument extends DOMDocument {
     }
   }
 
+  function createElement($name, $value = '') {
+    // Adding the $value in DOMDocument's createElement does NOT escape it, so override it and use appendText to support that.
+    $aelem = parent::createElement($name);
+    $aelem->appendText($value);
+    return $aelem;
+  }
+
   function createElementLink($target, $value = '') {
-    $link = $this->createElement('a');
-    $link->appendText($value);
+    $link = $this->createElement('a', $value);
     $link->setAttribute('href', $target); // XXX: take care of & etc. in links
     return $link;
   }
@@ -541,10 +544,7 @@ class ExtendedElement extends DOMElement {
   //     returns the new child
 
   function appendElement($name, $value = '') {
-    // Adding the $value in createElement does NOT escape it, so use appendText to support that.
-    $aelem = $this->appendChild($this->ownerDocument->createElement($name));
-    $aelem->appendText($value);
-    return $aelem;
+    return $this->appendChild($this->ownerDocument->createElement($name, $value));
   }
   function appendElementXML($name, $xmldata) {
     $aelem = $this->appendChild($this->ownerDocument->createElement($name));
@@ -722,10 +722,7 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   //     returns the new child
 
   function appendElement($name, $value = '') {
-    // Adding the $value in createElement does NOT escape it, so use appendText to support that.
-    $aelem = $this->appendChild($this->ownerDocument->createElement($name));
-    $aelem->appendText($value);
-    return $aelem;
+    return $this->appendChild($this->ownerDocument->createElement($name, $value));
   }
   function appendElementXML($name, $xmldata) {
     $aelem = $this->appendChild($this->ownerDocument->createElement($name));

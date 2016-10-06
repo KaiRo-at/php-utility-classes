@@ -82,6 +82,10 @@ class ExtendedDocument extends DOMDocument {
   //   appends an ExtendedDocument::createElementInputCheckbox() as a child of this document (see there for params)
   //     returns the new child
   //
+  // function appendInputFile($name, $id, $accept)
+  //   appends an ExtendedDocument::createElementInputFile() as a child of this document (see there for params)
+  //     returns the new child
+  //
   // function appendInputSubmit($value)
   //   appends an ExtendedDocument::createElementInputSubmit() as a child of this document (see there for params)
   //     returns the new child
@@ -163,6 +167,9 @@ class ExtendedDocument extends DOMDocument {
   //   returns an ExtendedElement that is an HTML <input> of type 'checkbox' with the given name, id, value and
   //   checked state
   //
+  // function createElementInputFile($name, $id, $accept)
+  //   returns an ExtendedElement that is an HTML <input> of type 'file' with the given name, id and accept
+  //
   // function createElementInputSubmit($value)
   //   returns an ExtendedElement that is an HTML <input> of type 'submit' with the given value as label
   //
@@ -237,6 +244,9 @@ class ExtendedDocument extends DOMDocument {
   }
   function appendInputCheckbox($name, $id, $value, $checked) {
     return $this->appendChild($this->createElementInputCheckbox($name, $id, $value, $checked));
+  }
+  function appendInputFile($name, $id, $accept) {
+    return $this->appendChild($this->createElementInputFile($name, $id, $accept));
   }
   function appendInputSubmit($value) {
     return $this->appendChild($this->createElementInputSubmit($value));
@@ -361,7 +371,7 @@ class ExtendedDocument extends DOMDocument {
     $radio = $this->createElement('input');
     $radio->setAttribute('type', 'radio');
     $radio->setAttribute('name', $name);
-    $radio->setAttribute('id', $id);
+    if (!is_null($id)) { $radio->setAttribute('id', $id); }
     $radio->setAttribute('value', $value);
     if ($checked) { $radio->setAttribute('checked', ''); }
     return $radio;
@@ -371,10 +381,19 @@ class ExtendedDocument extends DOMDocument {
     $cbox = $this->createElement('input');
     $cbox->setAttribute('type', 'checkbox');
     $cbox->setAttribute('name', $name);
-    $cbox->setAttribute('id', $id);
+    if (!is_null($id)) { $cbox->setAttribute('id', $id); }
     $cbox->setAttribute('value', $value);
     if ($checked) { $cbox->setAttribute('checked', ''); }
     return $cbox;
+  }
+
+  function createElementInputFile($name, $id, $accept) {
+    $fileinput = $this->createElement('input');
+    $fileinput->setAttribute('type', 'file');
+    $fileinput->setAttribute('name', $name);
+    if (!is_null($id)) { $fileinput->setAttribute('id', $id); }
+    $fileinput->setAttribute('accept', $accept);
+    return $fileinput;
   }
 
   function createElementInputSubmit($value) {
@@ -495,6 +514,10 @@ class ExtendedElement extends DOMElement {
   //   appends an ExtendedDocument::createElementInputCheckbox() as a child of this element (see there for params)
   //     returns the new child
   //
+  // function appendInputFile($name, $id, $accept)
+  //   appends an ExtendedDocument::createElementInputFile() as a child of this element (see there for params)
+  //     returns the new child
+  //
   // function appendInputSubmit($value)
   //   appends an ExtendedDocument::createElementInputSubmit() as a child of this element (see there for params)
   //     returns the new child
@@ -581,6 +604,9 @@ class ExtendedElement extends DOMElement {
   }
   function appendInputCheckbox($name, $id, $value, $checked) {
     return $this->appendChild($this->ownerDocument->createElementInputCheckbox($name, $id, $value, $checked));
+  }
+  function appendInputFile($name, $id, $accept) {
+    return $this->appendChild($this->ownerDocument->createElementInputFile($name, $id, $accept));
   }
   function appendInputSubmit($value) {
     return $this->appendChild($this->ownerDocument->createElementInputSubmit($value));
@@ -673,6 +699,10 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   //   appends an ExtendedDocument::createElementInputCheckbox() as a child of this fragment (see there for params)
   //     returns the new child
   //
+  // function appendInputFile($name, $id, $accept)
+  //   appends an ExtendedDocument::createElementInputFile() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
   // function appendInputSubmit($value)
   //   appends an ExtendedDocument::createElementInputSubmit() as a child of this fragment (see there for params)
   //     returns the new child
@@ -759,6 +789,9 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   }
   function appendInputCheckbox($name, $id, $value, $checked) {
     return $this->appendChild($this->ownerDocument->createElementInputCheckbox($name, $id, $value, $checked));
+  }
+  function appendInputFile($name, $id, $accept) {
+    return $this->appendChild($this->ownerDocument->createElementInputFile($name, $id, $accept));
   }
   function appendInputSubmit($value) {
     return $this->appendChild($this->ownerDocument->createElementInputSubmit($value));

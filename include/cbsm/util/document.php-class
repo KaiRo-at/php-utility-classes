@@ -27,11 +27,9 @@ class ExtendedDocument extends DOMDocument {
   //   CONSTRUCTOR
   //   construct a new DOM Document that uses our element definitions
   //
-  // private $xmheader
-  //   the default XML header
-  //
-  // private $xhtmldtype
-  //   the XHTML doctype to use by default
+  // static function initHTML5()
+  //   initialize as an HTML5 document and return references to its basic elements.
+  //     returns an associative array with the following elements: 'html', 'head', 'title', 'body'
   //
   // function appendElement($name, [$value])
   //   appends a DOMDocument::createElement() as a child of this document (see there for params)
@@ -203,6 +201,23 @@ class ExtendedDocument extends DOMDocument {
     parent::__construct($version, $encoding);
     $this->registerNodeClass('DOMElement', 'ExtendedElement');
     $this->registerNodeClass('DOMDocumentFragment', 'ExtendedDocumentFragment');
+  }
+
+  static function initHTML5() {
+    $doc = new ExtendedDocument();
+    $doc->loadHTML('<!DOCTYPE html><html></html>'); // this seems to be the only way to get the DOCTYPE set properly.
+
+    // Created basic HTML document structure.
+    $root = $doc->getElementsByTagName('html')->item(0);
+    $head = $root->appendElement('head');
+    $title = $head->appendElement('title');
+    $body = $root->appendElement('body');
+
+    return array('document' => $doc,
+                 'html' => $root,
+                 'head' => $head,
+                 'title' => $title,
+                 'body' => $body);
   }
 
   function appendElement($name, $value = '') {

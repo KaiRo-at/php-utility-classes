@@ -31,168 +31,168 @@ class ExtendedDocument extends DOMDocument {
   //   initialize as an HTML5 document and return references to its basic elements.
   //     returns an associative array with the following elements: 'html', 'head', 'title', 'body'
   //
-  // function appendElement($name, [$value])
+  // public function appendElement($name, [$value])
   //   appends a DOMDocument::createElement() as a child of this document (see there for params)
   //     returns the new child
   //
-  // function appendElementXML($name, $xmldata)
+  // public function appendElementXML($name, $xmldata)
   //   appends a DOMDocument::createElement() with the given name as a child of this document,
   //   with an ExtendedDocument::createXMLFragment() of the given XML data inside
   //     returns the new child
   //
-  // function appendLink($target, [$value])
+  // public function appendLink($target, [$value])
   //   appends an ExtendedDocument::createElementLink() as a child of this document (see there for params)
   //     returns the new child
   //
-  // function appendImage($src, [$alt_text])
+  // public function appendImage($src, [$alt_text])
   //   appends an ExtendedDocument::createElementImage() as a child of this document (see there for params)
   //     returns the new child
   //
-  // function appendForm($action, $method, $name, [$id])
+  // public function appendForm($action, $method, $name, [$id])
   //   appends an ExtendedDocument::createElementForm() as a child of this document (see there for params)
   //     returns the new child
   //
-  // function appendFormDiv($action, $method, $name, [$id])
+  // public function appendFormDiv($action, $method, $name, [$id])
   //   appends an ExtendedDocument::createElementForm() as a child of this document (see there for params)
   //     returns an HTML <div> that is a child of the new child
   //
-  // function appendInputHidden($name, $value)
+  // public function appendInputHidden($name, $value)
   //   appends an ExtendedDocument::createElementInputHidden() as a child of this document (see there for params)
   //     returns the new child
   //
-  // function appendInputText($name, $maxlength, $size, [$id], [$value])
+  // public function appendInputText($name, $maxlength, $size, [$id], [$value])
   //   appends an ExtendedDocument::createElementInputText() as a child of this document (see there for params)
   //     returns the new child
   //
-  // function appendInputNumber($name, $maxlength, $size, [$id], [$value])
+  // public function appendInputNumber($name, $maxlength, $size, [$id], [$value])
   //   appends an ExtendedDocument::createElementInputNumber() as a child of this document (see there for params)
   //     returns the new child
   //
-  // function appendInputPassword($name, $maxlength, $size, [$id], [$value])
+  // public function appendInputPassword($name, $maxlength, $size, [$id], [$value])
   //   appends an ExtendedDocument::createElementInputPassword() as a child of this document (see there for params)
   //     returns the new child
   //
-  // function appendInputRadio($name, $id, $value, $checked)
+  // public function appendInputRadio($name, $id, $value, $checked)
   //   appends an ExtendedDocument::createElementInputRadio() as a child of this document (see there for params)
   //     returns the new child
   //
-  // function appendInputCheckbox($name, $id, $value, $checked)
+  // public function appendInputCheckbox($name, $id, $value, $checked)
   //   appends an ExtendedDocument::createElementInputCheckbox() as a child of this document (see there for params)
   //     returns the new child
   //
-  // function appendInputFile($name, $id, $accept)
+  // public function appendInputFile($name, $id, $accept)
   //   appends an ExtendedDocument::createElementInputFile() as a child of this document (see there for params)
   //     returns the new child
   //
-  // function appendInputSubmit($value)
+  // public function appendInputSubmit($value)
   //   appends an ExtendedDocument::createElementInputSubmit() as a child of this document (see there for params)
   //     returns the new child
   //
-  // function appendButton($value, $onclick = null)
+  // public function appendButton($value, $onclick = null)
   //   appends an ExtendedDocument::createElementButton() as a child of this document (see there for params)
   //     returns the new child
   //
-  // function appendTextArea($name, $columns, $rows, [$id], [$value])
+  // public function appendTextArea($name, $columns, $rows, [$id], [$value])
   //   appends an ExtendedDocument::createElementTextArea() as a child of this document (see there for params)
   //     returns the new child
   //
-  // function appendElementSelect($name, [$id], [$options], [$default])
+  // public function appendElementSelect($name, [$id], [$options], [$default])
   //   appends an ExtendedDocument::createElementSelect() as a child of this document (see there for params)
   //     returns the new child
   //
-  // function appendElementOption($key, $desc, [$selected])
+  // public function appendElementOption($key, $desc, [$selected])
   //   appends an ExtendedDocument::createElementOption() as a child of this document (see there for params)
   //     returns the new child
   //
-  // function appendLabel($for_id, $value)
+  // public function appendLabel($for_id, $value)
   //   appends an ExtendedDocument::createElementLabel() as a child of this document (see there for params)
   //     returns the new child
   //
-  // function appendText($text)
+  // public function appendText($text)
   //   appends a DOMDocument::createTextNode() as a child of this document (see there for params)
   //     returns the new child
   //
-  // function appendComment($comment_data)
+  // public function appendComment($comment_data)
   //   appends a DOMDocument::createComment() as a child of this document (see there for params)
   //     returns the new child
   //
-  // function appendHTMLMarkup($htmldata, [$parentNode])
+  // public function appendHTMLMarkup($htmldata, [$parentNode])
   //   appends a representation of the HTML data as children of the given parent node, by default this document
   //     NO return value!
   //
-  // function appendXMLMarkup($xmldata, [$parentNode])
+  // public function appendXMLMarkup($xmldata, [$parentNode])
   //   appends a representation of the XML data as children of the given parent node, by default this document
   //     NO return value!
   //
-  // function appendJSElement($jsdata)
+  // public function appendJSElement($jsdata)
   //   appends an ExtendedDocument::createElementJS() as a child of this document (see there for params)
   //     NO return value!
   //
-  // function appendCOMElement($module, $attributes)
+  // public function appendCOMElement($module, $attributes)
   //   appends an ExtendedDocument::createCOMElement() as a child of this document (see there for params)
   //     returns the new child
   //
-  // function createElementLink($target, [$value])
+  // public function createElementLink($target, [$value])
   //   returns an ExtendedElement that is an HTML <a> with the given target (href) and (optional) value
   //
-  // function createElementImage($src, [$alt_text])
+  // public function createElementImage($src, [$alt_text])
   //   returns an ExtendedElement that is an HTML <img> with the given (src) and alt attributes (set to '' by default)
   //
-  // function createElementForm($action, $method, $name)
+  // public function createElementForm($action, $method, $name)
   //   returns an ExtendedElement that is an HTML <div> that is a child of an HTML <form>
   //   with the given action, method, and name
   //
-  // function createElementInputHidden($name, $value)
+  // public function createElementInputHidden($name, $value)
   //   returns an ExtendedElement that is an HTML <input> of type 'hidden' with the given name and value
   //
-  // function createElementInputText($name, $maxlength, $size, [$id], [$value])
+  // public function createElementInputText($name, $maxlength, $size, [$id], [$value])
   //   returns an ExtendedElement that is an HTML <input> of type 'text' with the given name, maxlength, size,
   //   and optionally id and value
   //
-  // function createElementInputNumber($name, $maxlength, $size, [$id], [$value])
+  // public function createElementInputNumber($name, $maxlength, $size, [$id], [$value])
   //   returns an ExtendedElement that is an HTML <input> of type 'number' with the given name, maxlength, size,
   //   and optionally id and value
   //
-  // function createElementInputPassword($name, $maxlength, $size, [$id], [$value])
+  // public function createElementInputPassword($name, $maxlength, $size, [$id], [$value])
   //   returns an ExtendedElement that is an HTML <input> of type 'password' with the given name, maxlength, size,
   //   and optionally id and value
   //
-  // function createElementInputRadio($name, $id, $value, $checked)
+  // public function createElementInputRadio($name, $id, $value, $checked)
   //   returns an ExtendedElement that is an HTML <input> of type 'radio' with the given name, id, value and
   //   checked state
   //
-  // function createElementInputCheckbox($name, $id, $value, $checked)
+  // public function createElementInputCheckbox($name, $id, $value, $checked)
   //   returns an ExtendedElement that is an HTML <input> of type 'checkbox' with the given name, id, value and
   //   checked state
   //
-  // function createElementInputFile($name, $id, $accept)
+  // public function createElementInputFile($name, $id, $accept)
   //   returns an ExtendedElement that is an HTML <input> of type 'file' with the given name, id and accept
   //
-  // function createElementInputSubmit($value)
+  // public function createElementInputSubmit($value)
   //   returns an ExtendedElement that is an HTML <input> of type 'submit' with the given value as label
   //
-  // function createElementButton($value, $onclick = null)
+  // public function createElementButton($value, $onclick = null)
   //   returns an ExtendedElement that is an HTML button with the given value as label and optionally onclick attribute
   //
-  // function createElementTextArea($name, $columns, $rows, [$id], [$value])
+  // public function createElementTextArea($name, $columns, $rows, [$id], [$value])
   //   returns an ExtendedElement that is an HTML <textarea> with the given name, columns, rows,
   //   and optionally id and value
   //
-  // function createElementSelect($name, [$id], [$options], [$default])
+  // public function createElementSelect($name, [$id], [$options], [$default])
   //   returns an ExtendedElement that is an HTML <select> with the given name, and optionally id,
   //   array of options (key => description) and key of the by-default selected entry
   //
-  // function createElementOption($key, $desc, [$selected])
+  // public function createElementOption($key, $desc, [$selected])
   //   returns an ExtendedElement that is an HTML <option> with the given key (value) and description (content)
   //   and optionally bool that tells if the entry is selected
   //
-  // function createElementLabel($for_id, $value)
+  // public function createElementLabel($for_id, $value)
   //   returns an ExtendedElement that is an HTML <label> with the given 'for' and value
   //
-  // function createElementJS($jsdata)
+  // public function createElementJS($jsdata)
   //   returns an ExtendedElement that is an HTML <script> of JavaScript type with the JS data inside
   //
-  // function createCOMElement($module, $attributes)
+  // public function createCOMElement($module, $attributes)
   //   returns an ExtendedElement that is in COM_NS namespace, with the given module as name and the
   //     given name=>value array as attributes
 
@@ -220,87 +220,87 @@ class ExtendedDocument extends DOMDocument {
                  'body' => $body);
   }
 
-  function appendElement($name, $value = '') {
+  public function appendElement($name, $value = '') {
     return $this->appendChild($this->createElement($name, $value));
   }
-  function appendElementXML($name, $xmldata) {
+  public function appendElementXML($name, $xmldata) {
     $aelem = $this->appendChild($this->createElement($name));
     $aelem->appendXMLMarkup($xmldata);
     //$aelem->appendChild($this->createXMLFragment($xmldata));
     return $aelem;
   }
-  function appendLink($target, $value = '') {
+  public function appendLink($target, $value = '') {
     return $this->appendChild($this->createElementLink($target, $value));
   }
-  function appendImage($src, $alt_text = '') {
+  public function appendImage($src, $alt_text = '') {
     return $this->appendChild($this->createElementImage($src, $alt_text));
   }
-  function appendForm($action, $method, $name, $id = null) {
+  public function appendForm($action, $method, $name, $id = null) {
     return $this->appendChild($this->createElementForm($action, $method, $name, $id));
   }
-  function appendFormDiv($action, $method, $name, $id = null) {
+  public function appendFormDiv($action, $method, $name, $id = null) {
     $formelem = $this->appendChild($this->createElementForm($action, $method, $name, $id));
     return $formelem->appendElement('div');
   }
-  function appendInputHidden($name, $value) {
+  public function appendInputHidden($name, $value) {
     return $this->appendChild($this->createElementInputHidden($name, $value));
   }
-  function appendInputText($name, $maxlength, $size, $id = null, $value = null) {
+  public function appendInputText($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->createElementInputText($name, $maxlength, $size, $id, $value));
   }
-  function appendInputNumber($name, $maxlength, $size, $id = null, $value = null) {
+  public function appendInputNumber($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->createElementInputNumber($name, $maxlength, $size, $id, $value));
   }
-  function appendInputPassword($name, $maxlength, $size, $id = null, $value = null) {
+  public function appendInputPassword($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->createElementInputPassword($name, $maxlength, $size, $id, $value));
   }
-  function appendInputRadio($name, $id, $value, $checked) {
+  public function appendInputRadio($name, $id, $value, $checked) {
     return $this->appendChild($this->createElementInputRadio($name, $id, $value, $checked));
   }
-  function appendInputCheckbox($name, $id, $value, $checked) {
+  public function appendInputCheckbox($name, $id, $value, $checked) {
     return $this->appendChild($this->createElementInputCheckbox($name, $id, $value, $checked));
   }
-  function appendInputFile($name, $id, $accept) {
+  public function appendInputFile($name, $id, $accept) {
     return $this->appendChild($this->createElementInputFile($name, $id, $accept));
   }
-  function appendInputSubmit($value) {
+  public function appendInputSubmit($value) {
     return $this->appendChild($this->createElementInputSubmit($value));
   }
-  function appendButton($value, $onclick = null) {
+  public function appendButton($value, $onclick = null) {
     return $this->appendChild($this->createElementButton($value, $onclick));
   }
-  function appendTextArea($name, $columns, $rows, $id = null, $value = null) {
+  public function appendTextArea($name, $columns, $rows, $id = null, $value = null) {
     return $this->appendChild($this->createElementTextArea($name, $columns, $rows, $id, $value));
   }
-  function appendElementSelect($name, $id = null, $options = array(), $default = null) {
+  public function appendElementSelect($name, $id = null, $options = array(), $default = null) {
     return $this->appendChild($this->createElementSelect($name, $id, $options, $default));
   }
-  function appendElementOption($key, $desc, $selected = false) {
+  public function appendElementOption($key, $desc, $selected = false) {
     return $this->appendChild($this->createElementOption($key, $desc, $selected));
   }
-  function appendLabel($for_id, $value) {
+  public function appendLabel($for_id, $value) {
     return $this->appendChild($this->createElementLabel($for_id, $value));
   }
-  function appendText($text) {
+  public function appendText($text) {
     return $this->appendChild($this->createTextNode($text));
   }
-  function appendComment($comment_data) {
+  public function appendComment($comment_data) {
     return $this->appendChild($this->createComment($comment_data));
   }
-  function appendJSElement($jsdata) {
+  public function appendJSElement($jsdata) {
     $this->appendChild($this->createElementJS($jsdata));
   }
-  function appendCOMElement($module, $attributes) {
+  public function appendCOMElement($module, $attributes) {
     $this->appendChild($this->ownerDocument->createCOMElement($module, $attributes));
   }
 
-  function appendHTMLMarkup($htmldata, $parentNode = null) {
+  public function appendHTMLMarkup($htmldata, $parentNode = null) {
     if (is_null($parentNode)) { $parentNode =& $this; }
     // XXX: just a workaround for now!
     $parentNode->appendChild($this->createCDATASection($htmldata));
   }
 
-  function appendXMLMarkup($xmldata, $parentNode = null) {
+  public function appendXMLMarkup($xmldata, $parentNode = null) {
     if (is_null($parentNode)) { $parentNode =& $this; }
     $tmpdoc = new ExtendedDocument;
     $tmpxml = '<?xml version="1.0" encoding="utf-8"?>'."\n";
@@ -312,27 +312,27 @@ class ExtendedDocument extends DOMDocument {
     }
   }
 
-  function createElement($name, $value = '') {
+  public function createElement($name, $value = '') {
     // Adding the $value in DOMDocument's createElement does NOT escape it, so override it and use appendText to support that.
     $aelem = parent::createElement($name);
     $aelem->appendText($value);
     return $aelem;
   }
 
-  function createElementLink($target, $value = '') {
+  public function createElementLink($target, $value = '') {
     $link = $this->createElement('a', $value);
     $link->setAttribute('href', $target); // XXX: take care of & etc. in links
     return $link;
   }
 
-  function createElementImage($src, $alt_text = '') {
+  public function createElementImage($src, $alt_text = '') {
     $img = $this->createElement('img');
     $img->setAttribute('src', $src);
     $img->setAttribute('alt', $alt_text);
     return $img;
   }
 
-  function createElementForm($action, $method, $name, $id = null) {
+  public function createElementForm($action, $method, $name, $id = null) {
     $formelem = $this->createElement('form');
     $formelem->setAttribute('action', $action);
     $formelem->setAttribute('method', $method);
@@ -341,7 +341,7 @@ class ExtendedDocument extends DOMDocument {
     return $formelem;
   }
 
-  function createElementInputHidden($name, $value) {
+  public function createElementInputHidden($name, $value) {
     $hidden = $this->createElement('input');
     $hidden->setAttribute('type', 'hidden');
     $hidden->setAttribute('name', $name);
@@ -349,7 +349,7 @@ class ExtendedDocument extends DOMDocument {
     return $hidden;
   }
 
-  function createElementInputText($name, $maxlength, $size, $id = null, $value = null) {
+  public function createElementInputText($name, $maxlength, $size, $id = null, $value = null) {
     $txfield = $this->createElement('input');
     $txfield->setAttribute('type', 'text');
     if (!is_null($id)) { $txfield->setAttribute('id', $id); }
@@ -360,7 +360,7 @@ class ExtendedDocument extends DOMDocument {
     return $txfield;
   }
 
-  function createElementInputNumber($name, $maxlength, $size, $id = null, $value = null) {
+  public function createElementInputNumber($name, $maxlength, $size, $id = null, $value = null) {
     $txfield = $this->createElement('input');
     $txfield->setAttribute('type', 'number');
     if (!is_null($id)) { $txfield->setAttribute('id', $id); }
@@ -371,7 +371,7 @@ class ExtendedDocument extends DOMDocument {
     return $txfield;
   }
 
-  function createElementInputPassword($name, $maxlength, $size, $id = null, $value = null) {
+  public function createElementInputPassword($name, $maxlength, $size, $id = null, $value = null) {
     $pwfield = $this->createElement('input');
     $pwfield->setAttribute('type', 'password');
     if (!is_null($id)) { $pwfield->setAttribute('id', $id); }
@@ -382,7 +382,7 @@ class ExtendedDocument extends DOMDocument {
     return $pwfield;
   }
 
-  function createElementInputRadio($name, $id, $value, $checked) {
+  public function createElementInputRadio($name, $id, $value, $checked) {
     $radio = $this->createElement('input');
     $radio->setAttribute('type', 'radio');
     $radio->setAttribute('name', $name);
@@ -392,7 +392,7 @@ class ExtendedDocument extends DOMDocument {
     return $radio;
   }
 
-  function createElementInputCheckbox($name, $id, $value, $checked) {
+  public function createElementInputCheckbox($name, $id, $value, $checked) {
     $cbox = $this->createElement('input');
     $cbox->setAttribute('type', 'checkbox');
     $cbox->setAttribute('name', $name);
@@ -402,7 +402,7 @@ class ExtendedDocument extends DOMDocument {
     return $cbox;
   }
 
-  function createElementInputFile($name, $id, $accept) {
+  public function createElementInputFile($name, $id, $accept) {
     $fileinput = $this->createElement('input');
     $fileinput->setAttribute('type', 'file');
     $fileinput->setAttribute('name', $name);
@@ -411,14 +411,14 @@ class ExtendedDocument extends DOMDocument {
     return $fileinput;
   }
 
-  function createElementInputSubmit($value) {
+  public function createElementInputSubmit($value) {
     $submitbtn = $this->createElement('input');
     $submitbtn->setAttribute('type', 'submit');
     $submitbtn->setAttribute('value', $value);
     return $submitbtn;
   }
 
-  function createElementButton($value, $onclick = null) {
+  public function createElementButton($value, $onclick = null) {
     $btn = $this->createElement('input');
     $btn->setAttribute('type', 'button');
     $btn->setAttribute('value', $value);
@@ -426,7 +426,7 @@ class ExtendedDocument extends DOMDocument {
     return $btn;
   }
 
-  function createElementTextArea($name, $columns, $rows, $id = null, $value = null) {
+  public function createElementTextArea($name, $columns, $rows, $id = null, $value = null) {
     $txtarea = $this->createElement('textarea', $value);
     $txtarea->setAttribute('name', $name);
     $txtarea->setAttribute('cols', $columns);
@@ -435,7 +435,7 @@ class ExtendedDocument extends DOMDocument {
     return $txtarea;
   }
 
-  function createElementSelect($name, $id = null, $options = array(), $default = null) {
+  public function createElementSelect($name, $id = null, $options = array(), $default = null) {
     $select = $this->createElement('select');
     $select->setAttribute('name', $name);
     if (!is_null($id)) { $select->setAttribute('id', $id); }
@@ -445,27 +445,27 @@ class ExtendedDocument extends DOMDocument {
     return $select;
   }
 
-  function createElementOption($key, $desc, $selected = false) {
+  public function createElementOption($key, $desc, $selected = false) {
     $option = $this->createElement('option', $desc);
     $option->setAttribute('value', $key);
     if ($selected) { $option->setAttribute('selected', ''); }
     return $option;
   }
 
-  function createElementLabel($for_id, $value) {
+  public function createElementLabel($for_id, $value) {
     $label = $this->createElement('label', $value);
     $label->setAttribute('for', $for_id);
     return $label;
   }
 
-  function createElementJS($jsdata) {
+  public function createElementJS($jsdata) {
     $jselem = $this->createElement('script');
     $jselem->setAttribute('type', 'text/javascript');
     $jselem->appendChild($this->createCDATASection($jsdata));
     return $jselem;
   }
 
-  function createCOMElement($module, $attributes) {
+  public function createCOMElement($module, $attributes) {
     $com_elem = $this->createElementNS(COM_NS, $module);
     if (is_array($attributes) && count($attributes)) {
       foreach ($attributes as $name=>$value) {
@@ -480,183 +480,183 @@ class ExtendedElement extends DOMElement {
   // ExtendedElement PHP class
   // this extends the general PHP DOM Element class to simplify some usual constructs
   //
-  // function appendElement($name, [$value])
+  // public function appendElement($name, [$value])
   //   appends a DOMDocument::createElement() as a child of this element (see there for params)
   //     returns the new child
   //
-  // function appendElementXML($name, $xmldata)
+  // public function appendElementXML($name, $xmldata)
   //   appends a DOMDocument::createElement() with the given name as a child of this element,
   //   with an ExtendedDocument::createXMLFragment() of the given XML data inside
   //     returns the new child
   //
-  // function appendLink($target, [$value])
+  // public function appendLink($target, [$value])
   //   appends an ExtendedDocument::createElementLink() as a child of this element (see there for params)
   //     returns the new child
   //
-  // function appendImage($src, [$alt_text])
+  // public function appendImage($src, [$alt_text])
   //   appends an ExtendedDocument::createElementImage() as a child of this document (see there for params)
   //     returns the new child
   //
-  // function appendForm($action, $method, $name, [$id])
+  // public function appendForm($action, $method, $name, [$id])
   //   appends an ExtendedDocument::createElementForm() as a child of this element (see there for params)
   //     returns the new child
   //
-  // function appendFormDiv($action, $method, $name, [$id])
+  // public function appendFormDiv($action, $method, $name, [$id])
   //   appends an ExtendedDocument::createElementForm() as a child of this element (see there for params)
   //     returns an HTML <div> that is a child of the new child
   //
-  // function appendInputHidden($name, $value)
+  // public function appendInputHidden($name, $value)
   //   appends an ExtendedDocument::createElementInputHidden() as a child of this element (see there for params)
   //     returns the new child
   //
-  // function appendInputText($name, $maxlength, $size, [$id], [$value])
+  // public function appendInputText($name, $maxlength, $size, [$id], [$value])
   //   appends an ExtendedDocument::createElementInputText() as a child of this element (see there for params)
   //     returns the new child
   //
-  // function appendInputNumber($name, $maxlength, $size, [$id], [$value])
+  // public function appendInputNumber($name, $maxlength, $size, [$id], [$value])
   //   appends an ExtendedDocument::createElementInputNumber() as a child of this element (see there for params)
   //     returns the new child
   //
-  // function appendInputPassword($name, $maxlength, $size, [$id], [$value])
+  // public function appendInputPassword($name, $maxlength, $size, [$id], [$value])
   //   appends an ExtendedDocument::createElementInputPassword() as a child of this element (see there for params)
   //     returns the new child
   //
-  // function appendInputRadio($name, $id, $value, $checked)
+  // public function appendInputRadio($name, $id, $value, $checked)
   //   appends an ExtendedDocument::createElementInputRadio() as a child of this element (see there for params)
   //     returns the new child
   //
-  // function appendInputCheckbox($name, $id, $value, $checked)
+  // public function appendInputCheckbox($name, $id, $value, $checked)
   //   appends an ExtendedDocument::createElementInputCheckbox() as a child of this element (see there for params)
   //     returns the new child
   //
-  // function appendInputFile($name, $id, $accept)
+  // public function appendInputFile($name, $id, $accept)
   //   appends an ExtendedDocument::createElementInputFile() as a child of this element (see there for params)
   //     returns the new child
   //
-  // function appendInputSubmit($value)
+  // public function appendInputSubmit($value)
   //   appends an ExtendedDocument::createElementInputSubmit() as a child of this element (see there for params)
   //     returns the new child
   //
-  // function appendButton($value, $onclick = null)
+  // public function appendButton($value, $onclick = null)
   //   appends an ExtendedDocument::createElementButton() as a child of this element (see there for params)
   //     returns the new child
   //
-  // function appendTextArea($name, $columns, $rows, [$id], [$value])
+  // public function appendTextArea($name, $columns, $rows, [$id], [$value])
   //   appends an ExtendedDocument::createElementTextArea() as a child of this element (see there for params)
   //     returns the new child
   //
-  // function appendElementSelect($name, [$id], [$options], [$default])
+  // public function appendElementSelect($name, [$id], [$options], [$default])
   //   appends an ExtendedDocument::createElementSelect() as a child of this element (see there for params)
   //     returns the new child
   //
-  // function appendElementOption($key, $desc, [$selected])
+  // public function appendElementOption($key, $desc, [$selected])
   //   appends an ExtendedDocument::createElementOption() as a child of this element (see there for params)
   //     returns the new child
   //
-  // function appendLabel($for_id, $value)
+  // public function appendLabel($for_id, $value)
   //   appends an ExtendedDocument::createElementLabel() as a child of this element (see there for params)
   //     returns the new child
   //
-  // function appendText($text)
+  // public function appendText($text)
   //   appends a DOMDocument::createTextNode() as a child of this element (see there for params)
   //     returns the new child
   //
-  // function appendComment($comment_data)
+  // public function appendComment($comment_data)
   //   appends a DOMDocument::createComment() as a child of this element (see there for params)
   //     returns the new child
   //
-  // function appendHTMLMarkup($htmldata)
+  // public function appendHTMLMarkup($htmldata)
   //   appends a representation of the HTML data as children of this element
   //     NO return value!
   //
-  // function appendXMLMarkup($xmldata)
+  // public function appendXMLMarkup($xmldata)
   //   appends a representation of the XML data as children of this element
   //     NO return value!
   //
-  // function appendJSElement($jsdata)
+  // public function appendJSElement($jsdata)
   //   appends an ExtendedDocument::createElementJS() as a child of this element (see there for params)
   //     NO return value!
   //
-  // function appendCOMElement($module, $attributes)
+  // public function appendCOMElement($module, $attributes)
   //   appends an ExtendedDocument::createCOMElement() as a child of this element (see there for params)
   //     returns the new child
 
-  function appendElement($name, $value = '') {
+  public function appendElement($name, $value = '') {
     return $this->appendChild($this->ownerDocument->createElement($name, $value));
   }
-  function appendElementXML($name, $xmldata) {
+  public function appendElementXML($name, $xmldata) {
     $aelem = $this->appendChild($this->ownerDocument->createElement($name));
     $aelem->appendXMLMarkup($xmldata);
     return $aelem;
   }
-  function appendLink($target, $value = '') {
+  public function appendLink($target, $value = '') {
     return $this->appendChild($this->ownerDocument->createElementLink($target, $value));
   }
-  function appendImage($src, $alt_text = '') {
+  public function appendImage($src, $alt_text = '') {
     return $this->appendChild($this->ownerDocument->createElementImage($src, $alt_text));
   }
-  function appendForm($action, $method, $name, $id = null) {
+  public function appendForm($action, $method, $name, $id = null) {
     return $this->appendChild($this->ownerDocument->createElementForm($action, $method, $name, $id));
   }
-  function appendFormDiv($action, $method, $name, $id = null) {
+  public function appendFormDiv($action, $method, $name, $id = null) {
     $formelem = $this->appendChild($this->ownerDocument->createElementForm($action, $method, $name, $id));
     return $formelem->appendElement('div');
   }
-  function appendInputHidden($name, $value) {
+  public function appendInputHidden($name, $value) {
     return $this->appendChild($this->ownerDocument->createElementInputHidden($name, $value));
   }
-  function appendInputText($name, $maxlength, $size, $id = null, $value = null) {
+  public function appendInputText($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementInputText($name, $maxlength, $size, $id, $value));
   }
-  function appendInputNumber($name, $maxlength, $size, $id = null, $value = null) {
+  public function appendInputNumber($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementInputNumber($name, $maxlength, $size, $id, $value));
   }
-  function appendInputPassword($name, $maxlength, $size, $id = null, $value = null) {
+  public function appendInputPassword($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementInputPassword($name, $maxlength, $size, $id, $value));
   }
-  function appendInputRadio($name, $id, $value, $checked) {
+  public function appendInputRadio($name, $id, $value, $checked) {
     return $this->appendChild($this->ownerDocument->createElementInputRadio($name, $id, $value, $checked));
   }
-  function appendInputCheckbox($name, $id, $value, $checked) {
+  public function appendInputCheckbox($name, $id, $value, $checked) {
     return $this->appendChild($this->ownerDocument->createElementInputCheckbox($name, $id, $value, $checked));
   }
-  function appendInputFile($name, $id, $accept) {
+  public function appendInputFile($name, $id, $accept) {
     return $this->appendChild($this->ownerDocument->createElementInputFile($name, $id, $accept));
   }
-  function appendInputSubmit($value) {
+  public function appendInputSubmit($value) {
     return $this->appendChild($this->ownerDocument->createElementInputSubmit($value));
   }
-  function appendButton($value, $onclick = null) {
+  public function appendButton($value, $onclick = null) {
     return $this->appendChild($this->ownerDocument->createElementButton($value, $onclick));
   }
-  function appendTextArea($name, $columns, $rows, $id = null, $value = null) {
+  public function appendTextArea($name, $columns, $rows, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementTextArea($name, $columns, $rows, $id, $value));
   }
-  function appendElementSelect($name, $id = null, $options = array(), $default = null) {
+  public function appendElementSelect($name, $id = null, $options = array(), $default = null) {
     return $this->appendChild($this->ownerDocument->createElementSelect($name, $id, $options, $default));
   }
-  function appendElementOption($key, $desc, $selected = false) {
+  public function appendElementOption($key, $desc, $selected = false) {
     return $this->appendChild($this->ownerDocument->createElementOption($key, $desc, $selected));
   }
-  function appendLabel($for_id, $value) {
+  public function appendLabel($for_id, $value) {
     return $this->appendChild($this->ownerDocument->createElementLabel($for_id, $value));
   }
-  function appendText($text) {
+  public function appendText($text) {
     return $this->appendChild($this->ownerDocument->createTextNode($text));
   }
-  function appendComment($comment_data) {
+  public function appendComment($comment_data) {
     return $this->appendChild($this->ownerDocument->createComment($comment_data));
   }
-  function appendHTMLMarkup($htmldata) {
+  public function appendHTMLMarkup($htmldata) {
     $this->ownerDocument->appendHTMLMarkup($htmldata, $this);
   }
-  function appendXMLMarkup($xmldata) {
+  public function appendXMLMarkup($xmldata) {
     $this->ownerDocument->appendXMLMarkup($xmldata, $this);
   }
-  function appendJSElement($jsdata) {
+  public function appendJSElement($jsdata) {
     $this->appendChild($this->ownerDocument->createElementJS($jsdata));
   }
-  function appendCOMElement($module, $attributes) {
+  public function appendCOMElement($module, $attributes) {
     $this->appendChild($this->ownerDocument->createCOMElement($module, $attributes));
   }
 }
@@ -665,183 +665,183 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   // ExtendedDocumentFragment PHP class
   // this extends the general PHP DOM Document Fragment class to simplify some usual constructs
   //
-  // function appendElement($name, [$value])
+  // public function appendElement($name, [$value])
   //   appends a DOMDocument::createElement() as a child of this fragment (see there for params)
   //     returns the new child
   //
-  // function appendElementXML($name, $xmldata)
+  // public function appendElementXML($name, $xmldata)
   //   appends a DOMDocument::createElement() with the given name as a child of this fragment,
   //   with an ExtendedDocument::createXMLFragment() of the given XML data inside
   //     returns the new child
   //
-  // function appendLink($target, [$value])
+  // public function appendLink($target, [$value])
   //   appends an ExtendedDocument::createElementLink() as a child of this fragment (see there for params)
   //     returns the new child
   //
-  // function appendImage($src, [$alt_text])
+  // public function appendImage($src, [$alt_text])
   //   appends an ExtendedDocument::createElementImage() as a child of this document (see there for params)
   //     returns the new child
   //
-  // function appendForm($action, $method, $name, [$id])
+  // public function appendForm($action, $method, $name, [$id])
   //   appends an ExtendedDocument::createElementForm() as a child of this fragment (see there for params)
   //     returns the new child
   //
-  // function appendFormDiv($action, $method, $name, [$id])
+  // public function appendFormDiv($action, $method, $name, [$id])
   //   appends an ExtendedDocument::createElementForm() as a child of this fragment (see there for params)
   //     returns an HTML <div> that is a child of the new child
   //
-  // function appendInputHidden($name, $value)
+  // public function appendInputHidden($name, $value)
   //   appends an ExtendedDocument::createElementInputHidden() as a child of this fragment (see there for params)
   //     returns the new child
   //
-  // function appendInputText($name, $maxlength, $size, [$id], [$value])
+  // public function appendInputText($name, $maxlength, $size, [$id], [$value])
   //   appends an ExtendedDocument::createElementInputText() as a child of this fragment (see there for params)
   //     returns the new child
   //
-  // function appendInputNumber($name, $maxlength, $size, [$id], [$value])
+  // public function appendInputNumber($name, $maxlength, $size, [$id], [$value])
   //   appends an ExtendedDocument::createElementInputNumber() as a child of this fragment (see there for params)
   //     returns the new child
   //
-  // function appendInputPassword($name, $maxlength, $size, [$id], [$value])
+  // public function appendInputPassword($name, $maxlength, $size, [$id], [$value])
   //   appends an ExtendedDocument::createElementInputPassword() as a child of this fragment (see there for params)
   //     returns the new child
   //
-  // function appendInputRadio($name, $id, $value, $checked)
+  // public function appendInputRadio($name, $id, $value, $checked)
   //   appends an ExtendedDocument::createElementInputRadio() as a child of this fragment (see there for params)
   //     returns the new child
   //
-  // function appendInputCheckbox($name, $id, $value, $checked)
+  // public function appendInputCheckbox($name, $id, $value, $checked)
   //   appends an ExtendedDocument::createElementInputCheckbox() as a child of this fragment (see there for params)
   //     returns the new child
   //
-  // function appendInputFile($name, $id, $accept)
+  // public function appendInputFile($name, $id, $accept)
   //   appends an ExtendedDocument::createElementInputFile() as a child of this fragment (see there for params)
   //     returns the new child
   //
-  // function appendInputSubmit($value)
+  // public function appendInputSubmit($value)
   //   appends an ExtendedDocument::createElementInputSubmit() as a child of this fragment (see there for params)
   //     returns the new child
   //
-  // function appendButton($value, $onclick = null)
+  // public function appendButton($value, $onclick = null)
   //   appends an ExtendedDocument::createElementButton() as a child of this fragment (see there for params)
   //     returns the new child
   //
-  // function appendTextArea($name, $columns, $rows, [$id], [$value])
+  // public function appendTextArea($name, $columns, $rows, [$id], [$value])
   //   appends an ExtendedDocument::createElementTextArea() as a child of this fragment (see there for params)
   //     returns the new child
   //
-  // function appendElementSelect($name, [$id], [$options], [$default])
+  // public function appendElementSelect($name, [$id], [$options], [$default])
   //   appends an ExtendedDocument::createElementSelect() as a child of this fragment (see there for params)
   //     returns the new child
   //
-  // function appendElementOption($key, $desc, [$selected])
+  // public function appendElementOption($key, $desc, [$selected])
   //   appends an ExtendedDocument::createElementOption() as a child of this fragment (see there for params)
   //     returns the new child
   //
-  // function appendLabel($for_id, $value)
+  // public function appendLabel($for_id, $value)
   //   appends an ExtendedDocument::createElementLabel() as a child of this fragment (see there for params)
   //     returns the new child
   //
-  // function appendText($text)
+  // public function appendText($text)
   //   appends a DOMDocument::createTextNode() as a child of this fragment (see there for params)
   //     returns the new child
   //
-  // function appendComment($comment_data)
+  // public function appendComment($comment_data)
   //   appends a DOMDocument::createComment() as a child of this fragment (see there for params)
   //     returns the new child
   //
-  // function appendHTMLMarkup($htmldata)
+  // public function appendHTMLMarkup($htmldata)
   //   appends a representation of the HTML data as children of this fragment
   //     NO return value!
   //
-  // function appendXMLMarkup($xmldata)
+  // public function appendXMLMarkup($xmldata)
   //   appends a representation of the XML data as children of this fragment
   //     NO return value!
   //
-  // function appendJSElement($jsdata)
+  // public function appendJSElement($jsdata)
   //   appends an ExtendedDocument::createElementJS() as a child of this fragment (see there for params)
   //     NO return value!
   //
-  // function appendCOMElement($module, $attributes)
+  // public function appendCOMElement($module, $attributes)
   //   appends an ExtendedDocument::createCOMElement() as a child of this fragment (see there for params)
   //     returns the new child
 
-  function appendElement($name, $value = '') {
+  public function appendElement($name, $value = '') {
     return $this->appendChild($this->ownerDocument->createElement($name, $value));
   }
-  function appendElementXML($name, $xmldata) {
+  public function appendElementXML($name, $xmldata) {
     $aelem = $this->appendChild($this->ownerDocument->createElement($name));
     $aelem->appendXMLMarkup($xmldata);
     return $aelem;
   }
-  function appendLink($target, $value = '') {
+  public function appendLink($target, $value = '') {
     return $this->appendChild($this->ownerDocument->createElementLink($target, $value));
   }
-  function appendImage($src, $alt_text = '') {
+  public function appendImage($src, $alt_text = '') {
     return $this->appendChild($this->ownerDocument->createElementImage($src, $alt_text));
   }
-  function appendForm($action, $method, $name, $id = null) {
+  public function appendForm($action, $method, $name, $id = null) {
     return $this->appendChild($this->ownerDocument->createElementForm($action, $method, $name, $id));
   }
-  function appendFormDiv($action, $method, $name, $id = null) {
+  public function appendFormDiv($action, $method, $name, $id = null) {
     $formelem = $this->appendChild($this->ownerDocument->createElementForm($action, $method, $name, $id));
     return $formelem->appendElement('div');
   }
-  function appendInputHidden($name, $value) {
+  public function appendInputHidden($name, $value) {
     return $this->appendChild($this->ownerDocument->createElementInputHidden($name, $value));
   }
-  function appendInputText($name, $maxlength, $size, $id = null, $value = null) {
+  public function appendInputText($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementInputText($name, $maxlength, $size, $id, $value));
   }
-  function appendInputNumber($name, $maxlength, $size, $id = null, $value = null) {
+  public function appendInputNumber($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementInputNumber($name, $maxlength, $size, $id, $value));
   }
-  function appendInputPassword($name, $maxlength, $size, $id = null, $value = null) {
+  public function appendInputPassword($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementInputPassword($name, $maxlength, $size, $id, $value));
   }
-  function appendInputRadio($name, $id, $value, $checked) {
+  public function appendInputRadio($name, $id, $value, $checked) {
     return $this->appendChild($this->ownerDocument->createElementInputRadio($name, $id, $value, $checked));
   }
-  function appendInputCheckbox($name, $id, $value, $checked) {
+  public function appendInputCheckbox($name, $id, $value, $checked) {
     return $this->appendChild($this->ownerDocument->createElementInputCheckbox($name, $id, $value, $checked));
   }
-  function appendInputFile($name, $id, $accept) {
+  public function appendInputFile($name, $id, $accept) {
     return $this->appendChild($this->ownerDocument->createElementInputFile($name, $id, $accept));
   }
-  function appendInputSubmit($value) {
+  public function appendInputSubmit($value) {
     return $this->appendChild($this->ownerDocument->createElementInputSubmit($value));
   }
-  function appendButton($value, $onclick = null) {
+  public function appendButton($value, $onclick = null) {
     return $this->appendChild($this->ownerDocument->createElementButton($value, $onclick));
   }
-  function appendTextArea($name, $columns, $rows, $id = null, $value = null) {
+  public function appendTextArea($name, $columns, $rows, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementTextArea($name, $columns, $rows, $id, $value));
   }
-  function appendElementSelect($name, $id = null, $options = array(), $default = null) {
+  public function appendElementSelect($name, $id = null, $options = array(), $default = null) {
     return $this->appendChild($this->ownerDocument->createElementSelect($name, $id, $options, $default));
   }
-  function appendElementOption($key, $desc, $selected = false) {
+  public function appendElementOption($key, $desc, $selected = false) {
     return $this->appendChild($this->ownerDocument->createElementOption($key, $desc, $selected));
   }
-  function appendLabel($for_id, $value) {
+  public function appendLabel($for_id, $value) {
     return $this->appendChild($this->ownerDocument->createElementLabel($for_id, $value));
   }
-  function appendText($text) {
+  public function appendText($text) {
     return $this->appendChild($this->ownerDocument->createTextNode($text));
   }
-  function appendComment($comment_data) {
+  public function appendComment($comment_data) {
     return $this->appendChild($this->ownerDocument->createComment($comment_data));
   }
-  function appendHTMLMarkup($htmldata) {
+  public function appendHTMLMarkup($htmldata) {
     $this->ownerDocument->appendHTMLMarkup($htmldata, $this);
   }
-  function appendXMLMarkup($xmldata) {
+  public function appendXMLMarkup($xmldata) {
     $this->ownerDocument->appendXMLMarkup($xmldata, $this);
   }
-  function appendJSElement($jsdata) {
+  public function appendJSElement($jsdata) {
     $this->appendChild($this->ownerDocument->createElementJS($jsdata));
   }
-  function appendCOMElement($module, $attributes) {
+  public function appendCOMElement($module, $attributes) {
     $this->appendChild($this->ownerDocument->createCOMElement($module, $attributes));
   }
 }

@@ -68,6 +68,10 @@ class ExtendedDocument extends DOMDocument {
   //   appends an ExtendedDocument::createElementInputNumber() as a child of this document (see there for params)
   //     returns the new child
   //
+  // public function appendInputEmail($name, $maxlength, $size, [$id], [$value])
+  //   appends an ExtendedDocument::createElementInputEmail() as a child of this document (see there for params)
+  //     returns the new child
+  //
   // public function appendInputPassword($name, $maxlength, $size, [$id], [$value])
   //   appends an ExtendedDocument::createElementInputPassword() as a child of this document (see there for params)
   //     returns the new child
@@ -128,6 +132,10 @@ class ExtendedDocument extends DOMDocument {
   //   appends an ExtendedDocument::createElementJS() as a child of this document (see there for params)
   //     NO return value!
   //
+  // public function appendJSFile($jsURL)
+  //   appends an ExtendedDocument::createElementJSFile() as a child of this document (see there for params)
+  //     returns the new child
+  //
   // public function appendCOMElement($module, $attributes)
   //   appends an ExtendedDocument::createCOMElement() as a child of this document (see there for params)
   //     returns the new child
@@ -151,6 +159,10 @@ class ExtendedDocument extends DOMDocument {
   //
   // public function createElementInputNumber($name, $maxlength, $size, [$id], [$value])
   //   returns an ExtendedElement that is an HTML <input> of type 'number' with the given name, maxlength, size,
+  //   and optionally id and value
+  //
+  // public function createElementInputEmail($name, $maxlength, $size, [$id], [$value])
+  //   returns an ExtendedElement that is an HTML <input> of type 'email' with the given name, maxlength, size,
   //   and optionally id and value
   //
   // public function createElementInputPassword($name, $maxlength, $size, [$id], [$value])
@@ -191,6 +203,9 @@ class ExtendedDocument extends DOMDocument {
   //
   // public function createElementJS($jsdata)
   //   returns an ExtendedElement that is an HTML <script> of JavaScript type with the JS data inside
+  //
+  // public function createElementJSFile($jsURL)
+  //   returns an ExtendedElement that is an HTML <script> of JavaScript type linking to the file given by the URL
   //
   // public function createCOMElement($module, $attributes)
   //   returns an ExtendedElement that is in COM_NS namespace, with the given module as name and the
@@ -251,6 +266,9 @@ class ExtendedDocument extends DOMDocument {
   public function appendInputNumber($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->createElementInputNumber($name, $maxlength, $size, $id, $value));
   }
+  public function appendInputEmail($name, $maxlength, $size, $id = null, $value = null) {
+    return $this->appendChild($this->createElementInputEmail($name, $maxlength, $size, $id, $value));
+  }
   public function appendInputPassword($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->createElementInputPassword($name, $maxlength, $size, $id, $value));
   }
@@ -290,8 +308,11 @@ class ExtendedDocument extends DOMDocument {
   public function appendJSElement($jsdata) {
     $this->appendChild($this->createElementJS($jsdata));
   }
+  public function appendJSFile($jsdata) {
+    return $this->appendChild($this->createElementJSFile($jsdata));
+  }
   public function appendCOMElement($module, $attributes) {
-    $this->appendChild($this->ownerDocument->createCOMElement($module, $attributes));
+    return $this->appendChild($this->createCOMElement($module, $attributes));
   }
 
   public function appendHTMLMarkup($htmldata, $parentNode = null) {
@@ -363,6 +384,17 @@ class ExtendedDocument extends DOMDocument {
   public function createElementInputNumber($name, $maxlength, $size, $id = null, $value = null) {
     $txfield = $this->createElement('input');
     $txfield->setAttribute('type', 'number');
+    if (!is_null($id)) { $txfield->setAttribute('id', $id); }
+    $txfield->setAttribute('name', $name);
+    $txfield->setAttribute('maxlength', $maxlength);
+    $txfield->setAttribute('size', $size);
+    if (!is_null($value)) { $txfield->setAttribute('value', $value); }
+    return $txfield;
+  }
+
+  public function createElementInputEmail($name, $maxlength, $size, $id = null, $value = null) {
+    $txfield = $this->createElement('input');
+    $txfield->setAttribute('type', 'email');
     if (!is_null($id)) { $txfield->setAttribute('id', $id); }
     $txfield->setAttribute('name', $name);
     $txfield->setAttribute('maxlength', $maxlength);
@@ -460,8 +492,17 @@ class ExtendedDocument extends DOMDocument {
 
   public function createElementJS($jsdata) {
     $jselem = $this->createElement('script');
+    // Note: type can/should be left out for HTML5.
     $jselem->setAttribute('type', 'text/javascript');
     $jselem->appendChild($this->createCDATASection($jsdata));
+    return $jselem;
+  }
+
+  public function createElementJSFile($jsURL) {
+    $jselem = $this->createElement('script');
+    // Note: type can/should be left out for HTML5.
+    $jselem->setAttribute('type', 'text/javascript');
+    $jselem->setAttribute('src', $jsURL);
     return $jselem;
   }
 
@@ -515,6 +556,10 @@ class ExtendedElement extends DOMElement {
   //
   // public function appendInputNumber($name, $maxlength, $size, [$id], [$value])
   //   appends an ExtendedDocument::createElementInputNumber() as a child of this element (see there for params)
+  //     returns the new child
+  //
+  // public function appendInputEmail($name, $maxlength, $size, [$id], [$value])
+  //   appends an ExtendedDocument::createElementInputEmail() as a child of this element (see there for params)
   //     returns the new child
   //
   // public function appendInputPassword($name, $maxlength, $size, [$id], [$value])
@@ -580,6 +625,10 @@ class ExtendedElement extends DOMElement {
   // public function appendCOMElement($module, $attributes)
   //   appends an ExtendedDocument::createCOMElement() as a child of this element (see there for params)
   //     returns the new child
+  //
+  // public function appendCOMElement($module, $attributes)
+  //   appends an ExtendedDocument::createCOMElement() as a child of this element (see there for params)
+  //     returns the new child
 
   public function appendElement($name, $value = '') {
     return $this->appendChild($this->ownerDocument->createElement($name, $value));
@@ -610,6 +659,9 @@ class ExtendedElement extends DOMElement {
   }
   public function appendInputNumber($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementInputNumber($name, $maxlength, $size, $id, $value));
+  }
+  public function appendInputEmail($name, $maxlength, $size, $id = null, $value = null) {
+    return $this->appendChild($this->ownerDocument->createElementInputEmail($name, $maxlength, $size, $id, $value));
   }
   public function appendInputPassword($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementInputPassword($name, $maxlength, $size, $id, $value));
@@ -656,8 +708,11 @@ class ExtendedElement extends DOMElement {
   public function appendJSElement($jsdata) {
     $this->appendChild($this->ownerDocument->createElementJS($jsdata));
   }
+  public function appendJSFile($jsdata) {
+    return $this->appendChild($this->ownerDocument->createElementJSFile($jsdata));
+  }
   public function appendCOMElement($module, $attributes) {
-    $this->appendChild($this->ownerDocument->createCOMElement($module, $attributes));
+    return $this->appendChild($this->ownerDocument->createCOMElement($module, $attributes));
   }
 }
 
@@ -700,6 +755,10 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   //
   // public function appendInputNumber($name, $maxlength, $size, [$id], [$value])
   //   appends an ExtendedDocument::createElementInputNumber() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
+  // public function appendInputEmail($name, $maxlength, $size, [$id], [$value])
+  //   appends an ExtendedDocument::createElementInputEmail() as a child of this fragment (see there for params)
   //     returns the new child
   //
   // public function appendInputPassword($name, $maxlength, $size, [$id], [$value])
@@ -765,6 +824,10 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   // public function appendCOMElement($module, $attributes)
   //   appends an ExtendedDocument::createCOMElement() as a child of this fragment (see there for params)
   //     returns the new child
+  //
+  // public function appendCOMElement($module, $attributes)
+  //   appends an ExtendedDocument::createCOMElement() as a child of this fragment (see there for params)
+  //     returns the new child
 
   public function appendElement($name, $value = '') {
     return $this->appendChild($this->ownerDocument->createElement($name, $value));
@@ -795,6 +858,9 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   }
   public function appendInputNumber($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementInputNumber($name, $maxlength, $size, $id, $value));
+  }
+  public function appendInputEmail($name, $maxlength, $size, $id = null, $value = null) {
+    return $this->appendChild($this->ownerDocument->createElementInputEmail($name, $maxlength, $size, $id, $value));
   }
   public function appendInputPassword($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementInputPassword($name, $maxlength, $size, $id, $value));
@@ -841,8 +907,11 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   public function appendJSElement($jsdata) {
     $this->appendChild($this->ownerDocument->createElementJS($jsdata));
   }
+  public function appendJSFile($jsdata) {
+    return $this->appendChild($this->ownerDocument->createElementJSFile($jsdata));
+  }
   public function appendCOMElement($module, $attributes) {
-    $this->appendChild($this->ownerDocument->createCOMElement($module, $attributes));
+    return $this->appendChild($this->ownerDocument->createCOMElement($module, $attributes));
   }
 }
 ?>

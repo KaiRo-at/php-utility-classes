@@ -116,6 +116,10 @@ class ExtendedDocument extends DOMDocument {
   //   appends a DOMDocument::createTextNode() as a child of this document (see there for params)
   //     returns the new child
   //
+  // public function appendEntity($name)
+  //   appends a DOMDocument::createEntityReference() as a child of this document (see there for params)
+  //     returns the new child
+  //
   // public function appendComment($comment_data)
   //   appends a DOMDocument::createComment() as a child of this document (see there for params)
   //     returns the new child
@@ -301,6 +305,9 @@ class ExtendedDocument extends DOMDocument {
   }
   public function appendText($text) {
     return $this->appendChild($this->createTextNode($text));
+  }
+  public function appendEntity($name) {
+    return $this->appendChild($this->createEntityReference($name));
   }
   public function appendComment($comment_data) {
     return $this->appendChild($this->createComment($comment_data));
@@ -606,6 +613,10 @@ class ExtendedElement extends DOMElement {
   //   appends a DOMDocument::createTextNode() as a child of this element (see there for params)
   //     returns the new child
   //
+  // public function appendEntity($name)
+  //   appends a DOMDocument::createEntityReference() as a child of this element (see there for params)
+  //     returns the new child
+  //
   // public function appendComment($comment_data)
   //   appends a DOMDocument::createComment() as a child of this element (see there for params)
   //     returns the new child
@@ -695,6 +706,9 @@ class ExtendedElement extends DOMElement {
   }
   public function appendText($text) {
     return $this->appendChild($this->ownerDocument->createTextNode($text));
+  }
+  public function appendEntity($name) {
+    return $this->appendChild($this->ownerDocument->createEntityReference($name));
   }
   public function appendComment($comment_data) {
     return $this->appendChild($this->ownerDocument->createComment($comment_data));
@@ -805,6 +819,10 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   //   appends a DOMDocument::createTextNode() as a child of this fragment (see there for params)
   //     returns the new child
   //
+  // public function appendEntity($name)
+  //   appends a DOMDocument::createEntityReference() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
   // public function appendComment($comment_data)
   //   appends a DOMDocument::createComment() as a child of this fragment (see there for params)
   //     returns the new child
@@ -894,6 +912,9 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   }
   public function appendText($text) {
     return $this->appendChild($this->ownerDocument->createTextNode($text));
+  }
+  public function appendEntity($name) {
+    return $this->appendChild($this->ownerDocument->createEntityReference($name));
   }
   public function appendComment($comment_data) {
     return $this->appendChild($this->ownerDocument->createComment($comment_data));

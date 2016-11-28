@@ -20,21 +20,24 @@ $rrd_info['overview']['page']['text_intro'] = 'Go to the <a href="?stat=index">i
 
 $rrd_info['cpu']['file'] = 'system.cpu.rrd';
 $rrd_info['cpu']['auto-update'] = true;
-$rrd_info['cpu']['fields'][] = array('name' => 'user', 'type' => 'COUNTER', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
-$rrd_info['cpu']['fields'][] = array('name' => 'nice', 'type' => 'COUNTER', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
-$rrd_info['cpu']['fields'][] = array('name' => 'system', 'type' => 'COUNTER', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
-$rrd_info['cpu']['fields'][] = array('name' => 'idle', 'type' => 'COUNTER', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
-$rrd_info['cpu']['fields'][] = array('name' => 'iowait', 'type' => 'COUNTER', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
-$rrd_info['cpu']['fields'][] = array('name' => 'irq', 'type' => 'COUNTER', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
-$rrd_info['cpu']['fields'][] = array('name' => 'softirq', 'type' => 'COUNTER', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
-$rrd_info['cpu']['fields'][] = array('name' => 'total', 'type' => 'COUNTER', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
+$rrd_info['cpu']['fields'][] = array('name' => 'user', 'type' => 'DERIVE', 'heartbeat' => 600, 'min' => 0, 'max' => 'U');
+$rrd_info['cpu']['fields'][] = array('name' => 'nice', 'type' => 'DERIVE', 'heartbeat' => 600, 'min' => 0, 'max' => 'U');
+$rrd_info['cpu']['fields'][] = array('name' => 'system', 'type' => 'DERIVE', 'heartbeat' => 600, 'min' => 0, 'max' => 'U');
+$rrd_info['cpu']['fields'][] = array('name' => 'idle', 'type' => 'DERIVE', 'heartbeat' => 600, 'min' => 0, 'max' => 'U');
+$rrd_info['cpu']['fields'][] = array('name' => 'iowait', 'type' => 'DERIVE', 'heartbeat' => 600, 'min' => 0, 'max' => 'U');
+$rrd_info['cpu']['fields'][] = array('name' => 'irq', 'type' => 'DERIVE', 'heartbeat' => 600, 'min' => 0, 'max' => 'U');
+$rrd_info['cpu']['fields'][] = array('name' => 'softirq', 'type' => 'DERIVE', 'heartbeat' => 600, 'min' => 0, 'max' => 'U');
+$rrd_info['cpu']['fields'][] = array('name' => 'total', 'type' => 'DERIVE', 'heartbeat' => 600, 'min' => 0, 'max' => 'U');
 $rrd_info['cpu']['update'] =
  'function {
-    $sdata = file("/proc/stat"); $udata = array();
+    $udata = array("user"=>null,"nice"=>null,"system"=>null,"idle"=>null,
+                   "iowait"=>null,"irq"=>null,"softirq"=>null, "total"=>null);
+    $sdata = file("/proc/stat");
     foreach ($sdata as $sline) {
       if (preg_match("/^\s*cpu\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/", $sline, $regs)) {
         $udata = array("user"=>$regs[1],"nice"=>$regs[2],"system"=>$regs[3],"idle"=>$regs[4],
-                       "iowait"=>$regs[5],"irq"=>$regs[6],"softirq"=>$regs[7],"total"=>array_sum($regs));
+                       "iowait"=>$regs[5],"irq"=>$regs[6],"softirq"=>$regs[7],
+                       "total"=>$regs[1]+$regs[2]+$regs[3]+$regs[4]+$regs[5]+$regs[6]+$regs[7]);
       }
     }
     return $udata;
@@ -46,14 +49,14 @@ $rrd_info['cpu']['graph']['rows'][] = array('name'=>'iowait_tmp', 'dsname'=>'iow
 $rrd_info['cpu']['graph']['rows'][] = array('name'=>'system_tmp', 'dsname'=>'system', 'gType'=>'');
 $rrd_info['cpu']['graph']['rows'][] = array('name'=>'nice_tmp', 'dsname'=>'nice', 'gType'=>'');
 $rrd_info['cpu']['graph']['rows'][] = array('name'=>'user_tmp', 'dsname'=>'user', 'gType'=>'');
-$rrd_info['cpu']['graph']['rows'][] = array('dType'=>'CDEF', 'name'=>'softirq', 'rpn_expr'=>'softirq_tmp,total,/,100,*', 'gType'=>'AREA', 'color'=>'#CCCCCC', 'color_bg'=>'#808080', 'legend'=>'softIRQ');
+$rrd_info['cpu']['graph']['rows'][] = array('dType'=>'CDEF', 'name'=>'softirq', 'rpn_expr'=>'softirq_tmp,total,/,100,*', 'gType'=>'AREA', 'color'=>'#CCCCCC', 'color_bg'=>'#606060', 'legend'=>'softIRQ');
 $rrd_info['cpu']['graph']['rows'][] = array('dType'=>'CDEF', 'name'=>'irq', 'rpn_expr'=>'irq_tmp,total,/,100,*', 'gType'=>'AREA', 'color'=>'#808080', 'legend'=>'IRQ', 'stack'=>true);
 $rrd_info['cpu']['graph']['rows'][] = array('dType'=>'CDEF', 'name'=>'iowait', 'rpn_expr'=>'iowait_tmp,total,/,100,*', 'gType'=>'AREA', 'color'=>'#FF00FF', 'legend'=>'I/O wait', 'stack'=>true);
 $rrd_info['cpu']['graph']['rows'][] = array('dType'=>'CDEF', 'name'=>'system', 'rpn_expr'=>'system_tmp,total,/,100,*', 'gType'=>'AREA', 'color'=>'#FF0000', 'legend'=>'System', 'stack'=>true);
-$rrd_info['cpu']['graph']['rows'][] = array('dType'=>'CDEF', 'name'=>'nice', 'rpn_expr'=>'nice_tmp,total,/,100,*', 'gType'=>'AREA', 'color'=>'#FFFF00', 'color_bg'=>'#808080', 'legend'=>'Nice', 'stack'=>true);
+$rrd_info['cpu']['graph']['rows'][] = array('dType'=>'CDEF', 'name'=>'nice', 'rpn_expr'=>'nice_tmp,total,/,100,*', 'gType'=>'AREA', 'color'=>'#FFFF00', 'color_bg'=>'#606060', 'legend'=>'Nice', 'stack'=>true);
 $rrd_info['cpu']['graph']['rows'][] = array('dType'=>'CDEF', 'name'=>'user', 'rpn_expr'=>'user_tmp,total,/,100,*', 'gType'=>'AREA', 'color'=>'#0000FF', 'legend'=>'User', 'stack'=>true);
 $rrd_info['cpu']['graph']['units_length'] = 4;
-$rrd_info['cpu']['graph']['label_y'] = '% CPU-Auslastung';
+$rrd_info['cpu']['graph']['label_y'] = '% CPU Usage';
 $rrd_info['cpu']['graph']['min_y'] = 0;
 $rrd_info['cpu']['graph']['max_y'] = 100;
 $rrd_info['cpu']['graph']['fix_scale_y'] = true;
@@ -69,16 +72,19 @@ $rrd_info['mem']['fields'][] = array('name' => 'swap_total', 'type' => 'GAUGE', 
 $rrd_info['mem']['fields'][] = array('name' => 'swap_used', 'type' => 'GAUGE', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
 $rrd_info['mem']['update'] =
  'function {
-    $sdata = explode("\n", `/usr/bin/free -b -o`);
+    $sdata = explode("\n", `/usr/bin/free -wb`);
     $udata = array("total"=>null,"used"=>null,"buffers"=>null,"cached"=>null,
                    "swap_total"=>null,"swap_used"=>null);
     foreach ($sdata as $sline) {
-      if (preg_match("/Mem:\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/", $sline, $regs)) {
-        $udata["total"] = $regs[1]; $udata["used"] = $regs[2]-$regs[5]-$regs[6];
-        $udata["buffers"] = $regs[5]; $udata["cached"] = $regs[6];
+      if (preg_match("/Mem:\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/", $sline, $regs)) {
+        $udata["total"] = $regs[1];
+        $udata["used"] = $regs[2];
+        $udata["buffers"] = $regs[5];
+        $udata["cached"] = $regs[6];
       }
       elseif (preg_match("/Swap:\s+(\d+)\s+(\d+)\s+(\d+)/", $sline, $regs)) {
-        $udata["swap_total"] = $regs[1]; $udata["swap_used"] = $regs[2];
+        $udata["swap_total"] = $regs[1];
+        $udata["swap_used"] = $regs[2];
       }
     }
     return $udata;

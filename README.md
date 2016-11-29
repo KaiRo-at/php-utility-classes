@@ -9,3 +9,5 @@ Currently, the following classes are contained:
 * [useragent](classes/useragent.php-class): The userAgent class analyzes HTTP User-Agent headers and tries to gather information about the browser, engine, and versions.
 
 The code contains documentation about using the classes and their methods. Also, some examples and tests exist in the respective subdirectories.
+
+Please don't use GitHub for issue tracking but http://bugzilla.kairo.at/ - Product: KaiRo Software, Component: PHP Utility Classes

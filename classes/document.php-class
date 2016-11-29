@@ -11,8 +11,9 @@ class ExtendedDocument extends DOMDocument {
   //   CONSTRUCTOR
   //   construct a new DOM Document that uses our element definitions
   //
-  // static function initHTML5()
+  // static function initHTML5([$doc])
   //   initialize as an HTML5 document and return references to its basic elements.
+  //     If a $doc is handed over (an ExtendedDocument or a derived class), load the content into that document.
   //     returns an associative array with the following elements: 'html', 'head', 'title', 'body'
   //
   // public function appendElement($name, [$value])
@@ -198,8 +199,8 @@ class ExtendedDocument extends DOMDocument {
     $this->registerNodeClass('DOMDocumentFragment', 'ExtendedDocumentFragment');
   }
 
-  static function initHTML5() {
-    $doc = new ExtendedDocument();
+  static function initHTML5($doc = null) {
+    if (is_null($doc)) { $doc = new ExtendedDocument(); }
     $doc->loadHTML('<!DOCTYPE html><html></html>'); // this seems to be the only way to get the DOCTYPE set properly.
 
     // Created basic HTML document structure.

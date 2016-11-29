@@ -1,23 +1,22 @@
 <?php
-$inc_class_util = true;
-$inc_class_ua = true;
-include('inchandler.inc');
+include('../classes/useragent.php-class');
 
 // read string from this file
 $uafile = 'ua_list_raw.txt';
 
-$mycss = "th { font-size: 0.75em; }\n";
-$mycss .= "td.comment { font-size: 0.75em; text-align: center; font-weight: bold; }\n";
-$mycss .= "td.ua { font-size: 0.75em; }\n";
-
-$wrapper->pgtop('User Agents', $mycss);
+print("<!DOCTYPE html>\n");
+print("<html>\n<head>\n");
+print("  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n");
+print("  <link rel=\"stylesheet\" type=\"text/css\" href=\"test.css\">\n");
+print("  <title>".'User Agents'."</title>\n");
+print("</head>\n<body>\n");
 
 print('<h1>User Agents</h1>'."\n");
 
 $ualist = is_readable($uafile)?file($uafile):array();
 
 if (count($ualist)) {
-  print('<table class="border">'."\n");
+  print('<table class="border" id="ualist">'."\n");
   print(' <tr>'."\n");
   print('  <th>User Agent string</th>'."\n");
   print('  <th>Brand</th>'."\n");
@@ -61,5 +60,8 @@ else {
   print('No User Agent strings found in file "'.$uafile.'".'."\n");
 }
 
-$wrapper->pgbottom();
+print("<div id=\"copyright\">\n");
+print("Page code under Mozilla Public License, code available at <a href=\"https://github.com/KaiRo-at/php-utility-classes\">GitHub</a>.\n");
+print("</div>\n");
+print("</body></html>\n");
 ?>

@@ -1,22 +1,24 @@
 <?php
-$inc_class_util = true;
-$inc_class_ua = true;
-include("inchandler.inc");
-
-$wrapper->pgtop("KaiRo's Browser-Test");
+include('../classes/useragent.php-class');
 
 // set default time zone - right now, always the one the server is in!
 date_default_timezone_set('Europe/Vienna');
 
-$httpvars = $util->getHTTPvars();
-if (strlen($httpvars["ua"])) {
-  $ua = new userAgent($httpvars["ua"]);
+print("<!DOCTYPE html>\n");
+print("<html>\n<head>\n");
+print("  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n");
+print("  <link rel=\"stylesheet\" type=\"text/css\" href=\"test.css\">\n");
+print("  <title>".'User Agent Test'."</title>\n");
+print("</head>\n<body>\n");
+
+if (strlen($_REQUEST["ua"])) {
+  $ua = new userAgent($_REQUEST["ua"]);
 }
 else {
   $ua = new userAgent;
 }
 
-print("<h1>KaiRo's Browser-Test</h1>\n");
+print("<h1>User Agent Test</h1>\n");
 
 print("I read the following user agent string from ".(strlen($httpvars["ua"])?"your input":"your browser").":\n<br>");
 print("<b>".$ua->getUAString()."</b>\n");
@@ -44,5 +46,9 @@ print("<br><br>Test the following UA string (leave empty to read it from your br
 print("<form method=\"POST\" action=\"\"><p>\n");
 print("<input type=\"text\" name=\"ua\" value=\"".htmlentities($ua->getUAString())."\" size=\"80\" maxlength=\"150\">\n");
 print("<br><input type=\"submit\" value=\"Test\"></p></form>\n");
-$wrapper->pgbottom();
+
+print("<div id=\"copyright\">\n");
+print("Page code under Mozilla Public License, code available at <a href=\"https://github.com/KaiRo-at/php-utility-classes\">GitHub</a>.\n");
+print("</div>\n");
+print("</body></html>\n");
 ?>

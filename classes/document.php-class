@@ -140,10 +140,6 @@ class ExtendedDocument extends DOMDocument {
   //   appends an ExtendedDocument::createElementJSFile() as a child of this document (see there for params)
   //     returns the new child
   //
-  // public function appendCOMElement($module, $attributes)
-  //   appends an ExtendedDocument::createCOMElement() as a child of this document (see there for params)
-  //     returns the new child
-  //
   // public function createElementLink($target, [$value])
   //   returns an ExtendedElement that is an HTML <a> with the given target (href) and (optional) value
   //
@@ -210,10 +206,6 @@ class ExtendedDocument extends DOMDocument {
   //
   // public function createElementJSFile($jsURL)
   //   returns an ExtendedElement that is an HTML <script> of JavaScript type linking to the file given by the URL
-  //
-  // public function createCOMElement($module, $attributes)
-  //   returns an ExtendedElement that is in COM_NS namespace, with the given module as name and the
-  //     given name=>value array as attributes
 
   function __construct($version = '1.0', $encoding = 'utf-8') {
     // make sure the default DOMDocument constructor runs
@@ -317,9 +309,6 @@ class ExtendedDocument extends DOMDocument {
   }
   public function appendJSFile($jsdata) {
     return $this->appendChild($this->createElementJSFile($jsdata));
-  }
-  public function appendCOMElement($module, $attributes) {
-    return $this->appendChild($this->createCOMElement($module, $attributes));
   }
 
   public function appendHTMLMarkup($htmldata, $parentNode = null) {
@@ -512,16 +501,6 @@ class ExtendedDocument extends DOMDocument {
     $jselem->setAttribute('src', $jsURL);
     return $jselem;
   }
-
-  public function createCOMElement($module, $attributes) {
-    $com_elem = $this->createElementNS(COM_NS, $module);
-    if (is_array($attributes) && count($attributes)) {
-      foreach ($attributes as $name=>$value) {
-        $com_elem->setAttribute($name, $value);
-      }
-    }
-    return $com_elem;
-  }
 }
 
 class ExtendedElement extends DOMElement {
@@ -633,12 +612,8 @@ class ExtendedElement extends DOMElement {
   //   appends an ExtendedDocument::createElementJS() as a child of this element (see there for params)
   //     NO return value!
   //
-  // public function appendCOMElement($module, $attributes)
-  //   appends an ExtendedDocument::createCOMElement() as a child of this element (see there for params)
-  //     returns the new child
-  //
-  // public function appendCOMElement($module, $attributes)
-  //   appends an ExtendedDocument::createCOMElement() as a child of this element (see there for params)
+  // public function appendJSFile($jsURL)
+  //   appends an ExtendedDocument::createElementJSFile() as a child of this element (see there for params)
   //     returns the new child
 
   public function appendElement($name, $value = '') {
@@ -724,9 +699,6 @@ class ExtendedElement extends DOMElement {
   }
   public function appendJSFile($jsdata) {
     return $this->appendChild($this->ownerDocument->createElementJSFile($jsdata));
-  }
-  public function appendCOMElement($module, $attributes) {
-    return $this->appendChild($this->ownerDocument->createCOMElement($module, $attributes));
   }
 }
 
@@ -839,12 +811,8 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   //   appends an ExtendedDocument::createElementJS() as a child of this fragment (see there for params)
   //     NO return value!
   //
-  // public function appendCOMElement($module, $attributes)
-  //   appends an ExtendedDocument::createCOMElement() as a child of this fragment (see there for params)
-  //     returns the new child
-  //
-  // public function appendCOMElement($module, $attributes)
-  //   appends an ExtendedDocument::createCOMElement() as a child of this fragment (see there for params)
+  // public function appendJSFile($jsURL)
+  //   appends an ExtendedDocument::createElementJSFile() as a child of this fragment (see there for params)
   //     returns the new child
 
   public function appendElement($name, $value = '') {
@@ -930,9 +898,6 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   }
   public function appendJSFile($jsdata) {
     return $this->appendChild($this->ownerDocument->createElementJSFile($jsdata));
-  }
-  public function appendCOMElement($module, $attributes) {
-    return $this->appendChild($this->ownerDocument->createCOMElement($module, $attributes));
   }
 }
 ?>

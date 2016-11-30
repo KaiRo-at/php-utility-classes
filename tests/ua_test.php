@@ -4,16 +4,20 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 include('../classes/useragent.php-class');
+include('../classes/document.php-class');
 
 // set default time zone - right now, always the one the server is in!
 date_default_timezone_set('Europe/Vienna');
 
-print("<!DOCTYPE html>\n");
-print("<html>\n<head>\n");
-print("  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n");
-print("  <link rel=\"stylesheet\" type=\"text/css\" href=\"test.css\">\n");
-print("  <title>".'User Agent Test'."</title>\n");
-print("</head>\n<body>\n");
+// Start HTML document as a DOM object.
+extract(ExtendedDocument::initHTML5()); // sets $document, $html, $head, $title, $body
+$document->formatOutput = true; // we want a nice output
+
+$style = $head->appendElement('link');
+$style->setAttribute('rel', 'stylesheet');
+$style->setAttribute('href', 'test.css');
+$title->appendText('User Agent Test');
+$h1 = $body->appendElement('h1', 'User Agent Test');
 
 if (strlen($_REQUEST["ua"])) {
   $ua = new userAgent($_REQUEST["ua"]);
@@ -22,37 +26,76 @@ else {
   $ua = new userAgent;
 }
 
-print("<h1>User Agent Test</h1>\n");
+$para = $body->appendElement('p', 'I read the following user agent string from '.(strlen($httpvars['ua'])?'your input':'your browser').':');
+$para->appendElement('br');
+$para->appendElement('b', $ua->getUAString());
 
-print("I read the following user agent string from ".(strlen($httpvars["ua"])?"your input":"your browser").":\n<br>");
-print("<b>".$ua->getUAString()."</b>\n");
-
-print("<br><br>The browser brand is reported as &quot;<b>".$ua->getBrand()."</b>&quot;\n");
-print("<br>The browser version is reported as &quot;<b>".$ua->getVersion()."</b>&quot;\n");
-print("<br>The browser engine is reported as &quot;<b>".$ua->getEngine()."</b>&quot;\n");
-print("<br>The engine version is reported as &quot;<b>".$ua->getEngineVersion()."</b>&quot;\n");
-print("<br>The operating system is reported as &quot;<b>".$ua->getOS()."</b>&quot;\n");
-print("<br>The system platform is reported as &quot;<b>".$ua->getPlatform()."</b>&quot;\n");
-print("<br>The browser language is reported as &quot;<b>".$ua->getLanguage()."</b>&quot;\n");
+$ulist = $body->appendElement('ul');
+$ulist->setAttribute('class', 'flat');
+$litem = $ulist->appendElement('li');
+$litem->appendText('The browser brand is reported as "');
+$litem->appendElement('b', $ua->getBrand());
+$litem->appendText('"');
+$litem = $ulist->appendElement('li');
+$litem->appendText('The browser version is reported as "');
+$litem->appendElement('b', $ua->getVersion());
+$litem->appendText('"');
+$litem = $ulist->appendElement('li');
+$litem->appendText('The browser engine is reported as "');
+$litem->appendElement('b', $ua->getEngine());
+$litem->appendText('"');
+$litem = $ulist->appendElement('li');
+$litem->appendText('The engine version is reported as "');
+$litem->appendElement('b', $ua->getEngineVersion());
+$litem->appendText('"');
+$litem = $ulist->appendElement('li');
+$litem->appendText('The operating system is reported as "');
+$litem->appendElement('b', $ua->getOS());
+$litem->appendText('"');
+$litem = $ulist->appendElement('li');
+$litem->appendText('The system platform is reported as "');
+$litem->appendElement('b', $ua->getPlatform());
+$litem->appendText('"');
+$litem = $ulist->appendElement('li');
+$litem->appendText('The browser language is reported as "');
+$litem->appendElement('b', $ua->getLanguage());
+$litem->appendText('"');
 if ($ua->hasEngine('gecko')) {
-  print("<br>The Gecko date is reported as &quot;<b>".$ua->getGeckoDate()."</b>&quot;\n");
-  print("<br>The full Gecko date/time is reported as &quot;<b>".date('r',$ua->getGeckoTime())."</b>&quot;\n");
+  $litem = $ulist->appendElement('li');
+  $litem->appendText('The Gecko date is reported as "');
+  $litem->appendElement('b', $ua->getGeckoDate());
+  $litem->appendText('"');
+  $litem = $ulist->appendElement('li');
+  $litem->appendText('The full Gecko date/time is reported as "');
+  $litem->appendElement('b', date('r',$ua->getGeckoTime()));
+  $litem->appendText('"');
 }
-print("<br><br>I conclude this must be <b>".$ua->getBrand()." ".$ua->getVersion()."</b>\n");
-print("<br>This is <b>".($ua->isBot()?"an":"no")."</b> automated robot.\n");
+$litem = $ulist->appendElement('li');
+$litem->setAttribute('class', 'summary');
+$litem->appendText('I conclude this must be ');
+$litem->appendElement('b', $ua->getBrand()." ".$ua->getVersion());
+$litem->appendText('.');
+$litem = $ulist->appendElement('li');
+$litem->appendText('This is ');
+$litem->appendElement('b', ($ua->isBot()?'an':'no'));
+$litem->appendText(' automated robot.');
 
-$acclang = $ua->getAcceptLanguages();
-print("<br><br>Accepted Languages: ");
-foreach ($acclang as $lang=>$q) { print($lang."(".$q.") "); }
-print("\n");
+$para = $body->appendElement('p', 'Accepted Languages:');
+foreach ($acclang as $lang=>$q) {
+  $para->appendText($lang.'('.$q.') ');
+}
 
-print("<br><br>Test the following UA string (leave empty to read it from your browser):\n");
-print("<form method=\"POST\" action=\"\"><p>\n");
-print("<input type=\"text\" name=\"ua\" value=\"".htmlentities($ua->getUAString())."\" size=\"80\" maxlength=\"150\">\n");
-print("<br><input type=\"submit\" value=\"Test\"></p></form>\n");
+$para = $body->appendElement('p', 'Test the following UA string (leave empty to read it from your browser):');
+$form = $body->appendForm('', 'POST', 'uaform');
+$form->appendInputText('ua', 150, 80, null, $ua->getUAString());
+$form->appendElement('br');
+$form->appendInputSubmit(_('Test'));
 
-print("<div id=\"copyright\">\n");
-print("Page code under Mozilla Public License, code available at <a href=\"https://github.com/KaiRo-at/php-utility-classes\">GitHub</a>.\n");
-print("</div>\n");
-print("</body></html>\n");
+$footer = $body->appendElement('footer', 'Page code under Mozilla Public License, code available at ');
+$footer->setAttribute('id', 'copyright');
+$footer->appendLink('https://github.com/KaiRo-at/php-utility-classes', 'GitHub');
+$footer->appendText('.');
+
+// Send HTML to client.
+print($document->saveHTML());
 ?>

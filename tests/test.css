@@ -64,14 +64,27 @@ table.border th {
 }
 #ualist td.ua { font-size: 0.75em; }
 
+ul.flat {
+ list-style-type: none;
+ margin: 0em;
+ padding: 0px;
+}
+ul.flat li {
+ margin: 0 0 0.2em 0;
+ padding: 0px;
+}
+p.flat { border: 0px; margin: 0px; padding: 0px; }
 
+ul.flat li.summary {
+ margin-top: 1em;
+}
 
 /* other general elements */
 
-div#valid {
+#valid {
   display: none;
 }
 
-div#copyright {
+#copyright {
   display: none;
 }

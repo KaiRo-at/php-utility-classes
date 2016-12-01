@@ -121,7 +121,7 @@ class ExtendedDocument extends DOMDocument {
   //   appends an ExtendedDocument::createElementJS() as a child of this document (see there for params)
   //     NO return value!
   //
-  // public function appendJSFile($jsURL)
+  // public function appendJSFile($jsURL, [$defer], [$async])
   //   appends an ExtendedDocument::createElementJSFile() as a child of this document (see there for params)
   //     returns the new child
   //
@@ -189,8 +189,9 @@ class ExtendedDocument extends DOMDocument {
   // public function createElementJS($jsdata)
   //   returns an ExtendedElement that is an HTML <script> of JavaScript type with the JS data inside
   //
-  // public function createElementJSFile($jsURL)
+  // public function createElementJSFile($jsURL, [$defer], [$async])
   //   returns an ExtendedElement that is an HTML <script> of JavaScript type linking to the file given by the URL
+  //     $defer and $async are boolean attributes that set if the script should be executed after parsing but before onload, and if it should be loaded asynchronously.
 
   function __construct($version = '1.0', $encoding = 'utf-8') {
     // make sure the default DOMDocument constructor runs
@@ -292,8 +293,8 @@ class ExtendedDocument extends DOMDocument {
   public function appendJSElement($jsdata) {
     $this->appendChild($this->createElementJS($jsdata));
   }
-  public function appendJSFile($jsdata) {
-    return $this->appendChild($this->createElementJSFile($jsdata));
+  public function appendJSFile($jsdata, $defer = false, $async = false) {
+    return $this->appendChild($this->createElementJSFile($jsdata, $defer, $async));
   }
 
   public function appendHTMLMarkup($htmldata, $parentNode = null) {
@@ -479,10 +480,16 @@ class ExtendedDocument extends DOMDocument {
     return $jselem;
   }
 
-  public function createElementJSFile($jsURL) {
+  public function createElementJSFile($jsURL, $defer = false, $async = false) {
     $jselem = $this->createElement('script');
     // Note: type can/should be left out for HTML5.
     $jselem->setAttribute('type', 'text/javascript');
+    if ($defer) {
+      $jselem->setAttribute('defer', '');
+    }
+    if ($async) {
+      $jselem->setAttribute('async', '');
+    }
     $jselem->setAttribute('src', $jsURL);
     return $jselem;
   }
@@ -597,7 +604,7 @@ class ExtendedElement extends DOMElement {
   //   appends an ExtendedDocument::createElementJS() as a child of this element (see there for params)
   //     NO return value!
   //
-  // public function appendJSFile($jsURL)
+  // public function appendJSFile($jsURL, [$defer], [$async])
   //   appends an ExtendedDocument::createElementJSFile() as a child of this element (see there for params)
   //     returns the new child
 
@@ -682,8 +689,8 @@ class ExtendedElement extends DOMElement {
   public function appendJSElement($jsdata) {
     $this->appendChild($this->ownerDocument->createElementJS($jsdata));
   }
-  public function appendJSFile($jsdata) {
-    return $this->appendChild($this->ownerDocument->createElementJSFile($jsdata));
+  public function appendJSFile($jsdata, $defer = false, $async = false) {
+    return $this->appendChild($this->ownerDocument->createElementJSFile($jsdata, $defer, $async));
   }
 }
 
@@ -796,7 +803,7 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   //   appends an ExtendedDocument::createElementJS() as a child of this fragment (see there for params)
   //     NO return value!
   //
-  // public function appendJSFile($jsURL)
+  // public function appendJSFile($jsURL, [$defer], [$async])
   //   appends an ExtendedDocument::createElementJSFile() as a child of this fragment (see there for params)
   //     returns the new child
 
@@ -881,8 +888,8 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   public function appendJSElement($jsdata) {
     $this->appendChild($this->ownerDocument->createElementJS($jsdata));
   }
-  public function appendJSFile($jsdata) {
-    return $this->appendChild($this->ownerDocument->createElementJSFile($jsdata));
+  public function appendJSFile($jsdata, $defer = false, $async = false) {
+    return $this->appendChild($this->ownerDocument->createElementJSFile($jsdata, $defer, $async));
   }
 }
 ?>

@@ -299,8 +299,13 @@ class ExtendedDocument extends DOMDocument {
 
   public function appendHTMLMarkup($htmldata, $parentNode = null) {
     if (is_null($parentNode)) { $parentNode =& $this; }
-    // XXX: just a workaround for now!
-    $parentNode->appendChild($this->createCDATASection($htmldata));
+    // Use loadHTML() to parse and turn the markup into proper HTML.
+    $tmpdoc = new ExtendedDocument;
+    // The XML line is needed to tell the parser that we need UTF-8 parsing.
+    $tmpdoc->loadHTML('<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html><html><body>'.$htmldata.'</body></html>');
+    foreach ($tmpdoc->getElementsByTagName('body')->item(0)->childNodes as $child) {
+      $parentNode->appendChild($this->importNode($child, true));
+    }
   }
 
   public function appendXMLMarkup($xmldata, $parentNode = null) {

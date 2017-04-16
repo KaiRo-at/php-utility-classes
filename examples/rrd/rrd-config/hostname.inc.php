@@ -420,14 +420,14 @@ $rrd_info['connect']['fields'][] = array('name' => 'rest_other', 'type' => 'GAUG
 $rrd_info['connect']['fields'][] = array('name' => 'udp', 'type' => 'GAUGE', 'heartbeat' => 600, 'min' => 'U', 'max' => 'U');
 $rrd_info['connect']['update'] =
  'function {
-    $sdata = explode("\n", `LANG=C /bin/netstat -n -a`);
+    $sdata = explode("\n", `LANG=C /usr/sbin/ss -tuan`);
     $udata = array("listen"=>0,"run_http"=>0,"run_other"=>0,"rest_http"=>0,"rest_other"=>0,"udp"=>0);
     foreach ($sdata as $sline) {
       if (substr($sline, 0, 3) == "tcp") {
-        if (preg_match("/LISTEN\s*$/", $sline)) { $udata["listen"]++; }
-        elseif (preg_match("/:(80|443)\s+[\d\.:*]+\s+ESTABLISHED\s*/", $sline)) { $udata["run_http"]++; }
-        elseif (preg_match("/^tcp\s+\d+\s+\d+\s+[\d\.]+:(80|443)/", $sline)) { $udata["rest_http"]++; }
-        elseif (preg_match("/ESTABLISHED\s*$/", $sline)) { $udata["run_other"]++; }
+        if (preg_match("/^tcp\s+LISTEN\s+/", $sline)) { $udata["listen"]++; }
+        elseif (preg_match("/^tcp\s+ESTAB\s+\d+\s+\d+\s+[\da-f\.:]+:(80|443)\s*/", $sline)) { $udata["run_http"]++; }
+        elseif (preg_match("/^tcp\s+[^\s]+\s+\d+\s+\d+\s+[\da-f\.:]+:(80|443)\s*/", $sline)) { $udata["rest_http"]++; }
+        elseif (preg_match("/^tcp\s+ESTAB\s+/", $sline)) { $udata["run_other"]++; }
         else { $udata["rest_other"]++; }
       }
       elseif (substr($sline, 0, 3) == "udp") { $udata["udp"]++; }

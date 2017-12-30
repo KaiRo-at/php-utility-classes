@@ -409,6 +409,7 @@ aipbot/1.0 (aipbot; http://www.aipbot.com; aipbot@aipbot.com)
 CoralWebPrx/0.1.20 (See http://coralcdn.org/)
 DoCoMo/1.0/N505i/c20/TB/W20H10 (compatible; RFCrawler-Mobile/1.0; +http://www.rfms.jp/crawler.html)
 ichiro/3.0 (http://help.goo.ne.jp/door/crawler.html)
+DomainCrawler/3.0 (info@domaincrawler.com; http://www.domaincrawler.com/example.com)
 Jyxobot/1
 OOZBOT/0.20 ( http://www.setooz.com/oozbot.html ; agentname at setooz dot_com )
 Ocelli/1.4 (http://www.globalspec.com/Ocelli)

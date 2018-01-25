@@ -459,7 +459,7 @@ class ExtendedDocument extends DOMDocument {
     $select->setAttribute('name', $name);
     if (!is_null($id)) { $select->setAttribute('id', $id); }
     foreach ($options as $key => $desc) {
-      $select->appendElementOption($key, $desc, ($key == $default));
+      $select->appendElementOption($key, $desc, ($key === $default));
     }
     return $select;
   }

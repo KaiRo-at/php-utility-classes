@@ -85,7 +85,7 @@ class ExtendedDocument extends DOMDocument {
   //   appends an ExtendedDocument::createElementTextArea() as a child of this document (see there for params)
   //     returns the new child
   //
-  // public function appendElementSelect($name, [$id], [$options], [$default])
+  // public function appendElementSelect($name, [$id], [$options], [$default], [$strictmatch])
   //   appends an ExtendedDocument::createElementSelect() as a child of this document (see there for params)
   //     returns the new child
   //
@@ -175,9 +175,9 @@ class ExtendedDocument extends DOMDocument {
   //   returns an ExtendedElement that is an HTML <textarea> with the given name, columns, rows,
   //   and optionally id and value
   //
-  // public function createElementSelect($name, [$id], [$options], [$default])
+  // public function createElementSelect($name, [$id], [$options], [$default], [$strictmatch])
   //   returns an ExtendedElement that is an HTML <select> with the given name, and optionally id,
-  //   array of options (key => description) and key of the by-default selected entry
+  //   array of options (key => description) and key of the by-default selected entry (matched including type when strictmatch is true)
   //
   // public function createElementOption($key, $desc, [$selected])
   //   returns an ExtendedElement that is an HTML <option> with the given key (value) and description (content)
@@ -272,8 +272,8 @@ class ExtendedDocument extends DOMDocument {
   public function appendTextArea($name, $columns, $rows, $id = null, $value = null) {
     return $this->appendChild($this->createElementTextArea($name, $columns, $rows, $id, $value));
   }
-  public function appendElementSelect($name, $id = null, $options = array(), $default = null) {
-    return $this->appendChild($this->createElementSelect($name, $id, $options, $default));
+  public function appendElementSelect($name, $id = null, $options = array(), $default = null, $strictmatch = false) {
+    return $this->appendChild($this->createElementSelect($name, $id, $options, $default, $strictmatch));
   }
   public function appendElementOption($key, $desc, $selected = false) {
     return $this->appendChild($this->createElementOption($key, $desc, $selected));
@@ -454,12 +454,12 @@ class ExtendedDocument extends DOMDocument {
     return $txtarea;
   }
 
-  public function createElementSelect($name, $id = null, $options = array(), $default = null) {
+  public function createElementSelect($name, $id = null, $options = array(), $default = null, $strictmatch = false) {
     $select = $this->createElement('select');
     $select->setAttribute('name', $name);
     if (!is_null($id)) { $select->setAttribute('id', $id); }
     foreach ($options as $key => $desc) {
-      $select->appendElementOption($key, $desc, ($key === $default));
+      $select->appendElementOption($key, $desc, $strictmatch ? ($key === $default) : ($key == $default));
     }
     return $select;
   }
@@ -573,7 +573,7 @@ class ExtendedElement extends DOMElement {
   //   appends an ExtendedDocument::createElementTextArea() as a child of this element (see there for params)
   //     returns the new child
   //
-  // public function appendElementSelect($name, [$id], [$options], [$default])
+  // public function appendElementSelect($name, [$id], [$options], [$default], [$strictmatch])
   //   appends an ExtendedDocument::createElementSelect() as a child of this element (see there for params)
   //     returns the new child
   //
@@ -667,8 +667,8 @@ class ExtendedElement extends DOMElement {
   public function appendTextArea($name, $columns, $rows, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementTextArea($name, $columns, $rows, $id, $value));
   }
-  public function appendElementSelect($name, $id = null, $options = array(), $default = null) {
-    return $this->appendChild($this->ownerDocument->createElementSelect($name, $id, $options, $default));
+  public function appendElementSelect($name, $id = null, $options = array(), $default = null, $strictmatch = false) {
+    return $this->appendChild($this->ownerDocument->createElementSelect($name, $id, $options, $default, $strictmatch));
   }
   public function appendElementOption($key, $desc, $selected = false) {
     return $this->appendChild($this->ownerDocument->createElementOption($key, $desc, $selected));
@@ -772,7 +772,7 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   //   appends an ExtendedDocument::createElementTextArea() as a child of this fragment (see there for params)
   //     returns the new child
   //
-  // public function appendElementSelect($name, [$id], [$options], [$default])
+  // public function appendElementSelect($name, [$id], [$options], [$default], [$strictmatch])
   //   appends an ExtendedDocument::createElementSelect() as a child of this fragment (see there for params)
   //     returns the new child
   //
@@ -866,8 +866,8 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   public function appendTextArea($name, $columns, $rows, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementTextArea($name, $columns, $rows, $id, $value));
   }
-  public function appendElementSelect($name, $id = null, $options = array(), $default = null) {
-    return $this->appendChild($this->ownerDocument->createElementSelect($name, $id, $options, $default));
+  public function appendElementSelect($name, $id = null, $options = array(), $default = null, $strictmatch = false) {
+    return $this->appendChild($this->ownerDocument->createElementSelect($name, $id, $options, $default, $strictmatch));
   }
   public function appendElementOption($key, $desc, $selected = false) {
     return $this->appendChild($this->ownerDocument->createElementOption($key, $desc, $selected));

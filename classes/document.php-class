@@ -612,6 +612,16 @@ class ExtendedElement extends DOMElement {
   // public function appendJSFile($jsURL, [$defer], [$async])
   //   appends an ExtendedDocument::createElementJSFile() as a child of this element (see there for params)
   //     returns the new child
+  //
+  // public function setClass($classname)
+  //   sets the 'class' attribute of the element to the given classname value
+  //
+  // public function addClass($classname)
+  //   adds the given classname value to the space-separated list in the 'class' attribute
+  //     returns the value of the 'class' attribute
+  //
+  // public function setID($elem_id)
+  //   sets the 'id' attribute of the element to the given elem_id value
 
   public function appendElement($name, $value = '') {
     return $this->appendChild($this->ownerDocument->createElement($name, $value));
@@ -696,6 +706,19 @@ class ExtendedElement extends DOMElement {
   }
   public function appendJSFile($jsdata, $defer = false, $async = false) {
     return $this->appendChild($this->ownerDocument->createElementJSFile($jsdata, $defer, $async));
+  }
+  public function setClass($classname) {
+    $this->setAttribute('class', $classname);
+  }
+  public function addClass($classname) {
+    $classval = $this->getAttribute('class');
+    if (strlen($classval)) { $classval .= ' '; }
+    $classval .= $classname;
+    $this->setClass($classval);
+    return $classval;
+  }
+  public function setID($elem_id) {
+    $this->setAttribute('id', $elem_id);
   }
 }
 

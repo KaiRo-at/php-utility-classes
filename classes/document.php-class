@@ -101,6 +101,10 @@ class ExtendedDocument extends DOMDocument {
   //   appends a DOMDocument::createTextNode() as a child of this document (see there for params)
   //     returns the new child
   //
+  // public function appendLinebreak()
+  //   appends a <br> as a child of this document
+  //     returns the new child
+  //
   // public function appendEntity($name)
   //   appends a DOMDocument::createEntityReference() as a child of this document (see there for params)
   //     returns the new child
@@ -283,6 +287,9 @@ class ExtendedDocument extends DOMDocument {
   }
   public function appendText($text) {
     return $this->appendChild($this->createTextNode($text));
+  }
+  public function appendLinebreak() {
+    return $this->appendChild($this->createElement('br'));
   }
   public function appendEntity($name) {
     return $this->appendChild($this->createEntityReference($name));
@@ -589,6 +596,10 @@ class ExtendedElement extends DOMElement {
   //   appends a DOMDocument::createTextNode() as a child of this element (see there for params)
   //     returns the new child
   //
+  // public function appendLinebreak()
+  //   appends a <br> as a child of this element
+  //     returns the new child
+  //
   // public function appendEntity($name)
   //   appends a DOMDocument::createEntityReference() as a child of this element (see there for params)
   //     returns the new child
@@ -688,6 +699,9 @@ class ExtendedElement extends DOMElement {
   }
   public function appendText($text) {
     return $this->appendChild($this->ownerDocument->createTextNode($text));
+  }
+  public function appendLinebreak() {
+    return $this->appendChild($this->ownerDocument->createElement('br'));
   }
   public function appendEntity($name) {
     return $this->appendChild($this->ownerDocument->createEntityReference($name));
@@ -811,6 +825,10 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   //   appends a DOMDocument::createTextNode() as a child of this fragment (see there for params)
   //     returns the new child
   //
+  // public function appendLinebreak()
+  //   appends a <br> as a child of this fragment
+  //     returns the new child
+  //
   // public function appendEntity($name)
   //   appends a DOMDocument::createEntityReference() as a child of this fragment (see there for params)
   //     returns the new child
@@ -900,6 +918,9 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   }
   public function appendText($text) {
     return $this->appendChild($this->ownerDocument->createTextNode($text));
+  }
+  public function appendLinebreak() {
+    return $this->appendChild($this->ownerDocument->createElement('br'));
   }
   public function appendEntity($name) {
     return $this->appendChild($this->ownerDocument->createEntityReference($name));

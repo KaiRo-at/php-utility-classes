@@ -335,7 +335,7 @@ class ExtendedDocument extends DOMDocument {
   }
 
   public function createElementLink($target, $value = '') {
-    $link = $this->createElement('a', $value);
+    $link = $this->createElement('a', (strlen($value) ? $value : $target));
     $link->setAttribute('href', $target); // XXX: take care of & etc. in links
     return $link;
   }

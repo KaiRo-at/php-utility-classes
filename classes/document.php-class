@@ -25,7 +25,7 @@ class ExtendedDocument extends DOMDocument {
   //   with an ExtendedDocument::createXMLFragment() of the given XML data inside
   //     returns the new child
   //
-  // public function appendLink($target, [$value])
+  // public function appendLink($target, [$value], [$title])
   //   appends an ExtendedDocument::createElementLink() as a child of this document (see there for params)
   //     returns the new child
   //
@@ -129,11 +129,11 @@ class ExtendedDocument extends DOMDocument {
   //   appends an ExtendedDocument::createElementJSFile() as a child of this document (see there for params)
   //     returns the new child
   //
-  // public function createElementLink($target, [$value])
-  //   returns an ExtendedElement that is an HTML <a> with the given target (href) and (optional) value
+  // public function createElementLink($target, [$value], [$title])
+  //   returns an ExtendedElement that is an HTML <a> with the given target (href) and (optional) value as well as (optional) title attribute
   //
   // public function createElementImage($src, [$alt_text])
-  //   returns an ExtendedElement that is an HTML <img> with the given (src) and alt attributes (set to '' by default)
+  //   returns an ExtendedElement that is an HTML <img> with the given src and alt attributes (set to '' by default)
   //
   // public function createElementForm($action, $method, $name)
   //   returns an ExtendedElement that is an HTML <div> that is a child of an HTML <form>
@@ -230,8 +230,8 @@ class ExtendedDocument extends DOMDocument {
     //$aelem->appendChild($this->createXMLFragment($xmldata));
     return $aelem;
   }
-  public function appendLink($target, $value = '') {
-    return $this->appendChild($this->createElementLink($target, $value));
+  public function appendLink($target, $value = '', $title = null) {
+    return $this->appendChild($this->createElementLink($target, $value, $title));
   }
   public function appendImage($src, $alt_text = '') {
     return $this->appendChild($this->createElementImage($src, $alt_text));
@@ -330,13 +330,14 @@ class ExtendedDocument extends DOMDocument {
   public function createElement($name, $value = '') {
     // Adding the $value in DOMDocument's createElement does NOT escape it, so override it and use appendText to support that.
     $aelem = parent::createElement($name);
-    $aelem->appendText($value);
+    if (strlen($value)) { $aelem->appendText($value); }
     return $aelem;
   }
 
-  public function createElementLink($target, $value = '') {
+  public function createElementLink($target, $value = '', $title = null) {
     $link = $this->createElement('a', $value);
     $link->setAttribute('href', $target); // XXX: take care of & etc. in links
+    if (!is_null($title)) { $link->setAttribute('title', $title); }
     return $link;
   }
 
@@ -352,7 +353,7 @@ class ExtendedDocument extends DOMDocument {
     $formelem->setAttribute('action', $action);
     $formelem->setAttribute('method', $method);
     $formelem->setAttribute('name', $name);
-    $formelem->setAttribute('id', $id);
+    if (!is_null($id)) { $formelem->setAttribute('id', $id); }
     return $formelem;
   }
 
@@ -520,7 +521,7 @@ class ExtendedElement extends DOMElement {
   //   with an ExtendedDocument::createXMLFragment() of the given XML data inside
   //     returns the new child
   //
-  // public function appendLink($target, [$value])
+  // public function appendLink($target, [$value], [$title])
   //   appends an ExtendedDocument::createElementLink() as a child of this element (see there for params)
   //     returns the new child
   //
@@ -642,8 +643,8 @@ class ExtendedElement extends DOMElement {
     $aelem->appendXMLMarkup($xmldata);
     return $aelem;
   }
-  public function appendLink($target, $value = '') {
-    return $this->appendChild($this->ownerDocument->createElementLink($target, $value));
+  public function appendLink($target, $value = '', $title = null) {
+    return $this->appendChild($this->ownerDocument->createElementLink($target, $value, $title));
   }
   public function appendImage($src, $alt_text = '') {
     return $this->appendChild($this->ownerDocument->createElementImage($src, $alt_text));
@@ -749,7 +750,7 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   //   with an ExtendedDocument::createXMLFragment() of the given XML data inside
   //     returns the new child
   //
-  // public function appendLink($target, [$value])
+  // public function appendLink($target, [$value], [$title])
   //   appends an ExtendedDocument::createElementLink() as a child of this fragment (see there for params)
   //     returns the new child
   //
@@ -861,8 +862,8 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
     $aelem->appendXMLMarkup($xmldata);
     return $aelem;
   }
-  public function appendLink($target, $value = '') {
-    return $this->appendChild($this->ownerDocument->createElementLink($target, $value));
+  public function appendLink($target, $value = '', $title = null) {
+    return $this->appendChild($this->ownerDocument->createElementLink($target, $value, $title));
   }
   public function appendImage($src, $alt_text = '') {
     return $this->appendChild($this->ownerDocument->createElementImage($src, $alt_text));

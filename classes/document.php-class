@@ -49,16 +49,40 @@ class ExtendedDocument extends DOMDocument {
   //   appends an ExtendedDocument::createElementInputText() as a child of this document (see there for params)
   //     returns the new child
   //
+  // public function appendInputPassword($name, $maxlength, $size, [$id], [$value])
+  //   appends an ExtendedDocument::createElementInputPassword() as a child of this document (see there for params)
+  //     returns the new child
+  //
   // public function appendInputNumber($name, $maxlength, $size, [$id], [$value])
   //   appends an ExtendedDocument::createElementInputNumber() as a child of this document (see there for params)
+  //     returns the new child
+  //
+  // public function appendInputRange($name, $id, $min, $max, [$step], [$value])
+  //   appends an ExtendedDocument::createElementInputRange() as a child of this document (see there for params)
+  //     returns the new child
+  //
+  // public function appendInputUrl($name, $maxlength, $size, [$id], [$value])
+  //   appends an ExtendedDocument::createElementInputUrl() as a child of this document (see there for params)
   //     returns the new child
   //
   // public function appendInputEmail($name, $maxlength, $size, [$id], [$value])
   //   appends an ExtendedDocument::createElementInputEmail() as a child of this document (see there for params)
   //     returns the new child
   //
-  // public function appendInputPassword($name, $maxlength, $size, [$id], [$value])
-  //   appends an ExtendedDocument::createElementInputPassword() as a child of this document (see there for params)
+  // public function appendInputTel($name, $maxlength, $size, [$id], [$value])
+  //   appends an ExtendedDocument::createElementInputTel() as a child of this document (see there for params)
+  //     returns the new child
+  //
+  // public function appendInputDate($name, [$id], [$min], [$max], [$value])
+  //   appends an ExtendedDocument::createElementInputDate() as a child of this document (see there for params)
+  //     returns the new child
+  //
+  // public function appendInputTime($name, [$id], [$min], [$max], [$value])
+  //   appends an ExtendedDocument::createElementInputTime() as a child of this document (see there for params)
+  //     returns the new child
+  //
+  // public function appendInputColor($name, [$id], [$value])
+  //   appends an ExtendedDocument::createElementInputColor() as a child of this document (see there for params)
   //     returns the new child
   //
   // public function appendInputRadio($name, $id, $value, $checked)
@@ -146,16 +170,40 @@ class ExtendedDocument extends DOMDocument {
   //   returns an ExtendedElement that is an HTML <input> of type 'text' with the given name, maxlength, size,
   //   and optionally id and value
   //
+  // public function createElementInputPassword($name, $maxlength, $size, [$id], [$value])
+  //   returns an ExtendedElement that is an HTML <input> of type 'password' with the given name, maxlength, size,
+  //   and optionally id and value
+  //
   // public function createElementInputNumber($name, $maxlength, $size, [$id], [$value])
   //   returns an ExtendedElement that is an HTML <input> of type 'number' with the given name, maxlength, size,
+  //   and optionally id and value
+  //
+  // public function createElementInputRange($name, $id, $min, $max, [$step], [$value])
+  //   returns an ExtendedElement that is an HTML <input> of type 'range' with the given name, id, min, max,
+  //   and optionally step and value
+  //
+  // public function createElementInputUrl($name, $maxlength, $size, [$id], [$value])
+  //   returns an ExtendedElement that is an HTML <input> of type 'url' with the given name, maxlength, size,
   //   and optionally id and value
   //
   // public function createElementInputEmail($name, $maxlength, $size, [$id], [$value])
   //   returns an ExtendedElement that is an HTML <input> of type 'email' with the given name, maxlength, size,
   //   and optionally id and value
   //
-  // public function createElementInputPassword($name, $maxlength, $size, [$id], [$value])
-  //   returns an ExtendedElement that is an HTML <input> of type 'password' with the given name, maxlength, size,
+  // public function createElementInputTel($name, $maxlength, $size, [$id], [$value])
+  //   returns an ExtendedElement that is an HTML <input> of type 'tel' with the given name, maxlength, size,
+  //   and optionally id and value
+  //
+  // public function createElementInputDate($name, [$id], [$min], [$max], [$value])
+  //   returns an ExtendedElement that is an HTML <input> of type 'date' with the given name,
+  //   and optionally id, min, max, and value
+  //
+  // public function createElementInputTime($name, [$id], [$min], [$max], [$value])
+  //   returns an ExtendedElement that is an HTML <input> of type 'time' with the given name,
+  //   and optionally id, min, max, and value
+  //
+  // public function createElementInputColor($name, [$id], [$value])
+  //   returns an ExtendedElement that is an HTML <input> of type 'color' with the given name,
   //   and optionally id and value
   //
   // public function createElementInputRadio($name, $id, $value, $checked)
@@ -249,14 +297,32 @@ class ExtendedDocument extends DOMDocument {
   public function appendInputText($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->createElementInputText($name, $maxlength, $size, $id, $value));
   }
+  public function appendInputPassword($name, $maxlength, $size, $id = null, $value = null) {
+    return $this->appendChild($this->createElementInputPassword($name, $maxlength, $size, $id, $value));
+  }
   public function appendInputNumber($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->createElementInputNumber($name, $maxlength, $size, $id, $value));
+  }
+  public function appendInputRange($name, $id, $min, $max, $step = null, $value = null) {
+    return $this->appendChild($this->createElementInputRange($name, $id, $min, $max, $step, $value));
+  }
+  public function appendInputUrl($name, $maxlength, $size, $id = null, $value = null) {
+    return $this->appendChild($this->createElementInputUrl($name, $maxlength, $size, $id, $value));
   }
   public function appendInputEmail($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->createElementInputEmail($name, $maxlength, $size, $id, $value));
   }
-  public function appendInputPassword($name, $maxlength, $size, $id = null, $value = null) {
-    return $this->appendChild($this->createElementInputPassword($name, $maxlength, $size, $id, $value));
+  public function appendInputTel($name, $maxlength, $size, $id = null, $value = null) {
+    return $this->appendChild($this->createElementInputTel($name, $maxlength, $size, $id, $value));
+  }
+  public function appendInputDate($name, $id = null, $min = null, $max = null, $value = null) {
+    return $this->appendChild($this->createElementInputDate($name, $id, $min, $max, $value));
+  }
+  public function appendInputTime($name, $id = null, $min = null, $max = null, $value = null) {
+    return $this->appendChild($this->createElementInputTime($name, $id, $min, $max, $value));
+  }
+  public function appendInputColor($name, $id = null, $value = null) {
+    return $this->appendChild($this->createElementInputColor($name, $id, $value));
   }
   public function appendInputRadio($name, $id, $value, $checked) {
     return $this->appendChild($this->createElementInputRadio($name, $id, $value, $checked));
@@ -376,28 +442,6 @@ class ExtendedDocument extends DOMDocument {
     return $txfield;
   }
 
-  public function createElementInputNumber($name, $maxlength, $size, $id = null, $value = null) {
-    $txfield = $this->createElement('input');
-    $txfield->setAttribute('type', 'number');
-    if (!is_null($id)) { $txfield->setAttribute('id', $id); }
-    $txfield->setAttribute('name', $name);
-    $txfield->setAttribute('maxlength', $maxlength);
-    $txfield->setAttribute('size', $size);
-    if (!is_null($value)) { $txfield->setAttribute('value', $value); }
-    return $txfield;
-  }
-
-  public function createElementInputEmail($name, $maxlength, $size, $id = null, $value = null) {
-    $txfield = $this->createElement('input');
-    $txfield->setAttribute('type', 'email');
-    if (!is_null($id)) { $txfield->setAttribute('id', $id); }
-    $txfield->setAttribute('name', $name);
-    $txfield->setAttribute('maxlength', $maxlength);
-    $txfield->setAttribute('size', $size);
-    if (!is_null($value)) { $txfield->setAttribute('value', $value); }
-    return $txfield;
-  }
-
   public function createElementInputPassword($name, $maxlength, $size, $id = null, $value = null) {
     $pwfield = $this->createElement('input');
     $pwfield->setAttribute('type', 'password');
@@ -407,6 +451,91 @@ class ExtendedDocument extends DOMDocument {
     $pwfield->setAttribute('size', $size);
     if (!is_null($value)) { $pwfield->setAttribute('value', $value); }
     return $pwfield;
+  }
+
+  public function createElementInputNumber($name, $maxlength, $size, $id = null, $value = null) {
+    $numfield = $this->createElement('input');
+    $numfield->setAttribute('type', 'number');
+    if (!is_null($id)) { $numfield->setAttribute('id', $id); }
+    $numfield->setAttribute('name', $name);
+    $numfield->setAttribute('maxlength', $maxlength);
+    $numfield->setAttribute('size', $size);
+    if (!is_null($value)) { $numfield->setAttribute('value', $value); }
+    return $numfield;
+  }
+
+  public function createElementInputRange($name, $id, $min, $max, $step = null, $value = null) {
+    $rgfield = $this->createElement('input');
+    $rgfield->setAttribute('type', 'range');
+    if (!is_null($id)) { $rgfield->setAttribute('id', $id); }
+    $rgfield->setAttribute('name', $name);
+    if (!is_null($min)) { $rgfield->setAttribute('min', $min); }
+    if (!is_null($max)) { $rgfield->setAttribute('max', $max); }
+    if (!is_null($step)) { $rgfield->setAttribute('step', $step); }
+    if (!is_null($value)) { $rgfield->setAttribute('value', $value); }
+    return $rgfield;
+  }
+
+  public function createElementInputUrl($name, $maxlength, $size, $id = null, $value = null) {
+    $urlfield = $this->createElement('input');
+    $urlfield->setAttribute('type', 'url');
+    if (!is_null($id)) { $urlfield->setAttribute('id', $id); }
+    $urlfield->setAttribute('name', $name);
+    $urlfield->setAttribute('maxlength', $maxlength);
+    $urlfield->setAttribute('size', $size);
+    if (!is_null($value)) { $urlfield->setAttribute('value', $value); }
+    return $urlfield;
+  }
+
+  public function createElementInputEmail($name, $maxlength, $size, $id = null, $value = null) {
+    $mailfield = $this->createElement('input');
+    $mailfield->setAttribute('type', 'email');
+    if (!is_null($id)) { $mailfield->setAttribute('id', $id); }
+    $mailfield->setAttribute('name', $name);
+    $mailfield->setAttribute('maxlength', $maxlength);
+    $mailfield->setAttribute('size', $size);
+    if (!is_null($value)) { $mailfield->setAttribute('value', $value); }
+    return $mailfield;
+  }
+
+  public function createElementInputTel($name, $maxlength, $size, $id = null, $value = null) {
+    $telfield = $this->createElement('input');
+    $telfield->setAttribute('type', 'tel');
+    if (!is_null($id)) { $telfield->setAttribute('id', $id); }
+    $telfield->setAttribute('name', $name);
+    $telfield->setAttribute('maxlength', $maxlength);
+    $telfield->setAttribute('size', $size);
+    if (!is_null($value)) { $telfield->setAttribute('value', $value); }
+    return $telfield;
+  }
+
+  public function createElementInputDate($name, $id = null, $min = null, $max = null, $value = null) {
+    $telfield = $this->createElement('input');
+    $telfield->setAttribute('type', 'date');
+    if (!is_null($id)) { $telfield->setAttribute('id', $id); }
+    if (!is_null($min)) { $rgfield->setAttribute('min', $min); }
+    if (!is_null($max)) { $rgfield->setAttribute('max', $max); }
+    if (!is_null($value)) { $telfield->setAttribute('value', $value); }
+    return $telfield;
+  }
+
+  public function createElementInputTime($name, $id = null, $min = null, $max = null, $value = null) {
+    $telfield = $this->createElement('input');
+    $telfield->setAttribute('type', 'time');
+    if (!is_null($id)) { $telfield->setAttribute('id', $id); }
+    if (!is_null($min)) { $rgfield->setAttribute('min', $min); }
+    if (!is_null($max)) { $rgfield->setAttribute('max', $max); }
+    if (!is_null($value)) { $telfield->setAttribute('value', $value); }
+    return $telfield;
+  }
+
+  public function createElementInputColor($name, $id = null, $value = null) {
+    $colfield = $this->createElement('input');
+    $colfield->setAttribute('type', 'color');
+    if (!is_null($id)) { $colfield->setAttribute('id', $id); }
+    $colfield->setAttribute('name', $name);
+    if (!is_null($value)) { $colfield->setAttribute('value', $value); }
+    return $colfield;
   }
 
   public function createElementInputRadio($name, $id, $value, $checked) {
@@ -545,17 +674,40 @@ class ExtendedElement extends DOMElement {
   //   appends an ExtendedDocument::createElementInputText() as a child of this element (see there for params)
   //     returns the new child
   //
+  // public function appendInputPassword($name, $maxlength, $size, [$id], [$value])
+  //   appends an ExtendedDocument::createElementInputPassword() as a child of this element (see there for params)
+  //     returns the new child
+  //
   // public function appendInputNumber($name, $maxlength, $size, [$id], [$value])
   //   appends an ExtendedDocument::createElementInputNumber() as a child of this element (see there for params)
+  //     returns the new child
+  //
+  // public function appendInputRange($name, $id, $min, $max, [$step], [$value])
+  //   appends an ExtendedDocument::createElementInputRange() as a child of this element (see there for params)
+  //     returns the new child
+  //
+  // public function appendInputUrl($name, $maxlength, $size, [$id], [$value])
+  //   appends an ExtendedDocument::createElementInputUrl() as a child of this element (see there for params)
   //     returns the new child
   //
   // public function appendInputEmail($name, $maxlength, $size, [$id], [$value])
   //   appends an ExtendedDocument::createElementInputEmail() as a child of this element (see there for params)
   //     returns the new child
   //
-  // public function appendInputPassword($name, $maxlength, $size, [$id], [$value])
-  //   appends an ExtendedDocument::createElementInputPassword() as a child of this element (see there for params)
+  // public function appendInputTel($name, $maxlength, $size, [$id], [$value])
+  //   appends an ExtendedDocument::createElementInputTel() as a child of this element (see there for params)
   //     returns the new child
+  //
+  // public function appendInputDate($name, [$id], [$min], [$max], [$value])
+  //   appends an ExtendedDocument::createElementInputDate() as a child of this element (see there for params)
+  //     returns the new child
+  //
+  // public function appendInputTime($name, [$id], [$min], [$max], [$value])
+  //   appends an ExtendedDocument::createElementInputTime() as a child of this element (see there for params)
+  //     returns the new child
+  //
+  // public function appendInputColor($name, [$id], [$value])
+  //   appends an ExtendedDocument::createElementInputColor() as a child of this element (see there for params)
   //
   // public function appendInputRadio($name, $id, $value, $checked)
   //   appends an ExtendedDocument::createElementInputRadio() as a child of this element (see there for params)
@@ -662,14 +814,32 @@ class ExtendedElement extends DOMElement {
   public function appendInputText($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementInputText($name, $maxlength, $size, $id, $value));
   }
+  public function appendInputPassword($name, $maxlength, $size, $id = null, $value = null) {
+    return $this->appendChild($this->ownerDocument->createElementInputPassword($name, $maxlength, $size, $id, $value));
+  }
   public function appendInputNumber($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementInputNumber($name, $maxlength, $size, $id, $value));
+  }
+  public function appendInputRange($name, $id, $min, $max, $step = null, $value = null) {
+    return $this->appendChild($this->ownerDocument->createElementInputRange($name, $id, $min, $max, $step, $value));
+  }
+  public function appendInputUrl($name, $maxlength, $size, $id = null, $value = null) {
+    return $this->appendChild($this->ownerDocument->createElementInputUrl($name, $maxlength, $size, $id, $value));
   }
   public function appendInputEmail($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementInputEmail($name, $maxlength, $size, $id, $value));
   }
-  public function appendInputPassword($name, $maxlength, $size, $id = null, $value = null) {
-    return $this->appendChild($this->ownerDocument->createElementInputPassword($name, $maxlength, $size, $id, $value));
+  public function appendInputTel($name, $maxlength, $size, $id = null, $value = null) {
+    return $this->appendChild($this->ownerDocument->createElementInputTel($name, $maxlength, $size, $id, $value));
+  }
+  public function appendInputDate($name, $id = null, $min = null, $max = null, $value = null) {
+    return $this->appendChild($this->ownerDocument->createElementInputDate($name, $id, $min, $max, $value));
+  }
+  public function appendInputTime($name, $id = null, $min = null, $max = null, $value = null) {
+    return $this->appendChild($this->ownerDocument->createElementInputTime($name, $id, $min, $max, $value));
+  }
+  public function appendInputColor($name, $id = null, $value = null) {
+    return $this->appendChild($this->ownerDocument->createElementInputColor($name, $id, $value));
   }
   public function appendInputRadio($name, $id, $value, $checked) {
     return $this->appendChild($this->ownerDocument->createElementInputRadio($name, $id, $value, $checked));
@@ -774,17 +944,40 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   //   appends an ExtendedDocument::createElementInputText() as a child of this fragment (see there for params)
   //     returns the new child
   //
+  // public function appendInputPassword($name, $maxlength, $size, [$id], [$value])
+  //   appends an ExtendedDocument::createElementInputPassword() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
   // public function appendInputNumber($name, $maxlength, $size, [$id], [$value])
   //   appends an ExtendedDocument::createElementInputNumber() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
+  // public function appendInputRange($name, $id, $min, $max, [$step], [$value])
+  //   appends an ExtendedDocument::createElementInputRange() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
+  // public function appendInputUrl($name, $maxlength, $size, [$id], [$value])
+  //   appends an ExtendedDocument::createElementInputUrl() as a child of this fragment (see there for params)
   //     returns the new child
   //
   // public function appendInputEmail($name, $maxlength, $size, [$id], [$value])
   //   appends an ExtendedDocument::createElementInputEmail() as a child of this fragment (see there for params)
   //     returns the new child
   //
-  // public function appendInputPassword($name, $maxlength, $size, [$id], [$value])
-  //   appends an ExtendedDocument::createElementInputPassword() as a child of this fragment (see there for params)
+  // public function appendInputTel($name, $maxlength, $size, [$id], [$value])
+  //   appends an ExtendedDocument::createElementInputTel() as a child of this fragment (see there for params)
   //     returns the new child
+  //
+  // public function appendInputDate($name, [$id], [$min], [$max], [$value])
+  //   appends an ExtendedDocument::createElementInputDate() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
+  // public function appendInputTime($name, [$id], [$min], [$max], [$value])
+  //   appends an ExtendedDocument::createElementInputTime() as a child of this fragment (see there for params)
+  //     returns the new child
+  //
+  // public function appendInputColor($name, [$id], [$value])
+  //   appends an ExtendedDocument::createElementInputColor() as a child of this fragment (see there for params)
   //
   // public function appendInputRadio($name, $id, $value, $checked)
   //   appends an ExtendedDocument::createElementInputRadio() as a child of this fragment (see there for params)
@@ -881,14 +1074,32 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   public function appendInputText($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementInputText($name, $maxlength, $size, $id, $value));
   }
+  public function appendInputPassword($name, $maxlength, $size, $id = null, $value = null) {
+    return $this->appendChild($this->ownerDocument->createElementInputPassword($name, $maxlength, $size, $id, $value));
+  }
   public function appendInputNumber($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementInputNumber($name, $maxlength, $size, $id, $value));
+  }
+  public function appendInputRange($name, $id, $min, $max, $step = null, $value = null) {
+    return $this->appendChild($this->ownerDocument->createElementInputRange($name, $id, $min, $max, $step, $value));
+  }
+  public function appendInputUrl($name, $maxlength, $size, $id = null, $value = null) {
+    return $this->appendChild($this->ownerDocument->createElementInputUrl($name, $maxlength, $size, $id, $value));
   }
   public function appendInputEmail($name, $maxlength, $size, $id = null, $value = null) {
     return $this->appendChild($this->ownerDocument->createElementInputEmail($name, $maxlength, $size, $id, $value));
   }
-  public function appendInputPassword($name, $maxlength, $size, $id = null, $value = null) {
-    return $this->appendChild($this->ownerDocument->createElementInputPassword($name, $maxlength, $size, $id, $value));
+  public function appendInputTel($name, $maxlength, $size, $id = null, $value = null) {
+    return $this->appendChild($this->ownerDocument->createElementInputTel($name, $maxlength, $size, $id, $value));
+  }
+  public function appendInputDate($name, $id = null, $min = null, $max = null, $value = null) {
+    return $this->appendChild($this->ownerDocument->createElementInputDate($name, $id, $min, $max, $value));
+  }
+  public function appendInputTime($name, $id = null, $min = null, $max = null, $value = null) {
+    return $this->appendChild($this->ownerDocument->createElementInputTime($name, $id, $min, $max, $value));
+  }
+  public function appendInputColor($name, $id = null, $value = null) {
+    return $this->appendChild($this->ownerDocument->createElementInputColor($name, $id, $value));
   }
   public function appendInputRadio($name, $id, $value, $checked) {
     return $this->appendChild($this->ownerDocument->createElementInputRadio($name, $id, $value, $checked));

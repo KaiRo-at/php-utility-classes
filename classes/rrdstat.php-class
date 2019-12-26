@@ -868,7 +868,8 @@ class rrdstat {
     $td = $this->mod_textdomain;
     $ptitle = isset($pconf['title_page'])?$pconf['title_page']:dgettext($td, 'RRD statistics index');
 
-    $out = '<html><head>'."\n";
+    $out = '<!DOCTYPE html>'."\n";
+    $out .= '<html><head>'."\n";
     $out .= '<title>'.$ptitle.'</title>'."\n";
     $out .= '<style type="text/css">'."\n";
     if (isset($pconf['style_base'])) { $out .= $pconf['style_base']; }
@@ -896,7 +897,7 @@ class rrdstat {
     else { $sURL_base = '?stat=%i%a'; }
 
     if (isset($pconf['stats_url_add'])) { $sURL_add = $pconf['stats_url_add']; }
-    else { $sURL_add = '&sub=%s'; }
+    else { $sURL_add = '&amp;sub=%s'; }
 
     $out .= '<ul class="indexlist">'."\n";
     foreach ($stats as $stat) {
@@ -913,7 +914,7 @@ class rrdstat {
           $sURL = str_replace('%s', $ssub, $sURL);
           $sprt[] = '<a href="'.$sURL.'">'.$ssub.'</a>';
         }
-        $out .= ' <span="subs">('.implode(', ', $sprt).')</span>';
+        $out .= ' <span class="subs">('.implode(', ', $sprt).')</span>';
       }
       $out .= '</li>'."\n";
     }
@@ -929,7 +930,8 @@ class rrdstat {
     $td = $this->mod_textdomain;
     $ptitle = isset($pconf['title_page'])?$pconf['title_page']:dgettext($td, 'RRD statistics overview');
 
-    $out = '<html><head>'."\n";
+    $out = '<!DOCTYPE html>'."\n";
+    $out .= '<html><head>'."\n";
     $out .= '<title>'.$ptitle.'</title>'."\n";
     $out .= '<style type="text/css">'."\n";
     if (isset($pconf['style_base'])) { $out .= $pconf['style_base']; }
@@ -955,7 +957,7 @@ class rrdstat {
     else { $sURL_base = '?stat=%i%a'; }
 
     if (isset($pconf['stats_url_add'])) { $sURL_add = $pconf['stats_url_add']; }
-    else { $sURL_add = '&sub=%s'; }
+    else { $sURL_add = '&amp;sub=%s'; }
 
     $default_num_cols = $GLOBALS['ua']->isMobile()?1:2;
     $num_cols = is_numeric(@$pconf['num_rows'])?$pconf['num_rows']:$default_num_cols;
@@ -1041,7 +1043,8 @@ class rrdstat {
     $gtitle['year'] = isset($pconf['title_year'])?$pconf['title_year']:dgettext($td, 'Year overview (scaling 1 day)');
     $ltitle = isset($pconf['title_legend'])?$pconf['title_legend']:dgettext($td, 'Legend:');
 
-    $out = '<html><head>'."\n";
+    $out = '<!DOCTYPE html>'."\n";
+    $out .= '<html><head>'."\n";
     $out .= '<title>'.$ptitle.'</title>'."\n";
     $out .= '<style type="text/css">'."\n";
     if (isset($pconf['style_base'])) { $out .= $pconf['style_base']; }

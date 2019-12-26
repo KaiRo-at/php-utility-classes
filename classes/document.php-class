@@ -137,6 +137,11 @@ class ExtendedDocument extends DOMDocument {
   //   appends a DOMDocument::createComment() as a child of this document (see there for params)
   //     returns the new child
   //
+  // public function appendClonedElement($dom_element, [$deep])
+  //   appends a clone of the given DOMElement as a child of this document
+  //     the boolean $deep specifies if the children are cloned as well (defaults to TRUE)
+  //     returns the new child
+  //
   // public function appendHTMLMarkup($htmldata, [$parentNode])
   //   appends a representation of the HTML data as children of the given parent node, by default this document
   //     NO return value!
@@ -363,8 +368,11 @@ class ExtendedDocument extends DOMDocument {
   public function appendComment($comment_data) {
     return $this->appendChild($this->createComment($comment_data));
   }
+  public function appendClonedElement($dom_element, $deep = true) {
+    return $this->appendChild($dom_element->cloneNode($deep));
+  }
   public function appendJSElement($jsdata) {
-    $this->appendChild($this->createElementJS($jsdata));
+    return $this->appendChild($this->createElementJS($jsdata));
   }
   public function appendJSFile($jsdata, $defer = false, $async = false) {
     return $this->appendChild($this->createElementJSFile($jsdata, $defer, $async));
@@ -761,6 +769,11 @@ class ExtendedElement extends DOMElement {
   //   appends a DOMDocument::createComment() as a child of this element (see there for params)
   //     returns the new child
   //
+  // public function appendClonedElement($dom_element, [$deep])
+  //   appends a clone of the given DOMElement as a child of this element
+  //     the boolean $deep specifies if the children are cloned as well (defaults to TRUE)
+  //     returns the new child
+  //
   // public function appendHTMLMarkup($htmldata)
   //   appends a representation of the HTML data as children of this element
   //     NO return value!
@@ -771,7 +784,7 @@ class ExtendedElement extends DOMElement {
   //
   // public function appendJSElement($jsdata)
   //   appends an ExtendedDocument::createElementJS() as a child of this element (see there for params)
-  //     NO return value!
+  //     returns the new child
   //
   // public function appendJSFile($jsURL, [$defer], [$async])
   //   appends an ExtendedDocument::createElementJSFile() as a child of this element (see there for params)
@@ -880,6 +893,9 @@ class ExtendedElement extends DOMElement {
   public function appendComment($comment_data) {
     return $this->appendChild($this->ownerDocument->createComment($comment_data));
   }
+  public function appendClonedElement($dom_element, $deep = true) {
+    return $this->appendChild($dom_element->cloneNode($deep));
+  }
   public function appendHTMLMarkup($htmldata) {
     $this->ownerDocument->appendHTMLMarkup($htmldata, $this);
   }
@@ -887,7 +903,7 @@ class ExtendedElement extends DOMElement {
     $this->ownerDocument->appendXMLMarkup($xmldata, $this);
   }
   public function appendJSElement($jsdata) {
-    $this->appendChild($this->ownerDocument->createElementJS($jsdata));
+    return $this->appendChild($this->ownerDocument->createElementJS($jsdata));
   }
   public function appendJSFile($jsdata, $defer = false, $async = false) {
     return $this->appendChild($this->ownerDocument->createElementJSFile($jsdata, $defer, $async));
@@ -1031,6 +1047,11 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   //   appends a DOMDocument::createComment() as a child of this fragment (see there for params)
   //     returns the new child
   //
+  // public function appendClonedElement($dom_element, [$deep])
+  //   appends a clone of the given DOMElement as a child of this fragment
+  //     the boolean $deep specifies if the children are cloned as well (defaults to TRUE)
+  //     returns the new child
+  //
   // public function appendHTMLMarkup($htmldata)
   //   appends a representation of the HTML data as children of this fragment
   //     NO return value!
@@ -1041,7 +1062,7 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   //
   // public function appendJSElement($jsdata)
   //   appends an ExtendedDocument::createElementJS() as a child of this fragment (see there for params)
-  //     NO return value!
+  //     returns the new child
   //
   // public function appendJSFile($jsURL, [$defer], [$async])
   //   appends an ExtendedDocument::createElementJSFile() as a child of this fragment (see there for params)
@@ -1140,6 +1161,9 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   public function appendComment($comment_data) {
     return $this->appendChild($this->ownerDocument->createComment($comment_data));
   }
+  public function appendClonedElement($dom_element, $deep = true) {
+    return $this->appendChild($dom_element->cloneNode($deep));
+  }
   public function appendHTMLMarkup($htmldata) {
     $this->ownerDocument->appendHTMLMarkup($htmldata, $this);
   }
@@ -1147,7 +1171,7 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
     $this->ownerDocument->appendXMLMarkup($xmldata, $this);
   }
   public function appendJSElement($jsdata) {
-    $this->appendChild($this->ownerDocument->createElementJS($jsdata));
+    return $this->appendChild($this->ownerDocument->createElementJS($jsdata));
   }
   public function appendJSFile($jsdata, $defer = false, $async = false) {
     return $this->appendChild($this->ownerDocument->createElementJSFile($jsdata, $defer, $async));

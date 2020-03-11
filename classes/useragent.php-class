@@ -1003,7 +1003,7 @@ class userAgent {
   public function getAcceptLanguages() {
     if (!isset($this->uadata['accept-languages'])) {
       $headers = getAllHeaders();
-      $accLcomp = explode(',', $headers['Accept-Language']);
+      $accLcomp = explode(',', @$headers['Accept-Language']);
       $accLang = array();
       foreach ($accLcomp as $lcomp) {
         if (strlen($lcomp)) {

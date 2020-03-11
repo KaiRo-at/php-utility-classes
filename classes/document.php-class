@@ -259,7 +259,7 @@ class ExtendedDocument extends DOMDocument {
 
   static function initHTML5($doc = null) {
     if (is_null($doc)) { $doc = new ExtendedDocument(); }
-    $doc->loadHTML('<!DOCTYPE html><html></html>'); // this seems to be the only way to get the DOCTYPE set properly.
+    $doc->loadHTML('<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html><html></html>'); // this seems to be the only way to get the DOCTYPE set properly.
 
     // Created basic HTML document structure.
     $root = $doc->getElementsByTagName('html')->item(0);
@@ -374,8 +374,8 @@ class ExtendedDocument extends DOMDocument {
   public function appendJSElement($jsdata) {
     return $this->appendChild($this->createElementJS($jsdata));
   }
-  public function appendJSFile($jsdata, $defer = false, $async = false) {
-    return $this->appendChild($this->createElementJSFile($jsdata, $defer, $async));
+  public function appendJSFile($jsURL, $defer = false, $async = false) {
+    return $this->appendChild($this->createElementJSFile($jsURL, $defer, $async));
   }
 
   public function appendHTMLMarkup($htmldata, $parentNode = null) {
@@ -905,8 +905,8 @@ class ExtendedElement extends DOMElement {
   public function appendJSElement($jsdata) {
     return $this->appendChild($this->ownerDocument->createElementJS($jsdata));
   }
-  public function appendJSFile($jsdata, $defer = false, $async = false) {
-    return $this->appendChild($this->ownerDocument->createElementJSFile($jsdata, $defer, $async));
+  public function appendJSFile($jsURL, $defer = false, $async = false) {
+    return $this->appendChild($this->ownerDocument->createElementJSFile($jsURL, $defer, $async));
   }
   public function setClass($classname) {
     $this->setAttribute('class', $classname);
@@ -1173,8 +1173,8 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   public function appendJSElement($jsdata) {
     return $this->appendChild($this->ownerDocument->createElementJS($jsdata));
   }
-  public function appendJSFile($jsdata, $defer = false, $async = false) {
-    return $this->appendChild($this->ownerDocument->createElementJSFile($jsdata, $defer, $async));
+  public function appendJSFile($jsURL, $defer = false, $async = false) {
+    return $this->appendChild($this->ownerDocument->createElementJSFile($jsURL, $defer, $async));
   }
 }
 ?>

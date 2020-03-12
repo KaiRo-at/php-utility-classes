@@ -150,9 +150,13 @@ class ExtendedDocument extends DOMDocument {
   //   appends a representation of the XML data as children of the given parent node, by default this document
   //     NO return value!
   //
+  // public function appendStyleElement($styledata)
+  //   appends an ExtendedDocument::createElementStyle() as a child of this document (see there for params)
+  //     returns the new child
+  //
   // public function appendJSElement($jsdata)
   //   appends an ExtendedDocument::createElementJS() as a child of this document (see there for params)
-  //     NO return value!
+  //     returns the new child
   //
   // public function appendJSFile($jsURL, [$defer], [$async])
   //   appends an ExtendedDocument::createElementJSFile() as a child of this document (see there for params)
@@ -242,6 +246,9 @@ class ExtendedDocument extends DOMDocument {
   //
   // public function createElementLabel($for_id, $value)
   //   returns an ExtendedElement that is an HTML <label> with the given 'for' and value
+  //
+  // public function createElementStyle($styledata)
+  //   returns an ExtendedElement that is an HTML <style> of CSS type with the style data inside
   //
   // public function createElementJS($jsdata)
   //   returns an ExtendedElement that is an HTML <script> of JavaScript type with the JS data inside
@@ -370,6 +377,9 @@ class ExtendedDocument extends DOMDocument {
   }
   public function appendClonedElement($dom_element, $deep = true) {
     return $this->appendChild($dom_element->cloneNode($deep));
+  }
+  public function appendStyleElement($styledata) {
+    return $this->appendChild($this->createElementStyle($styledata));
   }
   public function appendJSElement($jsdata) {
     return $this->appendChild($this->createElementJS($jsdata));
@@ -622,6 +632,14 @@ class ExtendedDocument extends DOMDocument {
     return $label;
   }
 
+  public function createElementStyle($styledata) {
+    $style_elem = $this->createElement('style');
+    // Note: type can/should be left out for HTML5.
+    $style_elem->setAttribute('type', 'text/css');
+    $style_elem->appendChild($this->createCDATASection($styledata));
+    return $style_elem;
+  }
+
   public function createElementJS($jsdata) {
     $jselem = $this->createElement('script');
     // Note: type can/should be left out for HTML5.
@@ -782,6 +800,10 @@ class ExtendedElement extends DOMElement {
   //   appends a representation of the XML data as children of this element
   //     NO return value!
   //
+  // public function appendStyleElement($styledata)
+  //   appends an ExtendedDocument::createElementStyle() as a child of this element (see there for params)
+  //     returns the new child
+  //
   // public function appendJSElement($jsdata)
   //   appends an ExtendedDocument::createElementJS() as a child of this element (see there for params)
   //     returns the new child
@@ -901,6 +923,9 @@ class ExtendedElement extends DOMElement {
   }
   public function appendXMLMarkup($xmldata) {
     $this->ownerDocument->appendXMLMarkup($xmldata, $this);
+  }
+  public function appendStyleElement($styledata) {
+    return $this->appendChild($this->ownerDocument->createElementStyle($styledata));
   }
   public function appendJSElement($jsdata) {
     return $this->appendChild($this->ownerDocument->createElementJS($jsdata));
@@ -1060,6 +1085,10 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   //   appends a representation of the XML data as children of this fragment
   //     NO return value!
   //
+  // public function appendStyleElement($styledata)
+  //   appends an ExtendedDocument::createElementStyle() as a child of this element (see there for params)
+  //     returns the new child
+  //
   // public function appendJSElement($jsdata)
   //   appends an ExtendedDocument::createElementJS() as a child of this fragment (see there for params)
   //     returns the new child
@@ -1169,6 +1198,9 @@ class ExtendedDocumentFragment extends DOMDocumentFragment {
   }
   public function appendXMLMarkup($xmldata) {
     $this->ownerDocument->appendXMLMarkup($xmldata, $this);
+  }
+  public function appendStyleElement($styledata) {
+    return $this->appendChild($this->ownerDocument->createElementStyle($styledata));
   }
   public function appendJSElement($jsdata) {
     return $this->appendChild($this->ownerDocument->createElementJS($jsdata));

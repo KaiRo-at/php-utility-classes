@@ -16,6 +16,10 @@ class ExtendedDocument extends DOMDocument {
   //     If a $doc is handed over (an ExtendedDocument or a derived class), load the content into that document.
   //     returns an associative array with the following elements: 'html', 'head', 'title', 'body'
   //
+  // public function loadHTML5($source) {
+  //   A version of loadHTML() - see DOMDocument documentation - that is made for loading HTML5 and not emitting warnings/errors for unknown elements.
+  //     returns true on success, false otherwise, just like loadHTML5.
+  //
   // public function appendElement($name, [$value])
   //   appends a DOMDocument::createElement() as a child of this document (see there for params)
   //     returns the new child
@@ -266,7 +270,7 @@ class ExtendedDocument extends DOMDocument {
 
   static function initHTML5($doc = null) {
     if (is_null($doc)) { $doc = new ExtendedDocument(); }
-    $doc->loadHTML('<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html><html></html>'); // this seems to be the only way to get the DOCTYPE set properly.
+    $doc->loadHTML5('<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html><html></html>'); // this seems to be the only way to get the DOCTYPE set properly.
 
     // Created basic HTML document structure.
     $root = $doc->getElementsByTagName('html')->item(0);
@@ -279,6 +283,28 @@ class ExtendedDocument extends DOMDocument {
                  'head' => $head,
                  'title' => $title,
                  'body' => $body);
+  }
+
+  public function loadHTML5($source) {
+    // Do our own handling of DOMDocument error reporting so we can ignore "unknown tags" which are usually fine in HTML5.
+    libxml_use_internal_errors(true);
+    if (!preg_match('/^\s*<?xml /', $source)) {
+      // Add an XML declaration to force DOMDocument into UTF-8 mode.
+      $source = '<?xml version="1.0" encoding="utf-8"?>'."\n".$source;
+    }
+    $result = $this->loadHTML($source);
+    // Handle DOMDocument loading errors, throw away warnings on unknown tags as HTML5 allows all kinds.
+    $errseverity = array(LIBXML_ERR_WARNING => 'Warning', LIBXML_ERR_ERROR => 'Error', LIBXML_ERR_FATAL => 'Fatal');
+    foreach (libxml_get_errors() as $error) {
+      // $error is a libXMLError, see https://www.php.net/manual/en/class.libxmlerror.php
+      // See http://www.xmlsoft.org/html/libxml-xmlerror.html#xmlParserErrors for error numbers
+      if ($error->code != 801) { // XML_HTML_UNKNOWN_TAG gets no output, should not exist for HTML5.
+        trigger_error($errseverity[$error->level].' loading HTML5: '.$error->message.' (code '.$error->code.'), line: '.$error->line, E_USER_WARNING);
+      }
+    }
+    libxml_clear_errors();
+    libxml_use_internal_errors(false);
+    return $result;
   }
 
   public function appendElement($name, $value = '') {
@@ -390,10 +416,10 @@ class ExtendedDocument extends DOMDocument {
 
   public function appendHTMLMarkup($htmldata, $parentNode = null) {
     if (is_null($parentNode)) { $parentNode =& $this; }
-    // Use loadHTML() to parse and turn the markup into proper HTML.
+    // Use loadHTML5() to parse and turn the markup into proper HTML.
     $tmpdoc = new ExtendedDocument;
     // The XML line is needed to tell the parser that we need UTF-8 parsing.
-    $tmpdoc->loadHTML('<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html><html><body>'.$htmldata.'</body></html>');
+    $tmpdoc->loadHTML5('<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html><html><body>'.$htmldata.'</body></html>');
     foreach ($tmpdoc->getElementsByTagName('body')->item(0)->childNodes as $child) {
       $parentNode->appendChild($this->importNode($child, true));
     }

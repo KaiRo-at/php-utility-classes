@@ -554,23 +554,25 @@ class ExtendedDocument extends DOMDocument {
   }
 
   public function createElementInputDate($name, $id = null, $min = null, $max = null, $value = null) {
-    $telfield = $this->createElement('input');
-    $telfield->setAttribute('type', 'date');
-    if (!is_null($id)) { $telfield->setAttribute('id', $id); }
-    if (!is_null($min)) { $rgfield->setAttribute('min', $min); }
-    if (!is_null($max)) { $rgfield->setAttribute('max', $max); }
-    if (!is_null($value)) { $telfield->setAttribute('value', $value); }
-    return $telfield;
+    $dtfield = $this->createElement('input');
+    $dtfield->setAttribute('type', 'date');
+    if (!is_null($id)) { $dtfield->setAttribute('id', $id); }
+    $dtfield->setAttribute('name', $name);
+    if (!is_null($min)) { $dtfield->setAttribute('min', $min); }
+    if (!is_null($max)) { $dtfield->setAttribute('max', $max); }
+    if (!is_null($value)) { $dtfield->setAttribute('value', $value); }
+    return $dtfield;
   }
 
   public function createElementInputTime($name, $id = null, $min = null, $max = null, $value = null) {
-    $telfield = $this->createElement('input');
-    $telfield->setAttribute('type', 'time');
-    if (!is_null($id)) { $telfield->setAttribute('id', $id); }
-    if (!is_null($min)) { $rgfield->setAttribute('min', $min); }
-    if (!is_null($max)) { $rgfield->setAttribute('max', $max); }
-    if (!is_null($value)) { $telfield->setAttribute('value', $value); }
-    return $telfield;
+    $timefield = $this->createElement('input');
+    $timefield->setAttribute('type', 'time');
+    if (!is_null($id)) { $timefield->setAttribute('id', $id); }
+    $timefield->setAttribute('name', $name);
+    if (!is_null($min)) { $timefield->setAttribute('min', $min); }
+    if (!is_null($max)) { $timefield->setAttribute('max', $max); }
+    if (!is_null($value)) { $timefield->setAttribute('value', $value); }
+    return $timefield;
   }
 
   public function createElementInputColor($name, $id = null, $value = null) {

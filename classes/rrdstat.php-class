@@ -760,7 +760,8 @@ class rrdstat {
     }
 
     $graph_cmd = $this->rrdtool_bin.' graph '.str_replace('*', '\*', $fname.$gOpts.$gDefs.$gGraphs.$addSpecial);
-    if (!is_writable($fname)) {
+    if ((file_exists($fname) && !is_writable($fname)) ||
+        (!file_exists($fname) && !is_writable(dirname($fname)))) {
       trigger_error($this->rrd_file.' - graph file not writable: '.$fname, E_USER_WARNING);
       return 'command:'.$graph_cmd."\n\n".'unwritable file: '.$fname;
     }

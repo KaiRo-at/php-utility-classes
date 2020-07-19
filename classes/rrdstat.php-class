@@ -760,15 +760,15 @@ class rrdstat {
     }
 
     $graph_cmd = $this->rrdtool_bin.' graph '.str_replace('*', '\*', $fname.$gOpts.$gDefs.$gGraphs.$addSpecial);
-    $return = `$graph_cmd 2>&1`;
-
-    if (strpos($return, 'ERROR') !== false) {
-      trigger_error($this->rrd_file.' - rrd graph error: '.$return, E_USER_WARNING);
-      $return = 'command:'.$graph_cmd."\n\n".$return;
+    if (!is_writable($fname)) {
+      trigger_error($this->rrd_file.' - graph file not writable: '.$fname, E_USER_WARNING);
+      return 'command:'.$graph_cmd."\n\n".'unwritable file: '.$fname;
     }
-    if (0) {
-      // debug output
-      $return = 'command:'.$graph_cmd."\n\n".$return;
+    $graph_out = `$graph_cmd 2>&1`;
+
+    if (strpos($graph_out, 'ERROR') !== false) {
+      trigger_error($this->rrd_file.' - rrd graph error: '.$graph_out, E_USER_WARNING);
+      return 'command:'.$graph_cmd."\n\n".$graph_out;
     }
     $legendlines = '';
     foreach ($graphrows as $grow) {
@@ -778,7 +778,7 @@ class rrdstat {
       $legendline .= '|'.(isset($grow['legend_long'])?$grow['legend_long']:'');
       $legendlines .= 'legend:'.$legendline."\n";
     }
-    $return = 'file:'.$fname."\n".$legendlines.$return;
+    $return = 'file:'.$fname."\n".$legendlines.$graph_out;
   return $return;
   }
 

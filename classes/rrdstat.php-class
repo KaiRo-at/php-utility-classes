@@ -326,12 +326,17 @@ class rrdstat {
     if ($this->status != 'ok') { trigger_error('Cannot update non-writeable file', E_USER_WARNING); return false; }
     $upvals = array();
     if (isset($this->config_raw['update'])) {
-      if (preg_match('/^\s*function\s+{(.*)}\s*$/is', $this->config_raw['update'], $regs)) {
-        $upfunc = create_function('', $regs[1]);
-        $upvals = $upfunc();
+      if (is_object($this->config_raw['update'])) {
+        // We assume it's an anonymous function
+        $upvals = $this->config_raw['update']();
       }
       else {
-        $evalcode = $this->config_raw['update'];
+        if (preg_match('/^\s*function\s+{(.*)}\s*$/is', $this->config_raw['update'], $regs)) {
+          $evalcode = '$upfunc = function() {'."\n".$regs[1]."\n".'};'."\n".'print(implode("\n", $upfunc()));';
+        }
+        else {
+          $evalcode = $this->config_raw['update'];
+        }
         if (!is_null($evalcode)) {
           ob_start();
           eval($evalcode);
@@ -345,9 +350,13 @@ class rrdstat {
       foreach ($this->rrd_fields as $ds) {
         if (is_array($upArray) && isset($upArray[$ds['name']])) { $val = $upArray[$ds['name']]; }
         elseif (isset($ds['update'])) {
-          $val = null; $evalcode = null;
-          if (substr($ds['update'], 0, 4) == 'val:') {
-            $evalcode = 'function { return trim('.substr($ds['update'], 4).')); }';
+          $val = null;
+          if (is_object($ds['update'])) {
+            // We assume it's an anonymous function
+            $val = $ds['update']();
+          }
+          elseif (substr($ds['update'], 0, 4) == 'val:') {
+            $val = trim(substr($ds['update'], 4));
           }
           elseif (substr($ds['update'], 0, 8) == 'snmp-if:') {
             if (substr_count($ds['update'], ':') >= 4) {
@@ -366,19 +375,22 @@ class rrdstat {
             if ($valtype == 'in') { $oid = '1.3.6.1.2.1.2.2.1.10.'.$ifnr; }
             elseif ($valtype == 'out') { $oid = '1.3.6.1.2.1.2.2.1.16.'.$ifnr; }
             if (!is_null($ifnr) && !is_null($oid)) {
-              $evalcode = 'function { return trim(substr(strrchr(`snmpget -v2c -c '.$snmpcomm.' '.$snmphost.' '.$oid.'`,":"),1)); }';
+              $val = trim(substr(strrchr(`snmpget -v2c -c $snmpcomm $snmphost $oid`,":"),1));
             }
           }
-          else { $evalcode = $ds['update']; }
-          if (preg_match('/^\s*function\s+{(.*)}\s*$/is', $evalcode, $regs)) {
-            $upfunc = create_function('', $regs[1]);
-            $val = $upfunc();
-          }
-          elseif (!is_null($evalcode)) {
-            ob_start();
-            eval($evalcode);
-            $val = ob_get_contents();
-            ob_end_clean();
+          else {
+            if (preg_match('/^\s*function\s+{(.*)}\s*$/is', $ds['update'], $regs)) {
+              $evalcode = '$upfunc = function() {'."\n".$regs[1]."\n".'};'."\n".'print($upfunc());';
+            }
+            else {
+              $evalcode = $ds['update'];
+            }
+            if (!is_null($evalcode)) {
+              ob_start();
+              eval($evalcode);
+              $val = ob_get_contents();
+              ob_end_clean();
+            }
           }
         }
         else { $val = null; }
@@ -396,8 +408,7 @@ class rrdstat {
         $upvals[$akey] = $keys_have_names?$lastvals[$akey]:$lastvals[$rowids[$akey]];
       }
     }
-    $walkfunc = create_function('&$val,$key', '$val = is_numeric(trim($val))?trim($val):"U";');
-    array_walk($upvals, $walkfunc);
+    array_walk($upvals, function(&$val, $key) { $val = is_numeric(trim($val)) ? trim($val) : "U"; });
     $return = null;
     if (count($upvals)) {
       $update_cmd = $this->rrdtool_bin.' update '.$this->rrd_file

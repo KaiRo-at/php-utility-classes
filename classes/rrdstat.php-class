@@ -206,11 +206,11 @@ class rrdstat {
       $this->status = 'graphonly';
     }
     elseif (isset($iinfo['file'])) {
-      $this->rrd_file = (($iinfo['file']{0} != '/')?$this->basedir:'').$iinfo['file'];
+      $this->rrd_file = (($iinfo['file'][0] != '/')?$this->basedir:'').$iinfo['file'];
       $this->basename = basename((substr($this->rrd_file, -4) == '.rrd')?substr($this->rrd_file, 0, -4):$this->rrd_file);
     }
     elseif (!is_null($conf_id) && file_exists($conf_id.'.rrd')) {
-      $this->rrd_file = (($iinfo['file']{0} != '/')?$this->basedir:'').$conf_id.'.rrd';
+      $this->rrd_file = (($iinfo['file'][0] != '/')?$this->basedir:'').$conf_id.'.rrd';
       $this->basename = $conf_id;
     }
     else {
@@ -509,8 +509,8 @@ class rrdstat {
     $fname = str_replace('%t', $timeframe, $fname);
     $fname = str_replace('%f', $fmt_ext, $fname);
     if (substr($fname, -strlen($fmt_ext)) != $fmt_ext) { $fname .= $fmt_ext; }
-    if (isset($gconf['path']) && ($fname{0} != '/')) { $fname = $gconf['path'].'/'.$fname; }
-    if ($fname{0} != '/') { $fname = $this->basedir.$fname; }
+    if (isset($gconf['path']) && ($fname[0] != '/')) { $fname = $gconf['path'].'/'.$fname; }
+    if ($fname[0] != '/') { $fname = $this->basedir.$fname; }
     $fname = str_replace('//', '/', $fname);
 
     $graphrows = array(); $specialrows = array(); $gC = 0;
@@ -1178,7 +1178,7 @@ class rrdstat {
     $snames = array(); $s_exclude = array(); $sfiles = array();
     if (isset($pconf['index_ids'])) {
       foreach (explode(',', $pconf['index_ids']) as $iid) {
-        if ($iid{0} == '-') { $s_exclude[] = substr($iid, 1); }
+        if ($iid[0] == '-') { $s_exclude[] = substr($iid, 1); }
         else { $snames[] = $iid; }
       }
     }

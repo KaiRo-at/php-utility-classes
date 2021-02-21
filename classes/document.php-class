@@ -173,8 +173,7 @@ class ExtendedDocument extends DOMDocument {
   //   returns an ExtendedElement that is an HTML <img> with the given src and alt attributes (set to '' by default)
   //
   // public function createElementForm($action, $method, $name)
-  //   returns an ExtendedElement that is an HTML <div> that is a child of an HTML <form>
-  //   with the given action, method, and name
+  //   returns an ExtendedElement that is an HTML <form> with the given action, method, and name
   //
   // public function createElementInputHidden($name, $value)
   //   returns an ExtendedElement that is an HTML <input> of type 'hidden' with the given name and value

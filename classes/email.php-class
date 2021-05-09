@@ -169,7 +169,7 @@ class email {
 
     if (in_array('to', $addrtype)) {
       foreach ($this->recipients as $address) {
-        if (strlen(@$address['mail'])) {
+        if (strlen($address['mail'] ?? '')) {
           $mailaddresses[] = array('mail'=>$address['mail'],
                                    'name'=>strlen($address['name'])?$address['name']:'',
                                    'addrtype'=>'to');
@@ -178,7 +178,7 @@ class email {
     }
     if (in_array('cc', $addrtype)) {
       foreach ($this->cc as $address) {
-        if (strlen(@$address['mail'])) {
+        if (strlen($address['mail'] ?? '')) {
           $mailaddresses[] = array('mail'=>$address['mail'],
                                    'name'=>strlen($address['name'])?$address['name']:'',
                                    'addrtype'=>'cc');
@@ -187,7 +187,7 @@ class email {
     }
     if (in_array('bcc', $addrtype)) {
       foreach ($this->bcc as $address) {
-        if (strlen(@$address['mail'])) {
+        if (strlen($address['mail'] ?? '')) {
           $mailaddresses[] = array('mail'=>$address['mail'],
                                    'name'=>strlen($address['name'])?$address['name']:'',
                                    'addrtype'=>'bcc');
@@ -216,7 +216,7 @@ class email {
     if (count($this->recipients)) {
       $recpt = '';
       foreach ($this->recipients as $address) {
-        if (strlen(@$address['mail'])) {
+        if (strlen($address['mail'] ?? '')) {
           if (strlen($address['name'])) { $recpt .= $this->mimeencode($address['name'], true).' <'.$address['mail'].'>,'; }
           else { $recpt .= $address['mail'].','; }
         }

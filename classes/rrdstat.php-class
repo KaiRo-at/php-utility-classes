@@ -576,7 +576,7 @@ class rrdstat {
         }
         foreach (array('scale_time_src','scale_time_tgt') as $st) {
           if (!isset($erow[$st]) || !is_numeric($erow[$st])) {
-            switch (@$erow[$st]) {
+            switch ($erow[$st] ?? null) {
               case 'dyn':
               case 'auto':
                 $erow[$st] = $slice;
@@ -785,7 +785,7 @@ class rrdstat {
     $legendlines = '';
     foreach ($graphrows as $grow) {
       $legendline = isset($grow['desc'])?$grow['desc']:(isset($grow['legend'])?$grow['legend']:$grow['name']);
-      $legendline .= '|'.@$grow['color'];
+      $legendline .= '|'.($grow['color'] ?? '');
       $legendline .= '|'.(isset($grow['color_bg'])?$grow['color_bg']:'');
       $legendline .= '|'.(isset($grow['legend_long'])?$grow['legend_long']:'');
       $legendlines .= 'legend:'.$legendline."\n";
@@ -845,7 +845,7 @@ class rrdstat {
     $pconf = $pconf + (array)$this->config_page;
 
     $return = null;
-    switch (@$pconf['type']) {
+    switch ($pconf['type'] ?? null) {
       case 'index':
         $return = $this->page_index($pconf);
         break;
@@ -971,9 +971,9 @@ class rrdstat {
     if (isset($pconf['stats_url_add'])) { $sURL_add = $pconf['stats_url_add']; }
     else { $sURL_add = '&amp;sub=%s'; }
 
-    $default_num_cols = $GLOBALS['ua']->isMobile()?1:2;
-    $num_cols = is_numeric(@$pconf['num_rows'])?$pconf['num_rows']:$default_num_cols;
-    $num_rows = ceil(count($stats)/$num_cols);
+    $default_num_cols = $GLOBALS['ua']->isMobile() ? 1 : 2;
+    $num_cols = is_numeric($pconf['num_rows'] ?? null) ? $pconf['num_rows'] : $default_num_cols;
+    $num_rows = ceil(count($stats) / $num_cols);
 
     $out .= '<table class="overview">'."\n";
     for ($row = 0; $row < $num_rows; $row++) {
@@ -984,7 +984,7 @@ class rrdstat {
         if ($idx < count($stats)) {
           @list($sname, $s_psub) = explode('|', $stats[$idx]['name'], 2);
           $s_psname = 'page'.(isset($s_psub)?'.'.$s_psub:'');
-          $g_sub = @$this->config_all[$sname][$s_psname]['graph_sub'];
+          $g_sub = $this->config_all[$sname][$s_psname]['graph_sub'] ?? '';
 
           if (isset($this->config_all[$sname][$s_psname]['title_page'])) {
             $s_ptitle = $this->config_all[$sname][$s_psname]['title_page'];
@@ -1204,7 +1204,7 @@ class rrdstat {
     foreach ($snames as $iname) {
       $newstat = array('name'=>$iname);
       $sfiles[] = isset($this->config_all[$iname]['file'])?$this->config_all[$iname]['file']:$iname.'.rrd';
-      if (is_array(@$this->config_all[$iname])) {
+      if (is_array($this->config_all[$iname] ?? null)) {
         foreach ($this->config_all[$iname] as $key=>$val) {
           if (substr($key, 0, 5) == 'page.') { $newstat['sub'][] = substr($key, 5); }
         }

@@ -496,7 +496,7 @@ class rrdstat {
 
     // assemble configuration
     $gconf = (array)$extra;
-    if (!is_null($sub) && is_array($this->config_raw['graph.'.$sub])) {
+    if (!is_null($sub) && array_key_exists('graph.'.$sub, $this->config_raw) && is_array($this->config_raw['graph.'.$sub])) {
       $gconf = $gconf + $this->config_raw['graph.'.$sub];
     }
     $gconf = $gconf + (array)$this->config_graph;

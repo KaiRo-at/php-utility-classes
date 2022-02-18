@@ -439,7 +439,7 @@ class ExtendedDocument extends DOMDocument {
   public function createElement($name, $value = '') {
     // Adding the $value in DOMDocument's createElement does NOT escape it, so override it and use appendText to support that.
     $aelem = parent::createElement($name);
-    if (strlen($value)) { $aelem->appendText($value); }
+    if (strlen($value ?? '')) { $aelem->appendText($value); }
     return $aelem;
   }
 

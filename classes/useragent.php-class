@@ -1003,12 +1003,17 @@ class userAgent {
   public function getAcceptLanguages() {
     if (!isset($this->uadata['accept-languages'])) {
       $headers = getAllHeaders();
-      $accLcomp = explode(',', @$headers['Accept-Language']);
+      $accLcomp = explode(',', ($headers['Accept-Language'] ?? ''));
       $accLang = array();
       foreach ($accLcomp as $lcomp) {
         if (strlen($lcomp)) {
           $ldef = explode(';', $lcomp);
-          $accLang[$ldef[0]] = (float)((strpos(@$ldef[1],'q=')===0)?substr($ldef[1],2):1);
+          if (count($ldef) > 1 && strpos($ldef[1], 'q=') === 0) {
+            $accLang[$ldef[0]] = substr($ldef[1], 2);
+          }
+          else {
+            $accLang[$ldef[0]] = 1;
+          }
         }
       }
       $this->uadata['accept-languages'] = $accLang;
@@ -1549,7 +1554,7 @@ class userAgent {
         if (strpos($this->uadata['os'], 'Windows Phone OS') !== false) { $this->mobile = true; }
         elseif (strpos($this->uadata['os'], 'Gameboy') !== false) { $this->mobile = true; }
 
-        $this->uadata['lang'] = str_replace('_', '-', @$this->uadata['lang']);
+        $this->uadata['lang'] = str_replace('_', '-', ($this->uadata['lang'] ?? ''));
       }
     }
   return $this->uadata['os'];

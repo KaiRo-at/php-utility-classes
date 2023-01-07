@@ -1229,6 +1229,9 @@ class userAgent {
             $this->uadata['lang'] = null;
             $this->uadata['eng_version'] = null;
           }
+          if (($this->brand == 'Firefox') && (intval($this->version) >= 110)) {
+            $this->uadata['eng_version'] = $this->version;
+          }
         }
         elseif ($this->hasEngine('edgehtml')) {
           if (preg_match('#Mozilla/5.0 \(([^;]+); (WOW64|Win64); ([^\);]+)\)#', $this->uastring, $regs)) {

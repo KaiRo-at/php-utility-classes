@@ -97,7 +97,7 @@ class userAgent {
   private $version;
   private $bot = false;
   private $mobile = false;
-  private $uadata = array();
+  private $uadata = [];
 
   function __construct($ua_string = '') {
     // *** constructor ***
@@ -980,12 +980,14 @@ class userAgent {
       $this->bot = false;
     }
 
-    $botArray = array('Scooter','Spinne','Vagabondo','Firefly','Scrubby','NG','Pompos','Szukacz','Schmozilla','42_HAL',
-                      'NetResearchServer','LinkWalker','Zeus','W3C_Validator','ZyBorg','Ask Jeeves','ia_archiver',
-                      'PingALink Monitoring Services','IlTrovatore-Setaccio','Nutch','Mercator','search.ch',
-                      'appie','larbin','NutchCVS','Webchat','Mediapartners-Google','sitecheck.internetseer.com',
-                      'FavOrg','findlinks','DataCha0s','ichiro','Francis','CoralWebPrx','DoCoMo','Ocelli','Sogou Video',
-                      'Yandex','Yeti','Austronaut-URL-Checker');
+    $botArray = [
+      'Scooter', 'Spinne', 'Vagabondo', 'Firefly', 'Scrubby', 'NG', 'Pompos', 'Szukacz', 'Schmozilla', '42_HAL',
+      'NetResearchServer', 'LinkWalker', 'Zeus', 'W3C_Validator', 'ZyBorg', 'Ask Jeeves', 'ia_archiver',
+      'PingALink Monitoring Services', 'IlTrovatore-Setaccio', 'Nutch', 'Mercator', 'search.ch',
+      'appie', 'larbin', 'NutchCVS', 'Webchat', 'Mediapartners-Google', 'sitecheck.internetseer.com',
+      'FavOrg', 'findlinks', 'DataCha0s', 'ichiro', 'Francis', 'CoralWebPrx', 'DoCoMo', 'Ocelli', 'Sogou Video',
+      'Yandex', 'Yeti', 'Austronaut-URL-Checker'
+    ];
 
     if (in_array($this->brand, $botArray)) {
       $this->bot = true;
@@ -997,14 +999,19 @@ class userAgent {
     }
   }
 
-  public function getBrand() { return $this->brand; }
-  public function getVersion() { return $this->version; }
+  public function getBrand() {
+    return $this->brand;
+  }
+
+  public function getVersion() {
+    return $this->version;
+  }
 
   public function getAcceptLanguages() {
     if (!isset($this->uadata['accept-languages'])) {
       $headers = getAllHeaders();
       $accLcomp = explode(',', ($headers['Accept-Language'] ?? ''));
-      $accLang = array();
+      $accLang = [];
       foreach ($accLcomp as $lcomp) {
         if (strlen($lcomp)) {
           $ldef = explode(';', $lcomp);
@@ -1018,10 +1025,12 @@ class userAgent {
       }
       $this->uadata['accept-languages'] = $accLang;
     }
-  return $this->uadata['accept-languages'];
+    return $this->uadata['accept-languages'];
   }
 
-  public function getUAString() { return $this->uastring; }
+  public function getUAString() {
+    return $this->uastring;
+  }
 
   public function getEngine() {
     // return gecko|khtml|trident|tasman|nscp|presto|gzilla|gtkhtml|links|icestorm|netfront|unknown
@@ -1106,10 +1115,12 @@ class userAgent {
         }
       }
     }
-  return $this->uadata['engine'];
+    return $this->uadata['engine'];
   }
 
-  public function hasEngine($rnd_engine) { return ($this->getEngine() == $rnd_engine); }
+  public function hasEngine($rnd_engine) {
+    return ($this->getEngine() == $rnd_engine);
+  }
 
   public function getEngineVersion() {
     if (!isset($this->uadata['eng_version'])) {
@@ -1117,7 +1128,7 @@ class userAgent {
       // getOS() should get the date for us
       $this->getOS();
     }
-  return $this->uadata['eng_version'];
+    return $this->uadata['eng_version'];
   }
 
   public function getOS() {
@@ -1507,57 +1518,57 @@ class userAgent {
         elseif (preg_match('/iPhone OS ([\d_]+)/i', $this->uadata['os'], $regs)) { $this->uadata['os'] = 'iOS '.str_replace('_', '.', $regs[1]); }
         elseif (preg_match('/Mac ?OS ?X/i', $this->uadata['os'])) { $this->uadata['os'] = 'MacOS X'; }
         elseif (preg_match('/Mac_P(ower|)PC/i', $this->uadata['os'])) { $this->uadata['os'] = 'MacOS'; }
-        elseif (strpos($this->uadata['os'], 'darwin') !== false) { $this->uadata['os'] = 'MacOS X'; }
-        elseif (strpos($this->uadata['os'], 'Darwin') !== false) { $this->uadata['os'] = 'MacOS X'; }
-        elseif (strpos($this->uadata['os'], 'apple') !== false) { $this->uadata['os'] = 'MacOS'; }
-        elseif (strpos($this->uadata['os'], 'Macintosh') !== false) { $this->uadata['os'] = 'MacOS'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'darwin') !== false) { $this->uadata['os'] = 'MacOS X'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'Darwin') !== false) { $this->uadata['os'] = 'MacOS X'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'apple') !== false) { $this->uadata['os'] = 'MacOS'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'Macintosh') !== false) { $this->uadata['os'] = 'MacOS'; }
         elseif (preg_match('/(?:web|hpw)OS\/([0-9a-zA-Z\._+]+)/i', $this->uadata['os'], $regs)) { $this->uadata['os'] = 'webOS '.$regs[1]; }
         elseif (preg_match('/Android \(Linux (.+)\)/i', $this->uadata['os'], $regs)) { $this->uadata['os'] = 'Android '.$regs[1]; }
-        elseif (strpos($this->uadata['os'], 'linux') !== false) { $this->uadata['os'] = 'Linux'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'linux') !== false) { $this->uadata['os'] = 'Linux'; }
         elseif (preg_match('/SymbianOS[\/ ]([0-9a-zA-Z\._+]+)/i', $this->uastring, $regs)) { $this->uadata['os'] = 'SymbianOS '.$regs[1]; }
         elseif (preg_match('/Symbian ?OS/i', $this->uadata['os'])) { $this->uadata['os'] = 'SymbianOS'; }
 
-        if (strpos($this->uadata['os'], 'Win') !== false) { $this->uadata['platform'] = 'Windows'; }
-        elseif (strpos($this->uadata['os'], 'Mac') !== false) { $this->uadata['platform'] = 'Macintosh'; }
-        elseif (strpos($this->uadata['os'], 'iOS') !== false) { $this->uadata['platform'] = 'Macintosh'; }
-        elseif (strpos($this->uadata['os'], 'Linux') !== false) { $this->uadata['platform'] = 'Linux'; }
-        elseif (strpos($this->uadata['os'], 'MeeGo') !== false) { $this->uadata['platform'] = 'Linux'; }
-        elseif (strpos($this->uadata['os'], 'webOS') !== false) { $this->uadata['platform'] = 'Linux'; }
-        elseif (strpos($this->uadata['os'], 'Android') !== false) { $this->uadata['platform'] = 'Android'; }
-        elseif (strpos($this->uadata['os'], 'Firefox OS') !== false) { $this->uadata['platform'] = 'Firefox OS'; }
-        elseif (strpos($this->uadata['os'], 'Solaris') !== false) { $this->uadata['platform'] = 'Solaris'; }
-        elseif (strpos($this->uadata['os'], 'SunOS') !== false) { $this->uadata['platform'] = 'Solaris'; }
-        elseif (strpos($this->uadata['os'], 'BeOS') !== false) { $this->uadata['platform'] = 'BeOS'; }
-        elseif (strpos($this->uadata['os'], 'BePC') !== false) { $this->uadata['platform'] = 'BeOS'; }
-        elseif (strpos($this->uadata['os'], 'FreeBSD') !== false) { $this->uadata['platform'] = 'FreeBSD'; }
-        elseif (strpos($this->uadata['os'], 'OpenBSD') !== false) { $this->uadata['platform'] = 'OpenBSD'; }
-        elseif (strpos($this->uadata['os'], 'NetBSD') !== false) { $this->uadata['platform'] = 'NetBSD'; }
-        elseif (strpos($this->uadata['os'], 'AIX') !== false) { $this->uadata['platform'] = 'AIX'; }
-        elseif (strpos($this->uadata['os'], 'IRIX') !== false) { $this->uadata['platform'] = 'IRIX'; }
-        elseif (strpos($this->uadata['os'], 'HP-UX') !== false) { $this->uadata['platform'] = 'HP-UX'; }
-        elseif (strpos($this->uadata['os'], 'AmigaOS') !== false) { $this->uadata['platform'] = 'Amiga'; }
-        elseif (strpos($this->uadata['os'], 'webOS') !== false) { $this->uadata['platform'] = 'webOS'; }
-        elseif (strpos($this->uadata['os'], 'Commodore 64') !== false) { $this->uadata['platform'] = 'C64'; }
-        elseif (strpos($this->uadata['os'], 'OpenVMS') !== false) { $this->uadata['platform'] = 'OpenVMS'; }
-        elseif (strpos($this->uadata['os'], 'Warp') !== false) { $this->uadata['platform'] = 'OS/2'; }
-        elseif (strpos($this->uadata['os'], 'OS/2') !== false) { $this->uadata['platform'] = 'OS/2'; }
-        elseif (strpos($this->uadata['os'], 'SymbianOS') !== false) { $this->uadata['platform'] = 'SymbianOS'; }
-        elseif (strpos($this->uadata['os'], 'BlackBerry') !== false) { $this->uadata['platform'] = 'BlackBerry'; }
-        elseif (strpos($this->uadata['os'], 'Gameboy') !== false) { $this->uadata['platform'] = 'Nintendo'; }
-        elseif (strpos($this->uadata['os'], 'Wii') !== false) { $this->uadata['platform'] = 'Nintendo'; }
-        elseif (strpos($this->uadata['os'], 'Nintendo') !== false) { $this->uadata['platform'] = 'Nintendo'; }
-        elseif (strpos($this->uadata['os'], 'J2ME') !== false) { $this->uadata['platform'] = 'Java'; }
-        elseif (strpos($this->uadata['os'], 'CYGWIN') !== false) { $this->uadata['platform'] = 'Windows'; }
-        elseif (strpos($this->uadata['os'], 'mingw') !== false) { $this->uadata['platform'] = 'Windows'; }
+        if (strpos($this->uadata['os'] ?? '', 'Win') !== false) { $this->uadata['platform'] = 'Windows'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'Mac') !== false) { $this->uadata['platform'] = 'Macintosh'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'iOS') !== false) { $this->uadata['platform'] = 'Macintosh'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'Linux') !== false) { $this->uadata['platform'] = 'Linux'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'MeeGo') !== false) { $this->uadata['platform'] = 'Linux'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'webOS') !== false) { $this->uadata['platform'] = 'Linux'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'Android') !== false) { $this->uadata['platform'] = 'Android'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'Firefox OS') !== false) { $this->uadata['platform'] = 'Firefox OS'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'Solaris') !== false) { $this->uadata['platform'] = 'Solaris'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'SunOS') !== false) { $this->uadata['platform'] = 'Solaris'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'BeOS') !== false) { $this->uadata['platform'] = 'BeOS'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'BePC') !== false) { $this->uadata['platform'] = 'BeOS'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'FreeBSD') !== false) { $this->uadata['platform'] = 'FreeBSD'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'OpenBSD') !== false) { $this->uadata['platform'] = 'OpenBSD'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'NetBSD') !== false) { $this->uadata['platform'] = 'NetBSD'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'AIX') !== false) { $this->uadata['platform'] = 'AIX'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'IRIX') !== false) { $this->uadata['platform'] = 'IRIX'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'HP-UX') !== false) { $this->uadata['platform'] = 'HP-UX'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'AmigaOS') !== false) { $this->uadata['platform'] = 'Amiga'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'webOS') !== false) { $this->uadata['platform'] = 'webOS'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'Commodore 64') !== false) { $this->uadata['platform'] = 'C64'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'OpenVMS') !== false) { $this->uadata['platform'] = 'OpenVMS'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'Warp') !== false) { $this->uadata['platform'] = 'OS/2'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'OS/2') !== false) { $this->uadata['platform'] = 'OS/2'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'SymbianOS') !== false) { $this->uadata['platform'] = 'SymbianOS'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'BlackBerry') !== false) { $this->uadata['platform'] = 'BlackBerry'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'Gameboy') !== false) { $this->uadata['platform'] = 'Nintendo'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'Wii') !== false) { $this->uadata['platform'] = 'Nintendo'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'Nintendo') !== false) { $this->uadata['platform'] = 'Nintendo'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'J2ME') !== false) { $this->uadata['platform'] = 'Java'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'CYGWIN') !== false) { $this->uadata['platform'] = 'Windows'; }
+        elseif (strpos($this->uadata['os'] ?? '', 'mingw') !== false) { $this->uadata['platform'] = 'Windows'; }
         else { $this->uadata['platform'] = $this->uadata['os']; }
 
-        if (strpos($this->uadata['os'], 'Windows Phone OS') !== false) { $this->mobile = true; }
-        elseif (strpos($this->uadata['os'], 'Gameboy') !== false) { $this->mobile = true; }
+        if (strpos($this->uadata['os'] ?? '', 'Windows Phone OS') !== false) { $this->mobile = true; }
+        elseif (strpos($this->uadata['os'] ?? '', 'Gameboy') !== false) { $this->mobile = true; }
 
         $this->uadata['lang'] = str_replace('_', '-', ($this->uadata['lang'] ?? ''));
       }
     }
-  return $this->uadata['os'];
+    return $this->uadata['os'];
   }
 
   public function getPlatform() {
@@ -1566,7 +1577,7 @@ class userAgent {
       // getOS() should get the date for us
       $this->getOS();
     }
-  return $this->uadata['platform'];
+    return $this->uadata['platform'];
   }
 
   public function getLanguage() {
@@ -1575,7 +1586,7 @@ class userAgent {
       // getOS() should get the date for us
       $this->getOS();
     }
-  return $this->uadata['lang'];
+    return $this->uadata['lang'];
   }
 
   public function getGeckoDate() {
@@ -1584,7 +1595,7 @@ class userAgent {
       // getEngine() should get the date for us
       $this->getEngine();
     }
-  return $this->uadata['geckodate'];
+    return $this->uadata['geckodate'];
   }
 
   public function getGeckoTime() {
@@ -1602,10 +1613,12 @@ class userAgent {
         if ($use_time) { date_default_timezone_set($old_tz); }
       }
     }
-  return $this->uadata['geckotime'];
+    return $this->uadata['geckotime'];
   }
 
-  public function isBot() { return $this->bot; }
+  public function isBot() {
+    return $this->bot;
+  }
 
   public function isMobile() {
     if (!isset($this->uadata['os'])) {

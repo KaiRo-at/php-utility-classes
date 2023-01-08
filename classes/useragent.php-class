@@ -982,12 +982,12 @@ class userAgent {
 
     $botArray = [
       'Scooter', 'Spinne', 'Vagabondo', 'Firefly', 'Scrubby', 'NG', 'Pompos', 'Szukacz', 'Schmozilla', '42_HAL',
-      'NetResearchServer', 'LinkWalker', 'Zeus', 'W3C_Validator', 'ZyBorg', 'Ask Jeeves', 'ia_archiver',
+      'NetResearchServer', 'LinkWalker', 'Zeus', 'W3C_Validator', 'ZyBorg', 'Ask Jeeves', 'ia_archiver', 'ichiro',
       'PingALink Monitoring Services', 'IlTrovatore-Setaccio', 'Nutch', 'Mercator', 'search.ch', 'appie', 'larbin',
       'NutchCVS', 'Webchat', 'Mediapartners-Google', 'sitecheck.internetseer.com', 'FavOrg', 'findlinks', 'DataCha0s',
-      'ichiro', 'Francis', 'CoralWebPrx', 'DoCoMo', 'Ocelli', 'Sogou Video', 'Yandex', 'Yeti',
-      'Austronaut-URL-Checker', 'check_ssl_cert', 'check_http', 'vdirsyncer', 'Feedbin feed-id',
-      'Cloudflare Custom Hostname Verification', 'FreshRSS', 'UniversalFeedParser',
+      'Francis', 'CoralWebPrx', 'DoCoMo', 'Ocelli', 'Sogou Video', 'Yandex', 'Yeti', 'SEO Scanner', 'Feedbin feed-id',
+      'Austronaut-URL-Checker', 'check_ssl_cert', 'check_http', 'vdirsyncer', 'FreshRSS', 'UniversalFeedParser',
+      'Cloudflare Custom Hostname Verification', 'Scoop.it',
     ];
 
     if (in_array($this->brand, $botArray)) {

@@ -983,10 +983,11 @@ class userAgent {
     $botArray = [
       'Scooter', 'Spinne', 'Vagabondo', 'Firefly', 'Scrubby', 'NG', 'Pompos', 'Szukacz', 'Schmozilla', '42_HAL',
       'NetResearchServer', 'LinkWalker', 'Zeus', 'W3C_Validator', 'ZyBorg', 'Ask Jeeves', 'ia_archiver',
-      'PingALink Monitoring Services', 'IlTrovatore-Setaccio', 'Nutch', 'Mercator', 'search.ch',
-      'appie', 'larbin', 'NutchCVS', 'Webchat', 'Mediapartners-Google', 'sitecheck.internetseer.com',
-      'FavOrg', 'findlinks', 'DataCha0s', 'ichiro', 'Francis', 'CoralWebPrx', 'DoCoMo', 'Ocelli', 'Sogou Video',
-      'Yandex', 'Yeti', 'Austronaut-URL-Checker'
+      'PingALink Monitoring Services', 'IlTrovatore-Setaccio', 'Nutch', 'Mercator', 'search.ch', 'appie', 'larbin',
+      'NutchCVS', 'Webchat', 'Mediapartners-Google', 'sitecheck.internetseer.com', 'FavOrg', 'findlinks', 'DataCha0s',
+      'ichiro', 'Francis', 'CoralWebPrx', 'DoCoMo', 'Ocelli', 'Sogou Video', 'Yandex', 'Yeti',
+      'Austronaut-URL-Checker', 'check_ssl_cert', 'check_http', 'vdirsyncer', 'Feedbin feed-id',
+      'Cloudflare Custom Hostname Verification', 'FreshRSS', 'UniversalFeedParser',
     ];
 
     if (in_array($this->brand, $botArray)) {
